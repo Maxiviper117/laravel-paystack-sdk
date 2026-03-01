@@ -17,6 +17,8 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `tests/Feature`: package behavior and request/response flow tests.
 - `tests/Unit`: small focused utility and connector tests.
 - `config/paystack.php`: published package configuration.
+- `workbench`: minimal Laravel app used for live package testing against Paystack test mode.
+- The `workbench` app uses `pnpm` for frontend package management in Composer scripts.
 
 ## Working rules
 
@@ -52,3 +54,5 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Check Rector changes: `composer refactor-dry`
 - Apply Rector changes: `composer refactor`
 - Format code: `composer format`
+- Workbench install: `cd workbench && composer install`
+- Workbench dev server: `cd workbench && php artisan serve`
