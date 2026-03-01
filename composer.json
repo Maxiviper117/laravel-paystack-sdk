@@ -52,10 +52,11 @@
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "analyse": "@php tools/phpstan-analyse.php",
         "refactor": "vendor/bin/rector process",
         "refactor-dry": "vendor/bin/rector process --dry-run",
         "test": "vendor/bin/pest",
+        "test-parallel": "vendor/bin/pest --parallel",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint"
     },

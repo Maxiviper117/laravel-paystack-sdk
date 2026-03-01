@@ -5,6 +5,7 @@ use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 
@@ -50,21 +51,35 @@ it('serializes customer input data for request bodies and omits identifiers from
 });
 
 it('serializes list filters to request queries', function () {
-    $transactions = new ListTransactionsInputData(perPage: 50, page: 2, status: 'success');
-    $customers = new ListCustomersInputData(perPage: 25, email: 'jane@example.com');
+    $transactions = new ListTransactionsInputData(perPage: 50, page: 2, status: 'success', extra: ['customer' => 'CUS_123']);
+    $customers = new ListCustomersInputData(perPage: 25, email: 'jane@example.com', extra: ['from' => '2026-01-01']);
 
     expect($transactions->toRequestQuery())->toBe([
+        'customer' => 'CUS_123',
         'perPage' => 50,
         'page' => 2,
         'status' => 'success',
     ])->and($customers->toRequestQuery())->toBe([
+        'from' => '2026-01-01',
         'perPage' => 25,
         'email' => 'jane@example.com',
     ]);
 });
 
-it('rejects invalid dto input at construction time', function () {
+it('rejects invalid customer dto input at construction time', function () {
     new CreateCustomerInputData(email: 'not-an-email');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid transaction dto input at construction time', function () {
+    new InitializeTransactionInputData(email: 'jane@example.com', amount: -1);
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects empty transaction references at construction time', function () {
+    new VerifyTransactionInputData(reference: '   ');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid customer update identifiers at construction time', function () {
+    new UpdateCustomerInputData(customerCode: '   ');
 })->throws(InvalidPaystackInputException::class);
 
 it('rejects invalid webhook input at construction time', function () {

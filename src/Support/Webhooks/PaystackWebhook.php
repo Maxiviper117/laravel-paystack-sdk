@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Support\Webhooks;
 
+use JsonException;
 use Maxiviper117\Paystack\Exceptions\InvalidWebhookSignatureException;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 
@@ -23,8 +24,8 @@ class PaystackWebhook
     {
         try {
             $decoded = json_decode($payload, true, flags: JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new MalformedWebhookPayloadException('The Paystack webhook payload is not valid JSON.', 0, $exception);
+        } catch (JsonException $jsonException) {
+            throw new MalformedWebhookPayloadException('The Paystack webhook payload is not valid JSON.', 0, $jsonException);
         }
 
         if (! is_array($decoded) || array_is_list($decoded)) {

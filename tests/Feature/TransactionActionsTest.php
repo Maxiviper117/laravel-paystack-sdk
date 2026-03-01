@@ -12,11 +12,14 @@ use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
+use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\FetchTransactionRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\InitializeTransactionRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\ListTransactionsRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\VerifyTransactionRequest;
+use Maxiviper117\Paystack\PaystackManager;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Saloon\Http\Request;
@@ -84,6 +87,33 @@ it('verifies a transaction and returns a dto', function () {
     expect($result)->toBeInstanceOf(VerifyTransactionResponseData::class)
         ->and($result->transaction->status)->toBe('success')
         ->and($result->transaction->customer?->customerCode)->toBe('CUS_123');
+});
+
+it('verifies a transaction with sparse payload fields safely', function () {
+    $mockClient = new MockClient([
+        VerifyTransactionRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Verification successful',
+            'data' => [
+                'id' => 10,
+                'status' => 'success',
+                'reference' => 'ref_123',
+                'amount' => 1550,
+                'currency' => 'NGN',
+                'metadata' => '',
+                'customer' => [
+                    'email' => 'jane@example.com',
+                ],
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    $result = app(VerifyTransactionAction::class)->execute(new VerifyTransactionInputData('ref_123'));
+
+    expect($result->transaction->customer?->email)->toBe('jane@example.com')
+        ->and($result->transaction->customer?->customerCode)->toBeNull();
 });
 
 it('supports invoking a transaction action directly', function () {
@@ -174,3 +204,82 @@ it('lists transactions and maps pagination', function () {
     $mockClient->assertSent(fn (Request $request) => $request instanceof ListTransactionsRequest
         && $request->query()->all()['perPage'] === 50);
 });
+
+it('lists transactions with empty data and without meta', function () {
+    $mockClient = new MockClient([
+        ListTransactionsRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Transactions retrieved',
+            'data' => [],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    $result = app(ListTransactionsAction::class)->execute(new ListTransactionsInputData);
+
+    expect($result->transactions)->toBe([])
+        ->and($result->meta)->toBeNull();
+});
+
+it('exposes transaction listing through the manager and facade', function () {
+    $mockClient = new MockClient([
+        ListTransactionsRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Transactions retrieved',
+            'data' => [
+                [
+                    'id' => 1,
+                    'status' => 'success',
+                    'reference' => 'ref_a',
+                    'amount' => 1000,
+                    'currency' => 'NGN',
+                ],
+            ],
+            'meta' => [
+                'next' => 'cursor-2',
+                'previous' => null,
+                'perPage' => 50,
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    $input = new ListTransactionsInputData(perPage: 50);
+
+    $managerResult = app(PaystackManager::class)->listTransactions($input);
+    $facadeResult = Paystack::listTransactions($input);
+
+    expect($managerResult->transactions)->toHaveCount(1)
+        ->and($facadeResult->transactions)->toHaveCount(1);
+});
+
+it('throws on transaction api errors', function (string $action) {
+    $mockClient = new MockClient([
+        InitializeTransactionRequest::class => MockResponse::make([
+            'status' => false,
+            'message' => 'Invalid transaction payload',
+        ], 422),
+        VerifyTransactionRequest::class => MockResponse::make([
+            'status' => false,
+            'message' => 'Transaction not found',
+        ], 404),
+        FetchTransactionRequest::class => MockResponse::make([
+            'status' => false,
+            'message' => 'Transaction not found',
+        ], 404),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    match ($action) {
+        'initialize' => app(InitializeTransactionAction::class)->execute(new InitializeTransactionInputData(
+            email: 'jane@example.com',
+            amount: 15.5,
+        )),
+        'verify' => app(VerifyTransactionAction::class)->execute(new VerifyTransactionInputData('ref_123')),
+        'fetch' => app(FetchTransactionAction::class)->execute(new FetchTransactionInputData('ref_123')),
+        default => throw new InvalidArgumentException('Unknown transaction action test case.'),
+    };
+})->with(['initialize', 'verify', 'fetch'])->throws(RequestException::class);

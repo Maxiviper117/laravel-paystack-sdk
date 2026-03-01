@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Data\Input\Plan;
 
+use InvalidArgumentException;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 use Maxiviper117\Paystack\Support\Amount;
 use Spatie\LaravelData\Data;
@@ -32,7 +33,11 @@ class UpdatePlanInputData extends Data
         }
 
         if ($this->amount !== null) {
-            Amount::toSubunit($this->amount);
+            try {
+                Amount::toSubunit($this->amount);
+            } catch (InvalidArgumentException $exception) {
+                throw new InvalidPaystackInputException($exception->getMessage(), 0, $exception);
+            }
         }
     }
 
