@@ -9,6 +9,6 @@ it('registers the manager in the container', function () {
     $facadeRoot = Paystack::getFacadeRoot();
 
     $this->assertSame($manager, app(PaystackManager::class));
-    $this->assertInstanceOf(PaystackManager::class, $alias);
+    $this->assertSame($manager, $alias);
     $this->assertInstanceOf(PaystackManager::class, $facadeRoot);
 });

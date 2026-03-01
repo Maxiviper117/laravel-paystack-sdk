@@ -33,6 +33,9 @@ it('creates a customer and returns a dto', function () {
     $result = app(CreateCustomerAction::class)->execute('jane@example.com', [
         'first_name' => 'Jane',
         'last_name' => 'Doe',
+        'metadata' => [
+            'crm_id' => 'CRM-123',
+        ],
     ]);
 
     expect($result)->toBeInstanceOf(CustomerData::class)
@@ -40,7 +43,8 @@ it('creates a customer and returns a dto', function () {
 
     $mockClient->assertSent(function (Request $request) {
         return $request instanceof CreateCustomerRequest
-            && $request->body()->all()['email'] === 'jane@example.com';
+            && $request->body()->all()['email'] === 'jane@example.com'
+            && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-123'];
     });
 });
 
@@ -56,10 +60,9 @@ it('lists customers and returns pagination data', function () {
                 ],
             ],
             'meta' => [
-                'total' => 1,
+                'next' => 'https://api.paystack.co/customer?page=2',
+                'previous' => null,
                 'perPage' => 50,
-                'page' => 1,
-                'pageCount' => 1,
             ],
         ], 200),
     ]);
@@ -71,7 +74,9 @@ it('lists customers and returns pagination data', function () {
 
     expect($result)->toBeInstanceOf(CustomerListData::class)
         ->and($result->items)->toHaveCount(1)
-        ->and($result->meta?->pagination?->total)->toBe(1);
+        ->and($result->meta?->pagination?->perPage)->toBe(50)
+        ->and($result->meta?->pagination?->next)->toBe('https://api.paystack.co/customer?page=2')
+        ->and($result->meta?->pagination?->previous)->toBeNull();
 
     $mockClient->assertSent(function (Request $request) {
         return $request instanceof ListCustomersRequest
@@ -95,13 +100,17 @@ it('updates a customer and sends the expected payload', function () {
     $connector = app(PaystackConnector::class);
     $connector->withMockClient($mockClient);
 
-    $result = app(UpdateCustomerAction::class)->execute('CUS_123', ['first_name' => 'Janet']);
+    $result = app(UpdateCustomerAction::class)->execute('CUS_123', [
+        'first_name' => 'Janet',
+        'metadata' => ['crm_id' => 'CRM-456'],
+    ]);
 
     expect($result)->toBeInstanceOf(CustomerData::class)
         ->and($result->firstName)->toBe('Janet');
 
     $mockClient->assertSent(function (Request $request) {
         return $request instanceof UpdateCustomerRequest
-            && $request->body()->all()['first_name'] === 'Janet';
+            && $request->body()->all()['first_name'] === 'Janet'
+            && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-456'];
     });
 });

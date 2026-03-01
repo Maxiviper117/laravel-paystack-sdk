@@ -20,8 +20,12 @@ final class InitializeTransactionAction
     {
         $payload = array_merge($options, [
             'email' => $email,
-            'amount' => Amount::toSubunit($amount),
+            'amount' => (string) Amount::toSubunit($amount),
         ]);
+
+        if (isset($payload['metadata']) && is_array($payload['metadata'])) {
+            $payload['metadata'] = json_encode($payload['metadata'], JSON_THROW_ON_ERROR);
+        }
 
         $response = $this->connector->send(new InitializeTransactionRequest($payload));
 

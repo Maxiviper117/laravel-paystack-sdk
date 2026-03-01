@@ -8,10 +8,12 @@ use Spatie\LaravelData\Data;
 class PaginationData extends Data
 {
     public function __construct(
-        public int $total = 0,
+        public ?string $next = null,
+        public ?string $previous = null,
         public int $perPage = 0,
-        public int $currentPage = 1,
-        public int $pageCount = 1,
+        public ?int $total = null,
+        public ?int $currentPage = null,
+        public ?int $pageCount = null,
     ) {}
 
     /**
@@ -20,10 +22,16 @@ class PaginationData extends Data
     public static function fromPayload(array $payload): self
     {
         return new self(
-            total: Payload::int($payload, 'total'),
+            next: Payload::nullableString($payload, 'next'),
+            previous: Payload::nullableString($payload, 'previous'),
             perPage: Payload::int($payload, 'perPage', Payload::int($payload, 'per_page')),
-            currentPage: Payload::int($payload, 'page', Payload::int($payload, 'current_page', 1)),
-            pageCount: Payload::int($payload, 'pageCount', Payload::int($payload, 'last_page', 1)),
+            total: array_key_exists('total', $payload) ? Payload::int($payload, 'total') : null,
+            currentPage: array_key_exists('page', $payload) || array_key_exists('current_page', $payload)
+                ? Payload::int($payload, 'page', Payload::int($payload, 'current_page'))
+                : null,
+            pageCount: array_key_exists('pageCount', $payload) || array_key_exists('last_page', $payload)
+                ? Payload::int($payload, 'pageCount', Payload::int($payload, 'last_page'))
+                : null,
         );
     }
 }

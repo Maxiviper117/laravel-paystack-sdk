@@ -35,6 +35,9 @@ it('initializes a transaction and normalizes amount', function () {
 
     $result = app(InitializeTransactionAction::class)->execute('jane@example.com', 15.5, [
         'callback_url' => 'https://example.com/callback',
+        'metadata' => [
+            'order_id' => 'ORD-123',
+        ],
     ]);
 
     expect($result)->toBeInstanceOf(InitializedTransactionData::class)
@@ -42,8 +45,9 @@ it('initializes a transaction and normalizes amount', function () {
 
     $mockClient->assertSent(function (Request $request) {
         return $request instanceof InitializeTransactionRequest
-            && $request->body()->all()['amount'] === 1550
-            && $request->body()->all()['email'] === 'jane@example.com';
+            && $request->body()->all()['amount'] === '1550'
+            && $request->body()->all()['email'] === 'jane@example.com'
+            && $request->body()->all()['metadata'] === '{"order_id":"ORD-123"}';
     });
 });
 
@@ -79,12 +83,14 @@ it('verifies a transaction and returns a dto', function () {
 });
 
 it('fetches a transaction by identifier', function () {
+    $transactionId = 907589086712345678;
+
     $mockClient = new MockClient([
         FetchTransactionRequest::class => MockResponse::make([
             'status' => true,
             'message' => 'Transaction retrieved',
             'data' => [
-                'id' => 99,
+                'id' => $transactionId,
                 'status' => 'success',
                 'reference' => 'ref_fetch',
                 'amount' => 5000,
@@ -96,10 +102,11 @@ it('fetches a transaction by identifier', function () {
     $connector = app(PaystackConnector::class);
     $connector->withMockClient($mockClient);
 
-    $result = app(FetchTransactionAction::class)->execute(99);
+    $result = app(FetchTransactionAction::class)->execute($transactionId);
 
     expect($result)->toBeInstanceOf(TransactionData::class)
-        ->and($result->reference)->toBe('ref_fetch');
+        ->and($result->reference)->toBe('ref_fetch')
+        ->and($result->id)->toBe($transactionId);
 });
 
 it('lists transactions and maps pagination', function () {
@@ -117,10 +124,9 @@ it('lists transactions and maps pagination', function () {
                 ],
             ],
             'meta' => [
-                'total' => 1,
+                'next' => 'https://api.paystack.co/transaction?page=2',
+                'previous' => null,
                 'perPage' => 50,
-                'page' => 1,
-                'pageCount' => 1,
             ],
         ], 200),
     ]);
@@ -132,7 +138,9 @@ it('lists transactions and maps pagination', function () {
 
     expect($result)->toBeInstanceOf(TransactionListData::class)
         ->and($result->items)->toHaveCount(1)
-        ->and($result->meta?->pagination?->perPage)->toBe(50);
+        ->and($result->meta?->pagination?->perPage)->toBe(50)
+        ->and($result->meta?->pagination?->next)->toBe('https://api.paystack.co/transaction?page=2')
+        ->and($result->meta?->pagination?->previous)->toBeNull();
 
     $mockClient->assertSent(function (Request $request) {
         return $request instanceof ListTransactionsRequest
