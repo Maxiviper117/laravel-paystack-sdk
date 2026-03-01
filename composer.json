@@ -1,29 +1,33 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "maxiviper117/laravel-paystack-sdk",
+    "description": "Laravel Paystack SDK built with Saloon and action classes.",
     "keywords": [
-        ":vendor_name",
+        "maxiviper117",
         "laravel",
-        ":package_slug"
+        "paystack",
+        "sdk"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/Maxiviper117/laravel-paystack-sdk",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "David",
+            "email": "maxiviper117@users.noreply.github.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.3|^8.4",
+        "saloonphp/laravel-plugin": "^3.0",
+        "saloonphp/saloon": "^3.12",
+        "spatie/laravel-data": "^4.18",
         "spatie/laravel-package-tools": "^1.16",
         "illuminate/contracts": "^11.0||^12.0"
     },
     "require-dev": {
+        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.8",
-        "larastan/larastan": "^3.0",
         "orchestra/testbench": "^10.0.0||^9.0.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-arch": "^4.0",
@@ -31,24 +35,26 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
+        "rector/rector": "^2.3",
         "spatie/laravel-ray": "^1.35"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Maxiviper117\\Paystack\\": "src/",
+            "Maxiviper117\\Paystack\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "Maxiviper117\\Paystack\\Tests\\": "tests/"
         }
     },
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "refactor": "vendor/bin/rector process",
+        "refactor-dry": "vendor/bin/rector process --dry-run",
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint"
@@ -63,13 +69,12 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Maxiviper117\\Paystack\\PaystackServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Paystack": "Maxiviper117\\Paystack\\Facades\\Paystack"
             }
         }
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }

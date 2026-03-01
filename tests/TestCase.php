@@ -1,37 +1,27 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace Maxiviper117\Paystack\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Maxiviper117\Paystack\PaystackServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use VendorName\Skeleton\SkeletonServiceProvider;
 
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'VendorName\\Skeleton\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
-    }
-
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
-            SkeletonServiceProvider::class,
+            PaystackServiceProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
-        config()->set('database.default', 'testing');
-
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        $app['config']->set('paystack.secret_key', 'sk_test_123');
+        $app['config']->set('paystack.base_url', 'https://api.paystack.co');
+        $app['config']->set('paystack.timeout', 30);
+        $app['config']->set('paystack.connect_timeout', 10);
+        $app['config']->set('paystack.retry_times', 2);
+        $app['config']->set('paystack.retry_sleep_ms', 250);
+        $app['config']->set('paystack.throw_on_api_error', true);
     }
 }
