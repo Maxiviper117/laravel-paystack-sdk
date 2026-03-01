@@ -2,9 +2,14 @@ includes:
     - phpstan-baseline.neon
 
 parameters:
-    level: 5
+    level: 10
     paths:
         - src
-        - config
-        - database
+        - tests
+    excludePaths:
+        - tests/ArchTest.php
     tmpDir: build/phpstan
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: true
+    parallel:
+        maximumNumberOfProcesses: 1

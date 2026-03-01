@@ -1,69 +1,86 @@
-# :package_description
+# Laravel Paystack SDK
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/maxiviper117/laravel-paystack-sdk.svg?style=flat-square)](https://packagist.org/packages/maxiviper117/laravel-paystack-sdk)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/Maxiviper117/laravel-paystack-sdk/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/Maxiviper117/laravel-paystack-sdk/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/Maxiviper117/laravel-paystack-sdk/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/Maxiviper117/laravel-paystack-sdk/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+Laravel package for working with Paystack through Saloon-backed requests and action classes. The current MVP covers transactions and customers with typed DTO responses and an optional Laravel facade.
 
 ## Installation
 
-You can install the package via composer:
-
 ```bash
-composer require :vendor_slug/:package_slug
+composer require maxiviper117/laravel-paystack-sdk
 ```
 
-You can publish and run the migrations with:
+Publish the config file if you want to override defaults:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
+php artisan vendor:publish --tag="paystack-config"
 ```
 
-You can publish the config file with:
+## Configuration
 
-```bash
-php artisan vendor:publish --tag=":package_slug-config"
-```
+Set these environment variables in your Laravel app:
 
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
+```env
+PAYSTACK_SECRET_KEY=sk_test_xxx
+PAYSTACK_PUBLIC_KEY=pk_test_xxx
+PAYSTACK_BASE_URL=https://api.paystack.co
+PAYSTACK_TIMEOUT=30
+PAYSTACK_CONNECT_TIMEOUT=10
+PAYSTACK_RETRY_TIMES=2
+PAYSTACK_RETRY_SLEEP_MS=250
+PAYSTACK_THROW_ON_API_ERROR=true
 ```
 
 ## Usage
 
+### Action classes
+
 ```php
-$:variable = new VendorName\Skeleton();
-echo $:variable->echoPhrase('Hello, VendorName!');
+use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
+use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+
+$initialized = app(InitializeTransactionAction::class)->execute(
+    email: 'customer@example.com',
+    amount: 15.50,
+    options: [
+        'callback_url' => 'https://example.com/payments/callback',
+    ],
+);
+
+$verified = app(VerifyTransactionAction::class)->execute($initialized->reference);
 ```
+
+Static convenience methods are also available:
+
+```php
+use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
+
+$customer = CreateCustomerAction::run('customer@example.com', [
+    'first_name' => 'Jane',
+    'last_name' => 'Doe',
+]);
+```
+
+### Facade
+
+```php
+use Maxiviper117\Paystack\Facades\Paystack;
+
+$response = Paystack::initializeTransaction('customer@example.com', 15.50, [
+    'callback_url' => 'https://example.com/payments/callback',
+]);
+```
+
+## Implemented MVP endpoints
+
+- Transactions: initialize, verify, fetch, list
+- Customers: create, update, list
+
+## Amount handling
+
+`InitializeTransactionAction` accepts an amount in major currency units and converts it to Paystack subunits before sending the request. For example, `15.50` becomes `1550`.
 
 ## Testing
 
@@ -71,23 +88,37 @@ echo $:variable->echoPhrase('Hello, VendorName!');
 composer test
 ```
 
-## Changelog
+## Static analysis
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+```bash
+composer analyse
+```
 
-## Contributing
+PHPStan is configured against the package source, config, and tests so package-level regressions are caught before release.
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+## Automated refactoring
 
-## Security Vulnerabilities
+Rector is configured for this package with PHP-version-aware upgrades plus conservative dead-code, code-quality, and coding-style sets.
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+Preview changes:
 
-## Credits
+```bash
+composer refactor-dry
+```
 
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+Apply changes:
+
+```bash
+composer refactor
+```
+
+## Roadmap
+
+- Webhook signature verification
+- Plans and subscriptions
+- Transfers and transfer recipients
+- Broader DTO coverage for additional Paystack resources
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
