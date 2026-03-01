@@ -24,7 +24,7 @@ class PaystackManager
     ) {}
 
     /**
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      */
     public function initializeTransaction(string $email, int|float|string $amount, array $options = []): InitializedTransactionData
     {
@@ -42,7 +42,7 @@ class PaystackManager
     }
 
     /**
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      */
     public function listTransactions(array $filters = []): TransactionListData
     {
@@ -50,7 +50,7 @@ class PaystackManager
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function createCustomer(string $email, array $attributes = []): CustomerData
     {
@@ -58,7 +58,7 @@ class PaystackManager
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function updateCustomer(string $customerCode, array $attributes): CustomerData
     {
@@ -66,7 +66,7 @@ class PaystackManager
     }
 
     /**
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      */
     public function listCustomers(array $filters = []): CustomerListData
     {

@@ -8,7 +8,7 @@ use Spatie\LaravelData\Data;
 class CustomerListData extends Data
 {
     /**
-     * @param array<int, CustomerData> $items
+     * @param  array<int, CustomerData>  $items
      */
     public function __construct(
         public array $items,
@@ -16,8 +16,8 @@ class CustomerListData extends Data
     ) {}
 
     /**
-     * @param array<int, array<string, mixed>> $payload
-     * @param array<string, mixed> $meta
+     * @param  array<int, array<string, mixed>>  $payload
+     * @param  array<string, mixed>  $meta
      */
     public static function fromPayload(array $payload, array $meta = []): self
     {

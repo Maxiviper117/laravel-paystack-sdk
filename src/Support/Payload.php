@@ -5,7 +5,7 @@ namespace Maxiviper117\Paystack\Support;
 class Payload
 {
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function string(array $payload, string $key, string $default = ''): string
     {
@@ -15,7 +15,7 @@ class Payload
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function nullableString(array $payload, string $key): ?string
     {
@@ -25,7 +25,7 @@ class Payload
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function int(array $payload, string $key, int $default = 0): int
     {
@@ -35,7 +35,7 @@ class Payload
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function bool(array $payload, string $key, bool $default = false): bool
     {
@@ -45,7 +45,7 @@ class Payload
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return array<mixed>|null
      */
     public static function nullableArray(array $payload, string $key): ?array
@@ -56,8 +56,7 @@ class Payload
     }
 
     /**
-     * @param array<string, mixed> $payload
-     * @return int|string|null
+     * @param  array<string, mixed>  $payload
      */
     public static function intOrStringOrNull(array $payload, string $key): int|string|null
     {

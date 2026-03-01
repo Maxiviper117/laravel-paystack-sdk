@@ -16,7 +16,7 @@ class UpdateCustomerRequest extends Request implements HasBody
     protected Method $method = Method::PUT;
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public function __construct(
         protected string $customerCode,

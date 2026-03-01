@@ -9,7 +9,7 @@ use Spatie\LaravelData\Data;
 class TransactionData extends Data
 {
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public int|string|null $id,
@@ -24,7 +24,7 @@ class TransactionData extends Data
     ) {}
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function fromPayload(array $payload): self
     {

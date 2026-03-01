@@ -5,7 +5,7 @@ namespace Maxiviper117\Paystack\Data\Transaction;
 class VerificationData extends TransactionData
 {
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function fromPayload(array $payload): self
     {

@@ -14,7 +14,7 @@ final class InitializeTransactionAction
     ) {}
 
     /**
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      */
     public function execute(string $email, int|float|string $amount, array $options = []): InitializedTransactionData
     {
@@ -41,7 +41,7 @@ final class InitializeTransactionAction
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      */
     public static function run(string $email, int|float|string $amount, array $options = []): InitializedTransactionData
     {
