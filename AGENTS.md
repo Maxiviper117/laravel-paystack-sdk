@@ -31,6 +31,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Treat action classes as injectable services; do not add static self-resolving helpers that call `app()` internally.
 - Use DTO-first action contracts. Public action, manager, and facade APIs should accept typed input DTOs and return typed action-specific response DTOs.
 - Prefer small, typed DTOs over passing raw arrays through public APIs.
+- For richer resource domains, compose shared resource DTOs inside action-specific response DTOs instead of flattening everything into duplicated response shapes.
 - Keep request classes thin and API-focused; keep business rules in actions or support classes.
 - Preserve compatibility with Laravel `11.x` and `12.x` and PHP `8.3` and `8.4`.
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
