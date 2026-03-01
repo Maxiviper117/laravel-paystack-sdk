@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Data\Input\Transaction;
 
+use InvalidArgumentException;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 use Maxiviper117\Paystack\Support\Amount;
 use Spatie\LaravelData\Data;
@@ -24,7 +25,11 @@ class InitializeTransactionInputData extends Data
             throw new InvalidPaystackInputException('The Paystack transaction email must be a valid email address.');
         }
 
-        Amount::toSubunit($this->amount);
+        try {
+            Amount::toSubunit($this->amount);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new InvalidPaystackInputException($invalidArgumentException->getMessage(), 0, $invalidArgumentException);
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Data\Output\Webhook\VerifyWebhookSignatureResponseData;
 use Maxiviper117\Paystack\Exceptions\InvalidWebhookSignatureException;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
+use Maxiviper117\Paystack\Exceptions\PaystackConfigurationException;
 use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\PaystackManager;
 
@@ -55,6 +56,26 @@ it('supports invoking the webhook action directly', function () {
     expect($result->resourceType)->toBe('transfer');
 });
 
+it('handles event names without dots and falls back to created_at timestamps', function () {
+    $payload = json_encode([
+        'event' => 'transfer',
+        'data' => [
+            'id' => 99,
+            'created_at' => '2026-03-02T10:00:00+00:00',
+        ],
+    ], JSON_THROW_ON_ERROR);
+
+    $signature = hash_hmac('sha512', $payload, 'sk_test_123');
+
+    $result = app(VerifyWebhookSignatureAction::class)->execute(new VerifyWebhookSignatureInputData(
+        payload: $payload,
+        signature: $signature,
+    ));
+
+    expect($result->resourceType)->toBe('transfer')
+        ->and($result->occurredAt)->toBe('2026-03-02T10:00:00+00:00');
+});
+
 it('exposes webhook verification through the manager and facade', function () {
     $payload = json_encode([
         'event' => 'invoice.create',
@@ -100,3 +121,35 @@ it('throws for malformed webhook payloads', function () {
         )
     );
 })->throws(MalformedWebhookPayloadException::class);
+
+it('throws for non-object webhook payloads', function () {
+    $payload = json_encode(['charge.success'], JSON_THROW_ON_ERROR);
+    $signature = hash_hmac('sha512', $payload, 'sk_test_123');
+
+    app(VerifyWebhookSignatureAction::class)->execute(
+        new VerifyWebhookSignatureInputData(
+            payload: $payload,
+            signature: $signature,
+        )
+    );
+})->throws(MalformedWebhookPayloadException::class);
+
+it('throws when the webhook secret key is missing', function () {
+    config()->set('paystack.secret_key', '');
+
+    $payload = json_encode([
+        'event' => 'charge.success',
+        'data' => [
+            'id' => 1,
+        ],
+    ], JSON_THROW_ON_ERROR);
+
+    $signature = hash_hmac('sha512', $payload, 'sk_test_123');
+
+    app(VerifyWebhookSignatureAction::class)->execute(
+        new VerifyWebhookSignatureInputData(
+            payload: $payload,
+            signature: $signature,
+        )
+    );
+})->throws(PaystackConfigurationException::class);

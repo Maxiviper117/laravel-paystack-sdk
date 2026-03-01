@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Data\Input\Plan;
 
+use InvalidArgumentException;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 use Maxiviper117\Paystack\Support\Amount;
 use Spatie\LaravelData\Data;
@@ -34,7 +35,11 @@ class CreatePlanInputData extends Data
             throw new InvalidPaystackInputException('The Paystack invoice limit cannot be negative.');
         }
 
-        Amount::toSubunit($this->amount);
+        try {
+            Amount::toSubunit($this->amount);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new InvalidPaystackInputException($invalidArgumentException->getMessage(), 0, $invalidArgumentException);
+        }
     }
 
     /**

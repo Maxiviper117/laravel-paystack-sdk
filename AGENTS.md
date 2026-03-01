@@ -34,6 +34,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - For richer resource domains, compose shared resource DTOs inside action-specific response DTOs instead of flattening everything into duplicated response shapes.
 - Keep request classes thin and API-focused; keep business rules in actions or support classes.
 - Preserve compatibility with Laravel `11.x` and `12.x` and PHP `8.3` and `8.4`.
+- CI coverage is Linux-only. Do not add or restore Windows test jobs unless the package scope changes materially.
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
 - Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
 - Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
@@ -43,11 +44,14 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - Run `composer analyse` after code changes that affect PHP code.
 - Run `composer test` after behavioral changes, request/response changes, config changes, or test changes.
+- `composer test-parallel` is available for full-suite parallel Pest runs. Keep `composer test` as the default serial verification command unless the task specifically calls for parallel execution behavior.
 - If Rector-related work is requested, use `composer refactor-dry` first and only apply `composer refactor` when the task calls for code mutation.
 
 ## Tooling notes
 
 - PHPStan is configured at level 10 in `phpstan.neon.dist`.
+- `composer analyse` runs through `tools/phpstan-analyse.php`, a thin wrapper around PHPStan that suppresses a known Windows-only `Cannot create a file when that file already exists.` noise line without changing analysis behavior.
+- CI should invoke PHPStan through `composer analyse` so the repo's wrapper and memory settings are preserved instead of calling `vendor/bin/phpstan` directly.
 - Rector is configured in `rector.php` with conservative prepared sets for this package and is pinned to the minimum supported PHP version (`8.3`) so it does not introduce syntax that would break the package's support matrix.
 - The Rector config explicitly skips `ClassPropertyAssignToConstructorPromotionRector` because constructor promotion can rename parameters and break named-argument call sites in package code.
 - Release Please is configured with a manifest-based setup for this repository.
@@ -55,6 +59,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Do not manually bump package versions in PRs; maintainers should let Release Please manage pre-1.0 releases and explicitly choose when to promote the package to `1.0.0`.
 - Maintainer-facing release process notes live in `RELEASE.md`; keep that file aligned with the actual workflow and config.
 - Pest is the test runner.
+- Pest parallel mode is supported in this repo via `composer test-parallel` and currently runs cleanly with the existing suite.
 
 ## Documentation maintenance
 
@@ -67,6 +72,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - Install dependencies: `composer install`
 - Run tests: `composer test`
+- Run tests in parallel: `composer test-parallel`
 - Run static analysis: `composer analyse`
 - Check Rector changes: `composer refactor-dry`
 - Apply Rector changes: `composer refactor`

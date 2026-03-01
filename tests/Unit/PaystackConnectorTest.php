@@ -41,3 +41,12 @@ it('exposes default headers and config through the connector', function () {
         ->and($connector->tries)->toBe(3)
         ->and($connector->retryInterval)->toBe(500);
 });
+
+it('resolves a custom base url when configured', function () {
+    $connector = new PaystackConnector(
+        secretKey: 'sk_test_123',
+        baseUrl: 'https://sandbox.paystack.test',
+    );
+
+    expect($connector->resolveBaseUrl())->toBe('https://sandbox.paystack.test');
+});

@@ -6,6 +6,9 @@
 
 Laravel package for working with Paystack through Saloon-backed requests and action classes. The current supported surface covers transactions, customers, webhooks, plans, and core subscriptions with typed input and response DTOs plus an optional Laravel facade.
 
+> [!WARNING]
+> This package is still a work in progress and is not yet stable. Expect API changes, incomplete endpoint coverage, and breaking changes until the first `1.0.0` release.
+
 ## Installation
 
 ```bash
