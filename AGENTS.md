@@ -22,6 +22,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `workbench` is committed for development and live testing, but it is excluded from package distribution archives via `.gitattributes` `export-ignore`.
 - `workbench` is a standalone Laravel app with its own Composer configuration; do not autoload it from the root package `composer.json`.
 - `workbench/routes/web.php` and `workbench/README.md` should reflect the current recommended package integration style when live-test examples change.
+- Keep the workbench app up to date with the current package state. If package APIs, DTOs, response shapes, config, or recommended integration patterns change, update the relevant workbench routes/docs in the same change.
 
 ## Working rules
 
