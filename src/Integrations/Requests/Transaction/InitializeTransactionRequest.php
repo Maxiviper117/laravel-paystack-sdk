@@ -16,7 +16,7 @@ class InitializeTransactionRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public function __construct(
         protected array $payload

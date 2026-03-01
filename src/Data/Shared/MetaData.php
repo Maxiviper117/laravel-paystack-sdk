@@ -7,7 +7,7 @@ use Spatie\LaravelData\Data;
 class MetaData extends Data
 {
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      */
     public function __construct(
         public ?PaginationData $pagination = null,
@@ -15,7 +15,7 @@ class MetaData extends Data
     ) {}
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function fromPayload(array $payload): self
     {

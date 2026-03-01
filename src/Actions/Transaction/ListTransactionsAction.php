@@ -13,7 +13,7 @@ final class ListTransactionsAction
     ) {}
 
     /**
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      */
     public function execute(array $filters = []): TransactionListData
     {
@@ -31,7 +31,7 @@ final class ListTransactionsAction
     }
 
     /**
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      */
     public static function run(array $filters = []): TransactionListData
     {

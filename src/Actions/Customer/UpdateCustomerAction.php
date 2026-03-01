@@ -13,7 +13,7 @@ final class UpdateCustomerAction
     ) {}
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function execute(string $customerCode, array $attributes): CustomerData
     {
@@ -31,7 +31,7 @@ final class UpdateCustomerAction
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public static function run(string $customerCode, array $attributes): CustomerData
     {

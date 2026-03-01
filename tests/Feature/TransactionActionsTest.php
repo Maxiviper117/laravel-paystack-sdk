@@ -1,7 +1,7 @@
 <?php
 
-use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\FetchTransactionAction;
+use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Transaction\InitializedTransactionData;

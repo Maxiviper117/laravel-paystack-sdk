@@ -8,8 +8,8 @@ use Spatie\LaravelData\Data;
 class CustomerData extends Data
 {
     /**
-     * @param array<mixed>|null $metadata
-     * @param array<string, mixed> $raw
+     * @param  array<mixed>|null  $metadata
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public string $email,
@@ -22,7 +22,7 @@ class CustomerData extends Data
     ) {}
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public static function fromPayload(array $payload): self
     {

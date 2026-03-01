@@ -12,7 +12,7 @@ class ListCustomersRequest extends Request
     protected Method $method = Method::GET;
 
     /**
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      */
     public function __construct(
         protected array $filters = []
