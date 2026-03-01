@@ -112,6 +112,37 @@ Apply changes:
 composer refactor
 ```
 
+## Live testing with a local Laravel app
+
+This repository includes a minimal Laravel workbench app in `workbench/` for live Paystack test-mode checks.
+
+Install the package into the workbench app via the local path repository:
+
+```bash
+cd workbench
+composer install
+```
+
+Add your Paystack test keys to `workbench/.env`:
+
+```env
+PAYSTACK_SECRET_KEY=sk_test_xxx
+PAYSTACK_PUBLIC_KEY=pk_test_xxx
+```
+
+Start the app:
+
+```bash
+php artisan serve
+```
+
+Then open:
+
+- `/paystack/test/start` to initialize a real test transaction and redirect to Paystack checkout
+- `/paystack/test/callback` as the configured callback route used by the workbench live-test flow
+
+Use Paystack's documented test cards in test mode to complete the checkout.
+
 ## Roadmap
 
 - Webhook signature verification
