@@ -19,6 +19,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `config/paystack.php`: published package configuration.
 - `workbench`: minimal Laravel app used for live package testing against Paystack test mode.
 - The `workbench` app uses `pnpm` for frontend package management in Composer scripts.
+- `workbench` is committed for development and live testing, but it is excluded from package distribution archives via `.gitattributes` `export-ignore`.
 
 ## Working rules
 
