@@ -43,6 +43,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Release Please is configured with a manifest-based setup for this repository.
 - While the package is pre-1.0, Release Please uses `bump-minor-pre-major: true`, so `feat` and breaking changes bump the minor version and fixes bump the patch version.
 - Do not manually bump package versions in PRs; maintainers should let Release Please manage pre-1.0 releases and explicitly choose when to promote the package to `1.0.0`.
+- Maintainer-facing release process notes live in `RELEASE.md`; keep that file aligned with the actual workflow and config.
 - Pest is the test runner.
 
 ## Documentation maintenance
