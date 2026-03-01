@@ -20,6 +20,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `workbench`: minimal Laravel app used for live package testing against Paystack test mode.
 - The `workbench` app uses `pnpm` for frontend package management in Composer scripts.
 - `workbench` is committed for development and live testing, but it is excluded from package distribution archives via `.gitattributes` `export-ignore`.
+- `workbench` is a standalone Laravel app with its own Composer configuration; do not autoload it from the root package `composer.json`.
 
 ## Working rules
 
@@ -39,6 +40,9 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - PHPStan is configured at level 10 in `phpstan.neon.dist`.
 - Rector is configured in `rector.php` with conservative prepared sets for this package and is pinned to the minimum supported PHP version (`8.3`) so it does not introduce syntax that would break the package's support matrix.
+- Release Please is configured with a manifest-based setup for this repository.
+- While the package is pre-1.0, Release Please uses `bump-minor-pre-major: true`, so `feat` and breaking changes bump the minor version and fixes bump the patch version.
+- Do not manually bump package versions in PRs; maintainers should let Release Please manage pre-1.0 releases and explicitly choose when to promote the package to `1.0.0`.
 - Pest is the test runner.
 
 ## Documentation maintenance

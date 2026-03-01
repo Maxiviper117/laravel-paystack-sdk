@@ -46,8 +46,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Maxiviper117\\Paystack\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "Maxiviper117\\Paystack\\Tests\\": "tests/"
         }
     },
     "scripts": {
