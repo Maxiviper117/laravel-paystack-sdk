@@ -12,6 +12,8 @@ The current workbench flow covers:
 - redirecting to Paystack checkout
 - verifying the transaction on the callback route
 - verifying webhook signatures against a posted raw payload
+- creating plans through the local package
+- creating subscriptions through the local package
 
 ## Setup
 
@@ -47,6 +49,8 @@ Then open:
 - `/paystack/test/start` to begin a real Paystack test transaction
 - `/paystack/test/callback` as the callback route used by the live test flow
 - `/paystack/test/webhook` for the webhook verification example route
+- `/paystack/test/plan` for the plan creation example route
+- `/paystack/test/subscription` for the subscription creation example route
 
 ## Current integration shape
 

@@ -4,7 +4,7 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/Maxiviper117/laravel-paystack-sdk/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/Maxiviper117/laravel-paystack-sdk/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/Maxiviper117/laravel-paystack-sdk/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/Maxiviper117/laravel-paystack-sdk/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
 
-Laravel package for working with Paystack through Saloon-backed requests and action classes. The current MVP covers transactions and customers with typed input and response DTOs plus an optional Laravel facade.
+Laravel package for working with Paystack through Saloon-backed requests and action classes. The current supported surface covers transactions, customers, webhooks, plans, and core subscriptions with typed input and response DTOs plus an optional Laravel facade.
 
 ## Installation
 
@@ -90,11 +90,36 @@ $response = Paystack::initializeTransaction(
 );
 ```
 
+### Billing
+
+```php
+use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
+use Maxiviper117\Paystack\Facades\Paystack;
+
+$plan = Paystack::createPlan(
+    new CreatePlanInputData(
+        name: 'Starter',
+        amount: 5000,
+        interval: 'monthly',
+    )
+);
+
+$subscription = Paystack::createSubscription(
+    new CreateSubscriptionInputData(
+        customer: 'CUS_123',
+        plan: $plan->plan->planCode,
+    )
+);
+```
+
 ## Implemented MVP endpoints
 
 - Transactions: initialize, verify, fetch, list
 - Customers: create, update, list
 - Webhooks: signature verification and generic event parsing
+- Plans: create, update, fetch, list
+- Subscriptions: create, fetch, list, enable, disable
 
 ## Amount handling
 
@@ -187,6 +212,8 @@ Then open:
 - `/paystack/test/start` to initialize a real test transaction and redirect to Paystack checkout
 - `/paystack/test/callback` as the configured callback route used by the workbench live-test flow
 - `/paystack/test/webhook` to inspect the webhook verification example route
+- `/paystack/test/plan` for the plan creation example route
+- `/paystack/test/subscription` for the subscription creation example route
 
 The workbench uses container-resolved invokable actions and typed input DTOs, matching the current package integration style.
 
@@ -194,7 +221,6 @@ Use Paystack's documented test cards in test mode to complete the checkout.
 
 ## Roadmap
 
-- Plans and subscriptions
 - Transfers and transfer recipients
 - Broader DTO coverage for additional Paystack resources
 

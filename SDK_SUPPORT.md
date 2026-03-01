@@ -29,6 +29,25 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Customers | Update customer | Supported | `UpdateCustomerAction`, `UpdateCustomerInputData`, `UpdateCustomerResponseData` |
 | Customers | List customers | Supported | `ListCustomersAction`, `ListCustomersInputData`, `ListCustomersResponseData` |
 
+### Plans
+
+| Paystack area | Endpoint / capability | Status | Public SDK surface |
+| --- | --- | --- | --- |
+| Plans | Create plan | Supported | `CreatePlanAction`, `CreatePlanInputData`, `CreatePlanResponseData` |
+| Plans | Update plan | Supported | `UpdatePlanAction`, `UpdatePlanInputData`, `UpdatePlanResponseData` |
+| Plans | Fetch plan | Supported | `FetchPlanAction`, `FetchPlanInputData`, `FetchPlanResponseData` |
+| Plans | List plans | Supported | `ListPlansAction`, `ListPlansInputData`, `ListPlansResponseData` |
+
+### Subscriptions
+
+| Paystack area | Endpoint / capability | Status | Public SDK surface |
+| --- | --- | --- | --- |
+| Subscriptions | Create subscription | Supported | `CreateSubscriptionAction`, `CreateSubscriptionInputData`, `CreateSubscriptionResponseData` |
+| Subscriptions | Fetch subscription | Supported | `FetchSubscriptionAction`, `FetchSubscriptionInputData`, `FetchSubscriptionResponseData` |
+| Subscriptions | List subscriptions | Supported | `ListSubscriptionsAction`, `ListSubscriptionsInputData`, `ListSubscriptionsResponseData` |
+| Subscriptions | Enable subscription | Supported | `EnableSubscriptionAction`, `EnableSubscriptionInputData`, `EnableSubscriptionResponseData` |
+| Subscriptions | Disable subscription | Supported | `DisableSubscriptionAction`, `DisableSubscriptionInputData`, `DisableSubscriptionResponseData` |
+
 ## Shared SDK capabilities
 
 | Capability | Status | Notes |
@@ -50,8 +69,7 @@ These areas are planned or likely future work, but they are not currently suppor
 | Paystack area | Endpoint / capability | Status | Notes |
 | --- | --- | --- | --- |
 | Webhooks | Typed event-specific DTO mapping and event dispatch helpers | Not started | Current webhook support verifies signatures and returns a generic parsed event DTO only. |
-| Plans | Create / update / list / fetch | Not started | No actions, DTOs, or requests yet. |
-| Subscriptions | Create / enable / disable / list / fetch | Not started | No actions, DTOs, or requests yet. |
+| Subscriptions | Update link generation and sending helpers | Not started | Core subscription lifecycle is supported; update-link endpoints are still missing. |
 | Transfers | Initiate / finalize / verify / list / fetch / bulk transfer | Not started | No actions, DTOs, or requests yet. |
 | Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |
 | Transfer recipients | Create / bulk create / update / delete / list / fetch | Not started | No actions, DTOs, or requests yet. |
