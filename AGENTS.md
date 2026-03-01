@@ -35,7 +35,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 ## Tooling notes
 
 - PHPStan is configured at level 10 in `phpstan.neon.dist`.
-- Rector is configured in `rector.php` with conservative prepared sets for this package.
+- Rector is configured in `rector.php` with conservative prepared sets for this package and is pinned to the minimum supported PHP version (`8.3`) so it does not introduce syntax that would break the package's support matrix.
 - Pest is the test runner.
 
 ## Documentation maintenance
