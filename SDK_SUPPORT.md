@@ -1,0 +1,73 @@
+# SDK Support Matrix
+
+This document tracks the Paystack endpoints and SDK features currently supported by this package.
+
+Use it as the maintainer reference for:
+
+- what is implemented now
+- what public SDK surface exists for each supported feature
+- what is planned but not yet implemented
+
+Keep this file aligned with the actual code in `src/`, tests, and package docs.
+
+## Current status
+
+### Transactions
+
+| Paystack area | Endpoint / capability | Status | Public SDK surface |
+| --- | --- | --- | --- |
+| Transactions | Initialize transaction | Supported | `InitializeTransactionAction`, `InitializeTransactionInputData`, `InitializeTransactionResponseData` |
+| Transactions | Verify transaction | Supported | `VerifyTransactionAction`, `VerifyTransactionInputData`, `VerifyTransactionResponseData` |
+| Transactions | Fetch transaction | Supported | `FetchTransactionAction`, `FetchTransactionInputData`, `FetchTransactionResponseData` |
+| Transactions | List transactions | Supported | `ListTransactionsAction`, `ListTransactionsInputData`, `ListTransactionsResponseData` |
+
+### Customers
+
+| Paystack area | Endpoint / capability | Status | Public SDK surface |
+| --- | --- | --- | --- |
+| Customers | Create customer | Supported | `CreateCustomerAction`, `CreateCustomerInputData`, `CreateCustomerResponseData` |
+| Customers | Update customer | Supported | `UpdateCustomerAction`, `UpdateCustomerInputData`, `UpdateCustomerResponseData` |
+| Customers | List customers | Supported | `ListCustomersAction`, `ListCustomersInputData`, `ListCustomersResponseData` |
+
+## Shared SDK capabilities
+
+| Capability | Status | Notes |
+| --- | --- | --- |
+| Saloon-based connector | Supported | `PaystackConnector` handles base URL, auth, timeouts, retries, and API error behavior. |
+| Laravel service provider | Supported | Auto-discovered package provider with config publishing. |
+| Facade / manager API | Supported | `Paystack` facade resolves `PaystackManager`, now with DTO-first method signatures. |
+| Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. |
+| Action-specific response DTOs | Supported | Response DTOs live under `src/Data/Output`. |
+| Webhook verification | Supported | Reuses the configured Paystack secret key to verify signatures and returns a generic typed event DTO. |
+| Live test workbench | Supported | `workbench/` tracks the current package integration style for manual Paystack test-mode checks. |
+
+## Not yet implemented
+
+These areas are planned or likely future work, but they are not currently supported by the SDK.
+
+### Paystack resources
+
+| Paystack area | Endpoint / capability | Status | Notes |
+| --- | --- | --- | --- |
+| Webhooks | Typed event-specific DTO mapping and event dispatch helpers | Not started | Current webhook support verifies signatures and returns a generic parsed event DTO only. |
+| Plans | Create / update / list / fetch | Not started | No actions, DTOs, or requests yet. |
+| Subscriptions | Create / enable / disable / list / fetch | Not started | No actions, DTOs, or requests yet. |
+| Transfers | Initiate / finalize / verify / list / fetch / bulk transfer | Not started | No actions, DTOs, or requests yet. |
+| Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |
+| Transfer recipients | Create / bulk create / update / delete / list / fetch | Not started | No actions, DTOs, or requests yet. |
+| Dedicated virtual accounts | Account lifecycle and split-management endpoints | Not started | No actions, DTOs, or requests yet. |
+| Disputes | List / fetch / update / evidence flows | Not started | No actions, DTOs, or requests yet. |
+| Refunds | Create / list / fetch / retry | Not started | No actions, DTOs, or requests yet. |
+| Bulk charges | Create / list / fetch / pause / resume | Not started | No actions, DTOs, or requests yet. |
+
+## Update rules
+
+Update this document whenever any of the following changes:
+
+- a Paystack endpoint is added or removed
+- a supported feature changes status
+- an action, input DTO, output DTO, request, or manager/facade method is renamed or replaced
+- the workbench live-test coverage changes
+- roadmap items move into implemented support
+
+This file should describe the package as it actually exists, not as intended future architecture.

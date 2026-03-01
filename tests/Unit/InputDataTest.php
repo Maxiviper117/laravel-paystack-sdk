@@ -5,6 +5,7 @@ use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 
 it('serializes initialize transaction input data for the request body', function () {
@@ -64,4 +65,8 @@ it('serializes list filters to request queries', function () {
 
 it('rejects invalid dto input at construction time', function () {
     new CreateCustomerInputData(email: 'not-an-email');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid webhook input at construction time', function () {
+    new VerifyWebhookSignatureInputData(payload: '', signature: '');
 })->throws(InvalidPaystackInputException::class);

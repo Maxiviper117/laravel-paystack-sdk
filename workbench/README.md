@@ -11,6 +11,7 @@ The current workbench flow covers:
 - initializing a Paystack test-mode transaction
 - redirecting to Paystack checkout
 - verifying the transaction on the callback route
+- verifying webhook signatures against a posted raw payload
 
 ## Setup
 
@@ -45,6 +46,7 @@ Then open:
 
 - `/paystack/test/start` to begin a real Paystack test transaction
 - `/paystack/test/callback` as the callback route used by the live test flow
+- `/paystack/test/webhook` for the webhook verification example route
 
 ## Current integration shape
 
