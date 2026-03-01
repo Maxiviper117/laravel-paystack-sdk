@@ -11,15 +11,8 @@ it('throws when the secret key is missing', function () {
 })->throws(PaystackConfigurationException::class);
 
 it('exposes default headers and config through the connector', function () {
-    $connector = new class (
-        secretKey: 'sk_test_123',
-        baseUrl: 'https://api.paystack.co',
-        timeout: 45,
-        connectTimeout: 15,
-        tries: 3,
-        retryInterval: 500,
-        throwOnApiError: false,
-    ) extends PaystackConnector {
+    $connector = new class(secretKey: 'sk_test_123', baseUrl: 'https://api.paystack.co', timeout: 45, connectTimeout: 15, tries: 3, retryInterval: 500, throwOnApiError: false) extends PaystackConnector
+    {
         /**
          * @return array<string, int>
          */

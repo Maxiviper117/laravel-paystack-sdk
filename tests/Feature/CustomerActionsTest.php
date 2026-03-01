@@ -46,7 +46,7 @@ it('creates a customer and returns a dto', function () {
     expect($result)->toBeInstanceOf(CreateCustomerResponseData::class)
         ->and($result->customer->customerCode)->toBe('CUS_123');
 
-    $mockClient->assertSent(fn(Request $request) => $request instanceof CreateCustomerRequest
+    $mockClient->assertSent(fn (Request $request) => $request instanceof CreateCustomerRequest
         && $request->body()->all()['email'] === 'jane@example.com'
         && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-123']);
 });
@@ -81,7 +81,7 @@ it('lists customers and returns pagination data', function () {
         ->and($result->meta?->pagination?->next)->toBe('https://api.paystack.co/customer?page=2')
         ->and($result->meta?->pagination?->previous)->toBeNull();
 
-    $mockClient->assertSent(fn(Request $request) => $request instanceof ListCustomersRequest
+    $mockClient->assertSent(fn (Request $request) => $request instanceof ListCustomersRequest
         && $request->query()->all()['perPage'] === 50);
 });
 
@@ -132,7 +132,7 @@ it('updates a customer and sends the expected payload', function () {
     expect($result)->toBeInstanceOf(UpdateCustomerResponseData::class)
         ->and($result->customer->firstName)->toBe('Janet');
 
-    $mockClient->assertSent(fn(Request $request) => $request instanceof UpdateCustomerRequest
+    $mockClient->assertSent(fn (Request $request) => $request instanceof UpdateCustomerRequest
         && $request->body()->all()['first_name'] === 'Janet'
         && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-456']);
 });
