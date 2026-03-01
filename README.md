@@ -4,7 +4,7 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/Maxiviper117/laravel-paystack-sdk/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/Maxiviper117/laravel-paystack-sdk/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/Maxiviper117/laravel-paystack-sdk/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/Maxiviper117/laravel-paystack-sdk/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
 
-Laravel package for working with Paystack through Saloon-backed requests and action classes. The current MVP covers transactions and customers with typed DTO responses and an optional Laravel facade.
+Laravel package for working with Paystack through Saloon-backed requests and action classes. The current MVP covers transactions and customers with typed input and response DTOs plus an optional Laravel facade.
 
 ## Installation
 
@@ -40,37 +40,54 @@ PAYSTACK_THROW_ON_API_ERROR=true
 ```php
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 
-$initialized = app(InitializeTransactionAction::class)->execute(
-    email: 'customer@example.com',
-    amount: 15.50,
-    options: [
-        'callback_url' => 'https://example.com/payments/callback',
-    ],
+$initializeTransaction = app(InitializeTransactionAction::class);
+$initialized = $initializeTransaction(
+    new InitializeTransactionInputData(
+        email: 'customer@example.com',
+        amount: 15.50,
+        callbackUrl: 'https://example.com/payments/callback',
+    )
 );
 
-$verified = app(VerifyTransactionAction::class)->execute($initialized->reference);
+$verifyTransaction = app(VerifyTransactionAction::class);
+$verified = $verifyTransaction(
+    new VerifyTransactionInputData(reference: $initialized->reference)
+);
 ```
 
-Static convenience methods are also available:
+If you prefer, you can still call the explicit `execute(...)` method:
 
 ```php
 use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
+use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 
-$customer = CreateCustomerAction::run('customer@example.com', [
-    'first_name' => 'Jane',
-    'last_name' => 'Doe',
-]);
+$createCustomer = app(CreateCustomerAction::class);
+
+$customer = $createCustomer->execute(
+    new CreateCustomerInputData(
+        email: 'customer@example.com',
+        firstName: 'Jane',
+        lastName: 'Doe',
+    )
+);
 ```
 
 ### Facade
 
 ```php
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
-$response = Paystack::initializeTransaction('customer@example.com', 15.50, [
-    'callback_url' => 'https://example.com/payments/callback',
-]);
+$response = Paystack::initializeTransaction(
+    new InitializeTransactionInputData(
+        email: 'customer@example.com',
+        amount: 15.50,
+        callbackUrl: 'https://example.com/payments/callback',
+    )
+);
 ```
 
 ## Implemented MVP endpoints
@@ -80,7 +97,11 @@ $response = Paystack::initializeTransaction('customer@example.com', 15.50, [
 
 ## Amount handling
 
-`InitializeTransactionAction` accepts an amount in major currency units and converts it to Paystack subunits before sending the request. For example, `15.50` becomes `1550`.
+`InitializeTransactionInputData` accepts an amount in major currency units and converts it to Paystack subunits during request serialization. For example, `15.50` becomes `1550`.
+
+## Action resolution
+
+Action classes are container-resolved services. They expose `execute(...)` and `__invoke(...)`, and both methods now accept typed input DTOs and return action-specific response DTOs. For convenience-oriented usage in application code, prefer the facade or `PaystackManager`.
 
 ## Testing
 
@@ -116,7 +137,7 @@ composer refactor
 
 This repository includes a minimal Laravel workbench app in `workbench/` for live Paystack test-mode checks.
 
-Install the package into the workbench app via the local path repository:
+Install the workbench dependencies:
 
 ```bash
 cd workbench
@@ -140,6 +161,8 @@ Then open:
 
 - `/paystack/test/start` to initialize a real test transaction and redirect to Paystack checkout
 - `/paystack/test/callback` as the configured callback route used by the workbench live-test flow
+
+The workbench uses container-resolved invokable actions and typed input DTOs, matching the current package integration style.
 
 Use Paystack's documented test cards in test mode to complete the checkout.
 

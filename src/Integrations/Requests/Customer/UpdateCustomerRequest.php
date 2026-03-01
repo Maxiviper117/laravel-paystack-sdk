@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Integrations\Requests\Customer;
 
-use Maxiviper117\Paystack\Data\Customer\CustomerData;
+use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
+use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -15,17 +16,13 @@ class UpdateCustomerRequest extends Request implements HasBody
 
     protected Method $method = Method::PUT;
 
-    /**
-     * @param  array<string, mixed>  $payload
-     */
     public function __construct(
-        protected string $customerCode,
-        protected array $payload
+        protected UpdateCustomerInputData $input
     ) {}
 
     public function resolveEndpoint(): string
     {
-        return '/customer/'.$this->customerCode;
+        return '/customer/'.$this->input->customerCode;
     }
 
     /**
@@ -33,16 +30,16 @@ class UpdateCustomerRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        return $this->payload;
+        return $this->input->toRequestBody();
     }
 
-    public function createDtoFromResponse(Response $response): CustomerData
+    public function createDtoFromResponse(Response $response): UpdateCustomerResponseData
     {
         $data = $response->json('data');
 
         /** @var array<string, mixed> $payload */
         $payload = is_array($data) ? $data : [];
 
-        return CustomerData::fromPayload($payload);
+        return UpdateCustomerResponseData::fromPayload($payload);
     }
 }

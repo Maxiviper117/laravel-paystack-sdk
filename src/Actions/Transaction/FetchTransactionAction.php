@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Actions\Transaction;
 
-use Maxiviper117\Paystack\Data\Transaction\TransactionData;
+use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\FetchTransactionRequest;
 
@@ -12,9 +13,9 @@ final class FetchTransactionAction
         protected PaystackConnector $connector
     ) {}
 
-    public function execute(int|string $idOrReference): TransactionData
+    public function execute(FetchTransactionInputData $input): FetchTransactionResponseData
     {
-        $response = $this->connector->send(new FetchTransactionRequest($idOrReference));
+        $response = $this->connector->send(new FetchTransactionRequest($input));
 
         if ($this->connector->throwsOnApiError()) {
             $response->throw();
@@ -22,13 +23,13 @@ final class FetchTransactionAction
 
         $dto = $response->dto();
 
-        assert($dto instanceof TransactionData);
+        assert($dto instanceof FetchTransactionResponseData);
 
         return $dto;
     }
 
-    public static function run(int|string $idOrReference): TransactionData
+    public function __invoke(FetchTransactionInputData $input): FetchTransactionResponseData
     {
-        return app(self::class)->execute($idOrReference);
+        return $this->execute($input);
     }
 }

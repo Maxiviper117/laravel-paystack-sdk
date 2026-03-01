@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Integrations\Requests\Transaction;
 
-use Maxiviper117\Paystack\Data\Transaction\TransactionListData;
+use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
@@ -11,11 +12,8 @@ class ListTransactionsRequest extends Request
 {
     protected Method $method = Method::GET;
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
     public function __construct(
-        protected array $filters = []
+        protected ListTransactionsInputData $input
     ) {}
 
     public function resolveEndpoint(): string
@@ -28,10 +26,10 @@ class ListTransactionsRequest extends Request
      */
     protected function defaultQuery(): array
     {
-        return $this->filters;
+        return $this->input->toRequestQuery();
     }
 
-    public function createDtoFromResponse(Response $response): TransactionListData
+    public function createDtoFromResponse(Response $response): ListTransactionsResponseData
     {
         $data = $response->json('data');
         $metaData = $response->json('meta');
@@ -41,7 +39,7 @@ class ListTransactionsRequest extends Request
         /** @var array<string, mixed> $meta */
         $meta = is_array($metaData) ? $metaData : [];
 
-        return TransactionListData::fromPayload(
+        return ListTransactionsResponseData::fromPayload(
             payload: $payload,
             meta: $meta
         );

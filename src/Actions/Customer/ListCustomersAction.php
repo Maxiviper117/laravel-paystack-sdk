@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Actions\Customer;
 
-use Maxiviper117\Paystack\Data\Customer\CustomerListData;
+use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
+use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Customer\ListCustomersRequest;
 
@@ -12,12 +13,9 @@ final class ListCustomersAction
         protected PaystackConnector $connector
     ) {}
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
-    public function execute(array $filters = []): CustomerListData
+    public function execute(ListCustomersInputData $input): ListCustomersResponseData
     {
-        $response = $this->connector->send(new ListCustomersRequest($filters));
+        $response = $this->connector->send(new ListCustomersRequest($input));
 
         if ($this->connector->throwsOnApiError()) {
             $response->throw();
@@ -25,16 +23,13 @@ final class ListCustomersAction
 
         $dto = $response->dto();
 
-        assert($dto instanceof CustomerListData);
+        assert($dto instanceof ListCustomersResponseData);
 
         return $dto;
     }
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
-    public static function run(array $filters = []): CustomerListData
+    public function __invoke(ListCustomersInputData $input): ListCustomersResponseData
     {
-        return app(self::class)->execute($filters);
+        return $this->execute($input);
     }
 }

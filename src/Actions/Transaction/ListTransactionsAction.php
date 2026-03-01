@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Actions\Transaction;
 
-use Maxiviper117\Paystack\Data\Transaction\TransactionListData;
+use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\ListTransactionsRequest;
 
@@ -12,12 +13,9 @@ final class ListTransactionsAction
         protected PaystackConnector $connector
     ) {}
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
-    public function execute(array $filters = []): TransactionListData
+    public function execute(ListTransactionsInputData $input): ListTransactionsResponseData
     {
-        $response = $this->connector->send(new ListTransactionsRequest($filters));
+        $response = $this->connector->send(new ListTransactionsRequest($input));
 
         if ($this->connector->throwsOnApiError()) {
             $response->throw();
@@ -25,16 +23,13 @@ final class ListTransactionsAction
 
         $dto = $response->dto();
 
-        assert($dto instanceof TransactionListData);
+        assert($dto instanceof ListTransactionsResponseData);
 
         return $dto;
     }
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
-    public static function run(array $filters = []): TransactionListData
+    public function __invoke(ListTransactionsInputData $input): ListTransactionsResponseData
     {
-        return app(self::class)->execute($filters);
+        return $this->execute($input);
     }
 }

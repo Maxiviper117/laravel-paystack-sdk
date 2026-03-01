@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Integrations\Requests\Customer;
 
-use Maxiviper117\Paystack\Data\Customer\CustomerListData;
+use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
+use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
@@ -11,11 +12,8 @@ class ListCustomersRequest extends Request
 {
     protected Method $method = Method::GET;
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
     public function __construct(
-        protected array $filters = []
+        protected ListCustomersInputData $input
     ) {}
 
     public function resolveEndpoint(): string
@@ -28,10 +26,10 @@ class ListCustomersRequest extends Request
      */
     protected function defaultQuery(): array
     {
-        return $this->filters;
+        return $this->input->toRequestQuery();
     }
 
-    public function createDtoFromResponse(Response $response): CustomerListData
+    public function createDtoFromResponse(Response $response): ListCustomersResponseData
     {
         $data = $response->json('data');
         $metaData = $response->json('meta');
@@ -41,7 +39,7 @@ class ListCustomersRequest extends Request
         /** @var array<string, mixed> $meta */
         $meta = is_array($metaData) ? $metaData : [];
 
-        return CustomerListData::fromPayload(
+        return ListCustomersResponseData::fromPayload(
             payload: $payload,
             meta: $meta
         );

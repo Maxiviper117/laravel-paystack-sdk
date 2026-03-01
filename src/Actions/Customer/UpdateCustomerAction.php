@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Actions\Customer;
 
-use Maxiviper117\Paystack\Data\Customer\CustomerData;
+use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
+use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Customer\UpdateCustomerRequest;
 
@@ -12,12 +13,9 @@ final class UpdateCustomerAction
         protected PaystackConnector $connector
     ) {}
 
-    /**
-     * @param  array<string, mixed>  $attributes
-     */
-    public function execute(string $customerCode, array $attributes): CustomerData
+    public function execute(UpdateCustomerInputData $input): UpdateCustomerResponseData
     {
-        $response = $this->connector->send(new UpdateCustomerRequest($customerCode, $attributes));
+        $response = $this->connector->send(new UpdateCustomerRequest($input));
 
         if ($this->connector->throwsOnApiError()) {
             $response->throw();
@@ -25,16 +23,13 @@ final class UpdateCustomerAction
 
         $dto = $response->dto();
 
-        assert($dto instanceof CustomerData);
+        assert($dto instanceof UpdateCustomerResponseData);
 
         return $dto;
     }
 
-    /**
-     * @param  array<string, mixed>  $attributes
-     */
-    public static function run(string $customerCode, array $attributes): CustomerData
+    public function __invoke(UpdateCustomerInputData $input): UpdateCustomerResponseData
     {
-        return app(self::class)->execute($customerCode, $attributes);
+        return $this->execute($input);
     }
 }

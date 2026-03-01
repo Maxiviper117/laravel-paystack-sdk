@@ -4,10 +4,14 @@ use Maxiviper117\Paystack\Actions\Transaction\FetchTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
-use Maxiviper117\Paystack\Data\Transaction\InitializedTransactionData;
-use Maxiviper117\Paystack\Data\Transaction\TransactionData;
-use Maxiviper117\Paystack\Data\Transaction\TransactionListData;
-use Maxiviper117\Paystack\Data\Transaction\VerificationData;
+use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
+use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
+use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
+use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\FetchTransactionRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\InitializeTransactionRequest;
@@ -33,14 +37,16 @@ it('initializes a transaction and normalizes amount', function () {
     $connector = app(PaystackConnector::class);
     $connector->withMockClient($mockClient);
 
-    $result = app(InitializeTransactionAction::class)->execute('jane@example.com', 15.5, [
-        'callback_url' => 'https://example.com/callback',
-        'metadata' => [
+    $result = app(InitializeTransactionAction::class)->execute(new InitializeTransactionInputData(
+        email: 'jane@example.com',
+        amount: 15.5,
+        callbackUrl: 'https://example.com/callback',
+        metadata: [
             'order_id' => 'ORD-123',
         ],
-    ]);
+    ));
 
-    expect($result)->toBeInstanceOf(InitializedTransactionData::class)
+    expect($result)->toBeInstanceOf(InitializeTransactionResponseData::class)
         ->and($result->reference)->toBe('ref_123');
 
     $mockClient->assertSent(fn(Request $request) => $request instanceof InitializeTransactionRequest
@@ -73,11 +79,36 @@ it('verifies a transaction and returns a dto', function () {
     $connector = app(PaystackConnector::class);
     $connector->withMockClient($mockClient);
 
-    $result = app(VerifyTransactionAction::class)->execute('ref_123');
+    $result = app(VerifyTransactionAction::class)->execute(new VerifyTransactionInputData('ref_123'));
 
-    expect($result)->toBeInstanceOf(VerificationData::class)
-        ->and($result->status)->toBe('success')
-        ->and($result->customer?->customerCode)->toBe('CUS_123');
+    expect($result)->toBeInstanceOf(VerifyTransactionResponseData::class)
+        ->and($result->transaction->status)->toBe('success')
+        ->and($result->transaction->customer?->customerCode)->toBe('CUS_123');
+});
+
+it('supports invoking a transaction action directly', function () {
+    $mockClient = new MockClient([
+        VerifyTransactionRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Verification successful',
+            'data' => [
+                'id' => 10,
+                'status' => 'success',
+                'reference' => 'ref_123',
+                'amount' => 1550,
+                'currency' => 'NGN',
+            ],
+        ], 200),
+    ]);
+
+    $connector = app(PaystackConnector::class);
+    $connector->withMockClient($mockClient);
+
+    $action = app(VerifyTransactionAction::class);
+    $result = $action(new VerifyTransactionInputData('ref_123'));
+
+    expect($result)->toBeInstanceOf(VerifyTransactionResponseData::class)
+        ->and($result->transaction->reference)->toBe('ref_123');
 });
 
 it('fetches a transaction by identifier', function () {
@@ -100,11 +131,11 @@ it('fetches a transaction by identifier', function () {
     $connector = app(PaystackConnector::class);
     $connector->withMockClient($mockClient);
 
-    $result = app(FetchTransactionAction::class)->execute($transactionId);
+    $result = app(FetchTransactionAction::class)->execute(new FetchTransactionInputData($transactionId));
 
-    expect($result)->toBeInstanceOf(TransactionData::class)
-        ->and($result->reference)->toBe('ref_fetch')
-        ->and($result->id)->toBe($transactionId);
+    expect($result)->toBeInstanceOf(FetchTransactionResponseData::class)
+        ->and($result->transaction->reference)->toBe('ref_fetch')
+        ->and($result->transaction->id)->toBe($transactionId);
 });
 
 it('lists transactions and maps pagination', function () {
@@ -132,10 +163,10 @@ it('lists transactions and maps pagination', function () {
     $connector = app(PaystackConnector::class);
     $connector->withMockClient($mockClient);
 
-    $result = app(ListTransactionsAction::class)->execute(['perPage' => 50]);
+    $result = app(ListTransactionsAction::class)->execute(new ListTransactionsInputData(perPage: 50));
 
-    expect($result)->toBeInstanceOf(TransactionListData::class)
-        ->and($result->items)->toHaveCount(1)
+    expect($result)->toBeInstanceOf(ListTransactionsResponseData::class)
+        ->and($result->transactions)->toHaveCount(1)
         ->and($result->meta?->pagination?->perPage)->toBe(50)
         ->and($result->meta?->pagination?->next)->toBe('https://api.paystack.co/transaction?page=2')
         ->and($result->meta?->pagination?->previous)->toBeNull();

@@ -25,7 +25,17 @@ it('exposes default headers and config through the connector', function () {
          */
         public function exposedDefaultConfig(): array
         {
-            return $this->defaultConfig();
+            $config = $this->defaultConfig();
+            $timeout = $config['timeout'] ?? null;
+            $connectTimeout = $config['connect_timeout'] ?? null;
+
+            assert(is_int($timeout));
+            assert(is_int($connectTimeout));
+
+            return [
+                'timeout' => $timeout,
+                'connect_timeout' => $connectTimeout,
+            ];
         }
     };
 

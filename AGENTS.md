@@ -21,14 +21,19 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - The `workbench` app uses `pnpm` for frontend package management in Composer scripts.
 - `workbench` is committed for development and live testing, but it is excluded from package distribution archives via `.gitattributes` `export-ignore`.
 - `workbench` is a standalone Laravel app with its own Composer configuration; do not autoload it from the root package `composer.json`.
+- `workbench/routes/web.php` and `workbench/README.md` should reflect the current recommended package integration style when live-test examples change.
 
 ## Working rules
 
 - Keep the package Laravel-native and Actions-first.
+- Treat action classes as injectable services; do not add static self-resolving helpers that call `app()` internally.
+- Use DTO-first action contracts. Public action, manager, and facade APIs should accept typed input DTOs and return typed action-specific response DTOs.
 - Prefer small, typed DTOs over passing raw arrays through public APIs.
 - Keep request classes thin and API-focused; keep business rules in actions or support classes.
 - Preserve compatibility with Laravel `11.x` and `12.x` and PHP `8.3` and `8.4`.
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
+- Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
+- Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
 
 ## Required verification
 

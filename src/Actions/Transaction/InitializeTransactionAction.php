@@ -2,10 +2,10 @@
 
 namespace Maxiviper117\Paystack\Actions\Transaction;
 
-use Maxiviper117\Paystack\Data\Transaction\InitializedTransactionData;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\InitializeTransactionRequest;
-use Maxiviper117\Paystack\Support\Amount;
 
 final class InitializeTransactionAction
 {
@@ -13,21 +13,9 @@ final class InitializeTransactionAction
         protected PaystackConnector $connector
     ) {}
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public function execute(string $email, int|float|string $amount, array $options = []): InitializedTransactionData
+    public function execute(InitializeTransactionInputData $input): InitializeTransactionResponseData
     {
-        $payload = array_merge($options, [
-            'email' => $email,
-            'amount' => (string) Amount::toSubunit($amount),
-        ]);
-
-        if (isset($payload['metadata']) && is_array($payload['metadata'])) {
-            $payload['metadata'] = json_encode($payload['metadata'], JSON_THROW_ON_ERROR);
-        }
-
-        $response = $this->connector->send(new InitializeTransactionRequest($payload));
+        $response = $this->connector->send(new InitializeTransactionRequest($input));
 
         if ($this->connector->throwsOnApiError()) {
             $response->throw();
@@ -35,16 +23,13 @@ final class InitializeTransactionAction
 
         $dto = $response->dto();
 
-        assert($dto instanceof InitializedTransactionData);
+        assert($dto instanceof InitializeTransactionResponseData);
 
         return $dto;
     }
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public static function run(string $email, int|float|string $amount, array $options = []): InitializedTransactionData
+    public function __invoke(InitializeTransactionInputData $input): InitializeTransactionResponseData
     {
-        return app(self::class)->execute($email, $amount, $options);
+        return $this->execute($input);
     }
 }

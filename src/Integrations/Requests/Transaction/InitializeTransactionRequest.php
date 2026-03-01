@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Integrations\Requests\Transaction;
 
-use Maxiviper117\Paystack\Data\Transaction\InitializedTransactionData;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -15,11 +16,8 @@ class InitializeTransactionRequest extends Request implements HasBody
 
     protected Method $method = Method::POST;
 
-    /**
-     * @param  array<string, mixed>  $payload
-     */
     public function __construct(
-        protected array $payload
+        protected InitializeTransactionInputData $input
     ) {}
 
     public function resolveEndpoint(): string
@@ -32,16 +30,16 @@ class InitializeTransactionRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        return $this->payload;
+        return $this->input->toRequestBody();
     }
 
-    public function createDtoFromResponse(Response $response): InitializedTransactionData
+    public function createDtoFromResponse(Response $response): InitializeTransactionResponseData
     {
         $data = $response->json('data');
 
         /** @var array<string, mixed> $payload */
         $payload = is_array($data) ? $data : [];
 
-        return InitializedTransactionData::fromPayload($payload);
+        return InitializeTransactionResponseData::fromPayload($payload);
     }
 }

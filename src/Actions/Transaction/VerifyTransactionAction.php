@@ -2,7 +2,8 @@
 
 namespace Maxiviper117\Paystack\Actions\Transaction;
 
-use Maxiviper117\Paystack\Data\Transaction\VerificationData;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\VerifyTransactionRequest;
 
@@ -12,9 +13,9 @@ final class VerifyTransactionAction
         protected PaystackConnector $connector
     ) {}
 
-    public function execute(string $reference): VerificationData
+    public function execute(VerifyTransactionInputData $input): VerifyTransactionResponseData
     {
-        $response = $this->connector->send(new VerifyTransactionRequest($reference));
+        $response = $this->connector->send(new VerifyTransactionRequest($input));
 
         if ($this->connector->throwsOnApiError()) {
             $response->throw();
@@ -22,13 +23,13 @@ final class VerifyTransactionAction
 
         $dto = $response->dto();
 
-        assert($dto instanceof VerificationData);
+        assert($dto instanceof VerifyTransactionResponseData);
 
         return $dto;
     }
 
-    public static function run(string $reference): VerificationData
+    public function __invoke(VerifyTransactionInputData $input): VerifyTransactionResponseData
     {
-        return app(self::class)->execute($reference);
+        return $this->execute($input);
     }
 }
