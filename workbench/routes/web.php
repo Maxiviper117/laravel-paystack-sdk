@@ -2,10 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
-use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;

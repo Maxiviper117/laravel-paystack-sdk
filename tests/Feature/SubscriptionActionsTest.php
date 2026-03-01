@@ -23,7 +23,6 @@ use Maxiviper117\Paystack\Integrations\Requests\Subscription\FetchSubscriptionRe
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\ListSubscriptionsRequest;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
-use Saloon\Http\Request;
 
 it('creates and fetches a subscription', function () {
     $mockClient = new MockClient([

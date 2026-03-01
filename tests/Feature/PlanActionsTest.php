@@ -2,7 +2,6 @@
 
 use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
-use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
 use Maxiviper117\Paystack\Actions\Plan\UpdatePlanAction;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
