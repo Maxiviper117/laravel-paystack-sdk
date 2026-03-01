@@ -23,6 +23,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `workbench` is a standalone Laravel app with its own Composer configuration; do not autoload it from the root package `composer.json`.
 - `workbench/routes/web.php` and `workbench/README.md` should reflect the current recommended package integration style when live-test examples change.
 - Keep the workbench app up to date with the current package state. If package APIs, DTOs, response shapes, config, or recommended integration patterns change, update the relevant workbench routes/docs in the same change.
+- `SDK_SUPPORT.md` is the maintainer-facing support matrix for Paystack endpoints and SDK capabilities; keep it aligned with the actual implemented package surface.
 
 ## Working rules
 
@@ -35,6 +36,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
 - Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
 - Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
+- Webhook verification is local package logic, not an outbound Saloon request. Keep signature verification and payload parsing outside the HTTP connector layer.
 
 ## Required verification
 
@@ -56,6 +58,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 ## Documentation maintenance
 
 - Any repository change that affects package architecture, public APIs, supported tooling, commands, workflows, or constraints must keep this `AGENTS.md` file up to date in the same change.
+- Any repository change that affects supported Paystack endpoints, SDK features, action/input/output DTO coverage, or live-test coverage must also update `SDK_SUPPORT.md` in the same change.
 - If a change makes any instruction here inaccurate, update `AGENTS.md` before finishing.
 - Keep instructions concrete and repository-specific; do not let this file drift into generic guidance.
 

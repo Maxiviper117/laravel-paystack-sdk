@@ -94,6 +94,7 @@ $response = Paystack::initializeTransaction(
 
 - Transactions: initialize, verify, fetch, list
 - Customers: create, update, list
+- Webhooks: signature verification and generic event parsing
 
 ## Amount handling
 
@@ -102,6 +103,30 @@ $response = Paystack::initializeTransaction(
 ## Action resolution
 
 Action classes are container-resolved services. They expose `execute(...)` and `__invoke(...)`, and both methods now accept typed input DTOs and return action-specific response DTOs. For convenience-oriented usage in application code, prefer the facade or `PaystackManager`.
+
+## Webhook verification
+
+```php
+use Illuminate\Http\Request;
+use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
+use Maxiviper117\Paystack\Facades\Paystack;
+
+Route::post('/paystack/webhook', function (Request $request) {
+    $event = Paystack::verifyWebhookSignature(
+        new VerifyWebhookSignatureInputData(
+            payload: $request->getContent(),
+            signature: (string) $request->header('x-paystack-signature', ''),
+        )
+    );
+
+    return response()->json([
+        'event' => $event->event,
+        'resource_type' => $event->resourceType,
+    ]);
+});
+```
+
+Webhook verification reuses `PAYSTACK_SECRET_KEY` to validate the `x-paystack-signature` HMAC and returns a generic typed event DTO.
 
 ## Testing
 
@@ -161,6 +186,7 @@ Then open:
 
 - `/paystack/test/start` to initialize a real test transaction and redirect to Paystack checkout
 - `/paystack/test/callback` as the configured callback route used by the workbench live-test flow
+- `/paystack/test/webhook` to inspect the webhook verification example route
 
 The workbench uses container-resolved invokable actions and typed input DTOs, matching the current package integration style.
 
@@ -168,7 +194,6 @@ Use Paystack's documented test cards in test mode to complete the checkout.
 
 ## Roadmap
 
-- Webhook signature verification
 - Plans and subscriptions
 - Transfers and transfer recipients
 - Broader DTO coverage for additional Paystack resources
