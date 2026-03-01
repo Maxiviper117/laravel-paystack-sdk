@@ -2,11 +2,14 @@
 
 namespace Maxiviper117\Paystack\Data\Transaction;
 
+use Override;
+
 class VerificationData extends TransactionData
 {
     /**
      * @param  array<string, mixed>  $payload
      */
+    #[Override]
     public static function fromPayload(array $payload): self
     {
         $transaction = parent::fromPayload($payload);

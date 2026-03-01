@@ -37,8 +37,8 @@ class PaystackServiceProvider extends PackageServiceProvider
                 baseUrl: Payload::string($config, 'base_url', 'https://api.paystack.co'),
                 timeout: Payload::int($config, 'timeout', 30),
                 connectTimeout: Payload::int($config, 'connect_timeout', 10),
-                retryTimes: Payload::int($config, 'retry_times', 2),
-                retrySleepMs: Payload::int($config, 'retry_sleep_ms', 250),
+                tries: Payload::int($config, 'retry_times', 2),
+                retryInterval: Payload::int($config, 'retry_sleep_ms', 250),
                 throwOnApiError: Payload::bool($config, 'throw_on_api_error', true),
             );
         });

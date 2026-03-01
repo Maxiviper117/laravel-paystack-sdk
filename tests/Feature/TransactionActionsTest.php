@@ -43,12 +43,10 @@ it('initializes a transaction and normalizes amount', function () {
     expect($result)->toBeInstanceOf(InitializedTransactionData::class)
         ->and($result->reference)->toBe('ref_123');
 
-    $mockClient->assertSent(function (Request $request) {
-        return $request instanceof InitializeTransactionRequest
-            && $request->body()->all()['amount'] === '1550'
-            && $request->body()->all()['email'] === 'jane@example.com'
-            && $request->body()->all()['metadata'] === '{"order_id":"ORD-123"}';
-    });
+    $mockClient->assertSent(fn(Request $request) => $request instanceof InitializeTransactionRequest
+        && $request->body()->all()['amount'] === '1550'
+        && $request->body()->all()['email'] === 'jane@example.com'
+        && $request->body()->all()['metadata'] === '{"order_id":"ORD-123"}');
 });
 
 it('verifies a transaction and returns a dto', function () {
@@ -142,8 +140,6 @@ it('lists transactions and maps pagination', function () {
         ->and($result->meta?->pagination?->next)->toBe('https://api.paystack.co/transaction?page=2')
         ->and($result->meta?->pagination?->previous)->toBeNull();
 
-    $mockClient->assertSent(function (Request $request) {
-        return $request instanceof ListTransactionsRequest
-            && $request->query()->all()['perPage'] === 50;
-    });
+    $mockClient->assertSent(fn(Request $request) => $request instanceof ListTransactionsRequest
+        && $request->query()->all()['perPage'] === 50);
 });

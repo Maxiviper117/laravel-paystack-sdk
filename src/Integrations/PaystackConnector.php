@@ -7,25 +7,18 @@ use Saloon\Http\Connector;
 
 class PaystackConnector extends Connector
 {
-    public ?int $tries;
-
-    public ?int $retryInterval;
-
     public function __construct(
         protected string $secretKey,
         protected string $baseUrl,
         protected int $timeout = 30,
         protected int $connectTimeout = 10,
-        int $retryTimes = 2,
-        int $retrySleepMs = 250,
+        public ?int $tries = 2,
+        public ?int $retryInterval = 250,
         protected bool $throwOnApiError = true,
     ) {
         if ($this->secretKey === '') {
             throw new PaystackConfigurationException('The Paystack secret key is not configured.');
         }
-
-        $this->tries = $retryTimes;
-        $this->retryInterval = $retrySleepMs;
     }
 
     public function resolveBaseUrl(): string
@@ -42,7 +35,7 @@ class PaystackConnector extends Connector
         ];
     }
 
-    public function defaultConfig(): array
+    protected function defaultConfig(): array
     {
         return [
             'timeout' => $this->timeout,

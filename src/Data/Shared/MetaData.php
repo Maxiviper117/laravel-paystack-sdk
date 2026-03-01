@@ -19,7 +19,7 @@ class MetaData extends Data
      */
     public static function fromPayload(array $payload): self
     {
-        $pagination = empty($payload) ? null : PaginationData::fromPayload($payload);
+        $pagination = $payload === [] ? null : PaginationData::fromPayload($payload);
 
         return new self(
             pagination: $pagination,

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -19,6 +20,8 @@ return RectorConfig::configure()
     )
     ->withSkip([
         __DIR__.'/tests/ArchTest.php',
+        // This package uses named arguments in internal wiring; constructor promotion can silently rename parameters.
+        ClassPropertyAssignToConstructorPromotionRector::class,
     ])
     ->withImportNames(
         importNames: true,

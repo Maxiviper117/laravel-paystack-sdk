@@ -41,11 +41,9 @@ it('creates a customer and returns a dto', function () {
     expect($result)->toBeInstanceOf(CustomerData::class)
         ->and($result->customerCode)->toBe('CUS_123');
 
-    $mockClient->assertSent(function (Request $request) {
-        return $request instanceof CreateCustomerRequest
-            && $request->body()->all()['email'] === 'jane@example.com'
-            && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-123'];
-    });
+    $mockClient->assertSent(fn(Request $request) => $request instanceof CreateCustomerRequest
+        && $request->body()->all()['email'] === 'jane@example.com'
+        && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-123']);
 });
 
 it('lists customers and returns pagination data', function () {
@@ -78,10 +76,8 @@ it('lists customers and returns pagination data', function () {
         ->and($result->meta?->pagination?->next)->toBe('https://api.paystack.co/customer?page=2')
         ->and($result->meta?->pagination?->previous)->toBeNull();
 
-    $mockClient->assertSent(function (Request $request) {
-        return $request instanceof ListCustomersRequest
-            && $request->query()->all()['perPage'] === 50;
-    });
+    $mockClient->assertSent(fn(Request $request) => $request instanceof ListCustomersRequest
+        && $request->query()->all()['perPage'] === 50);
 });
 
 it('updates a customer and sends the expected payload', function () {
@@ -108,9 +104,7 @@ it('updates a customer and sends the expected payload', function () {
     expect($result)->toBeInstanceOf(CustomerData::class)
         ->and($result->firstName)->toBe('Janet');
 
-    $mockClient->assertSent(function (Request $request) {
-        return $request instanceof UpdateCustomerRequest
-            && $request->body()->all()['first_name'] === 'Janet'
-            && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-456'];
-    });
+    $mockClient->assertSent(fn(Request $request) => $request instanceof UpdateCustomerRequest
+        && $request->body()->all()['first_name'] === 'Janet'
+        && $request->body()->all()['metadata'] === ['crm_id' => 'CRM-456']);
 });

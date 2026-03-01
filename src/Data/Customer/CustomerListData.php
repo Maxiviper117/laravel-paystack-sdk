@@ -29,7 +29,7 @@ class CustomerListData extends Data
 
         return new self(
             items: $items,
-            meta: empty($meta) ? null : MetaData::fromPayload($meta),
+            meta: $meta === [] ? null : MetaData::fromPayload($meta),
         );
     }
 }
