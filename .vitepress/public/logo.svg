@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Laravel Paystack SDK logo">
+  <rect width="128" height="128" rx="28" fill="#0f172a"/>
+  <path d="M33 88V40h14l20 27V40h14v48H67L47 61v27H33Z" fill="#ffffff"/>
+  <circle cx="95" cy="44" r="13" fill="#00c3f7"/>
+  <path d="M90 44h10" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+</svg>

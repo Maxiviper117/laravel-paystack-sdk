@@ -6,7 +6,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
 - The package provides a Paystack SDK built on Saloon with an Actions-first public API.
-- Current MVP coverage is focused on Transactions and Customers.
+- Current implemented coverage includes transactions, customers, plans, subscriptions, and webhook signature verification.
 
 ## Source layout
 
@@ -14,6 +14,9 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `src/Integrations`: Saloon connector and request classes for Paystack HTTP integration.
 - `src/Data`: DTOs and response-shaping classes.
 - `src/Support`: small helper utilities used across the package.
+- `docs`: consumer-facing VitePress documentation content.
+- `.vitepress`: root VitePress site configuration and static docs assets.
+- `.github/skills/vitepress`: repository-local skill for inspecting, validating, and operating the VitePress docs setup.
 - `tests/Feature`: package behavior and request/response flow tests.
 - `tests/Unit`: small focused utility and connector tests.
 - `config/paystack.php`: published package configuration.
@@ -50,6 +53,8 @@ This file provides repository-scoped instructions for Codex and other agents. It
 ## Tooling notes
 
 - PHPStan is configured at level 10 in `phpstan.neon.dist`.
+- Root documentation tooling uses `pnpm` with VitePress from the repository root and is separate from `workbench`.
+- The GitHub Pages docs deployment workflow lives at `.github/workflows/deploy-docs.yml` and should publish the root VitePress build output.
 - `composer analyse` runs through `tools/phpstan-analyse.php`, a thin wrapper around PHPStan that suppresses a known Windows-only `Cannot create a file when that file already exists.` noise line without changing analysis behavior.
 - CI should invoke PHPStan through `composer analyse` so the repo's wrapper and memory settings are preserved instead of calling `vendor/bin/phpstan` directly.
 - Rector is configured in `rector.php` with conservative prepared sets for this package and is pinned to the minimum supported PHP version (`8.3`) so it does not introduce syntax that would break the package's support matrix.
@@ -67,17 +72,25 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - Any repository change that affects package architecture, public APIs, supported tooling, commands, workflows, or constraints must keep this `AGENTS.md` file up to date in the same change.
 - Any repository change that affects supported Paystack endpoints, SDK features, action/input/output DTO coverage, or live-test coverage must also update `SDK_SUPPORT.md` in the same change.
+- Keep the root VitePress docs in `docs/` aligned with the current public package API, configuration, and supported feature set.
+- Keep VitePress config, navigation, GitHub Pages deployment details, and docs output path aligned with the actual root docs structure and build output.
+- Keep consumer docs focused on the package itself; do not let VitePress docs drift into workbench-specific guidance unless the task explicitly targets workbench documentation.
+- If package APIs, DTOs, supported Paystack resources, config variables, or recommended integration patterns change, update the relevant VitePress docs pages in the same change.
+- Keep `.github/skills/vitepress/SKILL.md` aligned with the actual docs layout, config file path, scripts, Pages workflow, and verified build output path.
 - If a change makes any instruction here inaccurate, update `AGENTS.md` before finishing.
 - Keep instructions concrete and repository-specific; do not let this file drift into generic guidance.
 
 ## Preferred commands
 
 - Install dependencies: `composer install`
+- Install docs dependencies: `pnpm install --frozen-lockfile`
 - Run tests: `composer test`
 - Run tests in parallel: `composer test-parallel`
 - Run static analysis: `composer analyse`
 - Check Rector changes: `composer refactor-dry`
 - Apply Rector changes: `composer refactor`
 - Format code: `composer format`
+- Run docs dev server: `pnpm run docs:dev`
+- Build docs: `pnpm run docs:build`
 - Workbench install: `cd workbench && composer install`
 - Workbench dev server: `cd workbench && php artisan serve`
