@@ -55,7 +55,9 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Rector is configured in `rector.php` with conservative prepared sets for this package and is pinned to the minimum supported PHP version (`8.3`) so it does not introduce syntax that would break the package's support matrix.
 - The Rector config explicitly skips `ClassPropertyAssignToConstructorPromotionRector` because constructor promotion can rename parameters and break named-argument call sites in package code.
 - Release Please is configured with a manifest-based setup for this repository.
+- This repository is set up to merge pull requests to `main` via squash and merge only.
 - While the package is pre-1.0, Release Please uses `bump-minor-pre-major: true`, so `feat` and breaking changes bump the minor version and fixes bump the patch version.
+- Because this repository uses Release Please to generate releases from conventional-commit history on `main`, when users ask for commit-related work, require PR titles to follow Conventional Commits, for example `feat: add subscription cancel action` or `fix: handle missing webhook signature`.
 - Do not manually bump package versions in PRs; maintainers should let Release Please manage pre-1.0 releases and explicitly choose when to promote the package to `1.0.0`.
 - Maintainer-facing release process notes live in `RELEASE.md`; keep that file aligned with the actual workflow and config.
 - Pest is the test runner.
