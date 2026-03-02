@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.1.0...v0.2.0) (2026-03-02)
+
+
+### Features
+
+* add vitepress documentation site ([#6](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/6)) ([b124072](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/b124072e7845a43a49c21cce561f94dabde26f26))
+
 ## [0.1.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.1.0...v0.1.0) (2026-03-02)
 
 
