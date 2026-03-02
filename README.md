@@ -9,6 +9,25 @@ Laravel package for working with Paystack through Saloon-backed requests and act
 > [!WARNING]
 > This package is still a work in progress and is not yet stable. Expect API changes, incomplete endpoint coverage, and breaking changes until the first `1.0.0` release.
 
+## Documentation
+
+Package documentation is available through the repository docs site:
+
+- GitHub Pages: [https://maxiviper117.github.io/laravel-paystack-sdk/](https://maxiviper117.github.io/laravel-paystack-sdk/)
+
+Run the docs site locally from the repository root:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run docs:dev
+```
+
+Build the static docs output:
+
+```bash
+pnpm run docs:build
+```
+
 ## Installation
 
 ```bash
@@ -185,42 +204,6 @@ Apply changes:
 ```bash
 composer refactor
 ```
-
-## Live testing with a local Laravel app
-
-This repository includes a minimal Laravel workbench app in `workbench/` for live Paystack test-mode checks.
-
-Install the workbench dependencies:
-
-```bash
-cd workbench
-composer install
-```
-
-Add your Paystack test keys to `workbench/.env`:
-
-```env
-PAYSTACK_SECRET_KEY=sk_test_xxx
-PAYSTACK_PUBLIC_KEY=pk_test_xxx
-```
-
-Start the app:
-
-```bash
-php artisan serve
-```
-
-Then open:
-
-- `/paystack/test/start` to initialize a real test transaction and redirect to Paystack checkout
-- `/paystack/test/callback` as the configured callback route used by the workbench live-test flow
-- `/paystack/test/webhook` to inspect the webhook verification example route
-- `/paystack/test/plan` for the plan creation example route
-- `/paystack/test/subscription` for the subscription creation example route
-
-The workbench uses container-resolved invokable actions and typed input DTOs, matching the current package integration style.
-
-Use Paystack's documented test cards in test mode to complete the checkout.
 
 ## Roadmap
 
