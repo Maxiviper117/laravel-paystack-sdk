@@ -13,7 +13,7 @@ Laravel package for working with Paystack through Saloon-backed requests and act
 
 Package documentation is available through the repository docs site:
 
-- GitHub Pages: `https://maxiviper117.github.io/laravel-paystack-sdk/`
+- GitHub Pages: [https://maxiviper117.github.io/laravel-paystack-sdk/](https://maxiviper117.github.io/laravel-paystack-sdk/)
 
 Run the docs site locally from the repository root:
 
