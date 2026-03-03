@@ -125,3 +125,11 @@ it('rejects invalid billing list or create input at construction time', function
     'invalid subscriptions per page' => fn () => new ListSubscriptionsInputData(perPage: 0),
     'invalid plans page' => fn () => new ListPlansInputData(page: 0),
 ])->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid plan update input at construction time', function (callable $factory) {
+    $factory();
+})->with([
+    'empty update plan code' => fn () => new UpdatePlanInputData(planCode: '   '),
+    'empty update plan name' => fn () => new UpdatePlanInputData(planCode: 'PLN_start', name: '   '),
+    'empty update plan interval' => fn () => new UpdatePlanInputData(planCode: 'PLN_start', interval: '   '),
+])->throws(InvalidPaystackInputException::class);
