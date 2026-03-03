@@ -2,9 +2,11 @@
 
 namespace Maxiviper117\Paystack\Data\Output\Webhook;
 
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\PaystackTypedWebhookData;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Support\Payload;
 use Maxiviper117\Paystack\Support\Webhooks\PaystackWebhook;
+use Maxiviper117\Paystack\Support\Webhooks\PaystackTypedWebhookDataResolver;
 use Spatie\LaravelData\Data;
 
 class PaystackWebhookEventData extends Data
@@ -51,5 +53,20 @@ class PaystackWebhookEventData extends Data
             domain: Payload::nullableString($data, 'domain'),
             id: Payload::intOrStringOrNull($data, 'id'),
         );
+    }
+
+    public function is(string $event): bool
+    {
+        return $this->event === $event;
+    }
+
+    public function supportsTypedData(): bool
+    {
+        return PaystackTypedWebhookDataResolver::supports($this->event);
+    }
+
+    public function typedData(): ?PaystackTypedWebhookData
+    {
+        return PaystackTypedWebhookDataResolver::resolve($this);
     }
 }

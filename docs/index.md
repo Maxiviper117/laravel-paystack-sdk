@@ -27,7 +27,16 @@ The package currently supports:
 - New project setup: [Getting Started](/getting-started)
 - Install the package: [Installation](/installation)
 - Configure credentials and transport behavior: [Configuration](/configuration)
+- Follow realistic Laravel workflows: [Examples](/examples/)
 - See supported features and current gaps: [Support Matrix](/support-matrix)
+
+## Example workflows
+
+The new examples area is a cookbook for application integrators. Start there if you want end-to-end flows instead of isolated API snippets.
+
+- [One-Time Checkout](/examples/checkout)
+- [Verify a Transaction](/examples/verify-transaction)
+- [Webhook Processing](/examples/webhooks)
 
 ## Feature guides
 

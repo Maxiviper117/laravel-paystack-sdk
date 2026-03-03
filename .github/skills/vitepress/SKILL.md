@@ -14,6 +14,7 @@ When to use
 
 Repository-specific layout
 - Root docs content lives in `docs/`.
+- Cookbook-style integration examples live under `docs/examples/`.
 - Root VitePress config lives in `.vitepress/config.mts`.
 - Static docs assets live in `.vitepress/public/`.
 - The GitHub Pages workflow lives in `.github/workflows/deploy-docs.yml`.

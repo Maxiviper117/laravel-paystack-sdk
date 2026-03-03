@@ -3,12 +3,12 @@
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeSuccessWebhookData;
 use Maxiviper117\Paystack\Tests\TestCase;
 use Maxiviper117\Paystack\Events\PaystackWebhookReceived;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Jobs\ProcessPaystackWebhookJob;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
-use RuntimeException;
 use Spatie\WebhookClient\Exceptions\InvalidWebhookSignature;
 use Spatie\WebhookClient\Http\Controllers\WebhookController;
 
@@ -28,6 +28,9 @@ it('stores and processes a valid paystack webhook', function () {
         'data' => [
             'id' => 123,
             'domain' => 'test',
+            'status' => 'success',
+            'reference' => 'txn_feature_123',
+            'amount' => 250000,
             'paid_at' => '2026-03-01T10:00:00+00:00',
         ],
     ];
@@ -59,7 +62,8 @@ it('stores and processes a valid paystack webhook', function () {
             && $event->event->event === 'charge.success'
             && $event->event->resourceType === 'charge'
             && $event->event->id === 123
-            && $event->event->occurredAt === '2026-03-01T10:00:00+00:00';
+            && $event->event->occurredAt === '2026-03-01T10:00:00+00:00'
+            && $event->event->typedData() instanceof ChargeSuccessWebhookData;
     });
 });
 
@@ -137,7 +141,7 @@ it('stores malformed signed payloads and records processing exceptions', functio
     $exception = $webhookCall->exception;
 
     if (! is_array($exception) || ! array_key_exists('message', $exception) || ! is_string($exception['message'])) {
-        throw new RuntimeException('Expected the stored webhook exception payload to contain a message.');
+        throw new \RuntimeException('Expected the stored webhook exception payload to contain a message.');
     }
 
     expect($exception['message'])->toContain('not valid JSON');

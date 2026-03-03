@@ -46,3 +46,8 @@ Customer operations return typed response DTOs:
 - `CreateCustomerResponseData`
 - `UpdateCustomerResponseData`
 - `ListCustomersResponseData`
+
+## Need a workflow example?
+
+- [Manage Customers](/examples/customers)
+- [Subscription Billing Flow](/examples/subscriptions)

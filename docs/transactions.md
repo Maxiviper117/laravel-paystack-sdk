@@ -67,3 +67,8 @@ $response = Paystack::initializeTransaction(
     )
 );
 ```
+
+## Need a workflow example?
+
+- [One-Time Checkout](/examples/checkout)
+- [Verify a Transaction](/examples/verify-transaction)

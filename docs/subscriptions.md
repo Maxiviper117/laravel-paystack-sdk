@@ -41,3 +41,8 @@ Subscriptions depend on an existing Paystack plan. A common flow is:
 1. Create or fetch a plan.
 2. Use the plan code in `CreateSubscriptionInputData`.
 3. Manage the subscription lifecycle through the subscription actions.
+
+## Need a workflow example?
+
+- [Subscription Billing Flow](/examples/subscriptions)
+- [Webhook Processing](/examples/webhooks)

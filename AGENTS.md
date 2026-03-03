@@ -15,6 +15,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `src/Data`: DTOs and response-shaping classes.
 - `src/Support`: small helper utilities used across the package.
 - `docs`: consumer-facing VitePress documentation content.
+- `docs/examples`: cookbook-style VitePress examples for realistic Laravel integration flows.
 - `.vitepress`: root VitePress site configuration and static docs assets.
 - `.github/skills/vitepress`: repository-local skill for inspecting, validating, and operating the VitePress docs setup.
 - `tests/Feature`: package behavior and request/response flow tests.

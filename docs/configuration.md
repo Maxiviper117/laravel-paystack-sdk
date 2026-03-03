@@ -49,6 +49,7 @@ Choose a feature area:
 - [Plans](/plans)
 - [Subscriptions](/subscriptions)
 - [Webhooks](/webhooks)
+- [Examples](/examples/)
 
 ## Webhook infrastructure
 
@@ -57,3 +58,8 @@ Webhook handling is endpoint-first and asynchronous:
 - register the endpoint with `Route::webhooks('paystack/webhook', 'paystack')`
 - run the webhook client migration so the `webhook_calls` table exists
 - run a queue worker so `ProcessPaystackWebhookJob` can dispatch `PaystackWebhookReceived`
+
+## Example workflows
+
+- [One-Time Checkout](/examples/checkout)
+- [Webhook Processing](/examples/webhooks)

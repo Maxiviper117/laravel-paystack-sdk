@@ -38,11 +38,11 @@ This page summarizes the currently implemented Paystack surface in the package.
 - Laravel service provider and facade/manager access
 - typed input DTOs
 - action-specific response DTOs
-- Paystack webhook endpoints with signature validation, stored webhook calls, and queued processing
+- Paystack webhook endpoints with signature validation, stored webhook calls, queued processing, and typed payload resolution for selected events
 
 ## Not yet implemented
 
-- typed webhook event-specific DTO mapping
+- full typed coverage for every Paystack webhook event
 - subscription update-link helpers
 - transfers
 - transfer control
