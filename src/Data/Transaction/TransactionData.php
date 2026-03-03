@@ -4,8 +4,8 @@ namespace Maxiviper117\Paystack\Data\Transaction;
 
 use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Customer\CustomerData;
-use Maxiviper117\Paystack\Support\PaystackDate;
 use Maxiviper117\Paystack\Support\Payload;
+use Maxiviper117\Paystack\Support\PaystackDate;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;

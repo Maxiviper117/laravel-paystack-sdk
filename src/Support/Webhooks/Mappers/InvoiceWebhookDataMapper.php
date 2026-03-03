@@ -11,8 +11,8 @@ use Maxiviper117\Paystack\Data\Output\Webhook\Typed\InvoiceWebhookData;
 use Maxiviper117\Paystack\Data\Subscription\SubscriptionData;
 use Maxiviper117\Paystack\Data\Transaction\TransactionData;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
-use Maxiviper117\Paystack\Support\PaystackDate;
 use Maxiviper117\Paystack\Support\Payload;
+use Maxiviper117\Paystack\Support\PaystackDate;
 
 class InvoiceWebhookDataMapper
 {
