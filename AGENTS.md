@@ -36,6 +36,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Prefer small, typed DTOs over passing raw arrays through public APIs.
 - For richer resource domains, compose shared resource DTOs inside action-specific response DTOs instead of flattening everything into duplicated response shapes.
 - Keep request classes thin and API-focused; keep business rules in actions or support classes.
+- Treat security as a first-class concern in every change. Be alert to potentially introducing security bugs, especially around payment flows, webhook handling, secrets, signatures, request validation, authorization boundaries, and any code that processes sensitive financial or customer data.
 - Preserve compatibility with Laravel `11.x` and `12.x` and PHP `8.3` and `8.4`.
 - CI coverage is Linux-only. Do not add or restore Windows test jobs unless the package scope changes materially.
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
@@ -47,6 +48,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - Run `composer analyse` after code changes that affect PHP code.
 - Run `composer test` after behavioral changes, request/response changes, config changes, or test changes.
+- Tests must include applicable security coverage for the code under change. For this payment package SDK, add or update tests whenever a change could affect security-sensitive behavior such as signature verification, secret handling, input validation, authorization boundaries, request tampering resistance, or unsafe data exposure.
 - `composer test-parallel` is available for full-suite parallel Pest runs. Keep `composer test` as the default serial verification command unless the task specifically calls for parallel execution behavior.
 - If Rector-related work is requested, use `composer refactor-dry` first and only apply `composer refactor` when the task calls for code mutation.
 

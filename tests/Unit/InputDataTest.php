@@ -85,3 +85,7 @@ it('rejects invalid customer update identifiers at construction time', function 
 it('rejects invalid webhook input at construction time', function () {
     new VerifyWebhookSignatureInputData(payload: '', signature: '');
 })->throws(InvalidPaystackInputException::class);
+
+it('rejects whitespace-only webhook input at construction time', function () {
+    new VerifyWebhookSignatureInputData(payload: '   ', signature: '   ');
+})->throws(InvalidPaystackInputException::class);

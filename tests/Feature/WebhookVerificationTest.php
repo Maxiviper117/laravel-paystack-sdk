@@ -110,6 +110,33 @@ it('throws for invalid webhook signatures', function () {
     );
 })->throws(InvalidWebhookSignatureException::class);
 
+it('throws when a signed webhook payload is tampered with after signing', function () {
+    $originalPayload = json_encode([
+        'event' => 'charge.success',
+        'data' => [
+            'id' => 1,
+            'status' => 'success',
+        ],
+    ], JSON_THROW_ON_ERROR);
+
+    $signature = hash_hmac('sha512', $originalPayload, 'sk_test_123');
+
+    $tamperedPayload = json_encode([
+        'event' => 'charge.success',
+        'data' => [
+            'id' => 1,
+            'status' => 'failed',
+        ],
+    ], JSON_THROW_ON_ERROR);
+
+    app(VerifyWebhookSignatureAction::class)->execute(
+        new VerifyWebhookSignatureInputData(
+            payload: $tamperedPayload,
+            signature: $signature,
+        )
+    );
+})->throws(InvalidWebhookSignatureException::class);
+
 it('throws for malformed webhook payloads', function () {
     $payload = '{"event":"charge.success","data":';
     $signature = hash_hmac('sha512', $payload, 'sk_test_123');
@@ -124,6 +151,35 @@ it('throws for malformed webhook payloads', function () {
 
 it('throws for non-object webhook payloads', function () {
     $payload = json_encode(['charge.success'], JSON_THROW_ON_ERROR);
+    $signature = hash_hmac('sha512', $payload, 'sk_test_123');
+
+    app(VerifyWebhookSignatureAction::class)->execute(
+        new VerifyWebhookSignatureInputData(
+            payload: $payload,
+            signature: $signature,
+        )
+    );
+})->throws(MalformedWebhookPayloadException::class);
+
+it('throws when the webhook payload is missing object data', function () {
+    $payload = json_encode([
+        'event' => 'charge.success',
+    ], JSON_THROW_ON_ERROR);
+    $signature = hash_hmac('sha512', $payload, 'sk_test_123');
+
+    app(VerifyWebhookSignatureAction::class)->execute(
+        new VerifyWebhookSignatureInputData(
+            payload: $payload,
+            signature: $signature,
+        )
+    );
+})->throws(MalformedWebhookPayloadException::class);
+
+it('throws when the webhook data payload is a list instead of an object', function () {
+    $payload = json_encode([
+        'event' => 'charge.success',
+        'data' => ['unexpected'],
+    ], JSON_THROW_ON_ERROR);
     $signature = hash_hmac('sha512', $payload, 'sk_test_123');
 
     app(VerifyWebhookSignatureAction::class)->execute(

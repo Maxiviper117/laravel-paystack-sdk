@@ -11,7 +11,7 @@ class VerifyWebhookSignatureInputData extends Data
         public string $payload,
         public string $signature,
     ) {
-        if ($this->payload === '') {
+        if (trim($this->payload) === '') {
             throw new InvalidPaystackInputException('The Paystack webhook payload cannot be empty.');
         }
 

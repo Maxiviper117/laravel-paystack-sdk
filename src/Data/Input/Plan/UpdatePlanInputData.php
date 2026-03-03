@@ -28,6 +28,14 @@ class UpdatePlanInputData extends Data
             throw new InvalidPaystackInputException('The Paystack plan code cannot be empty.');
         }
 
+        if ($this->name !== null && trim($this->name) === '') {
+            throw new InvalidPaystackInputException('The Paystack plan name cannot be empty.');
+        }
+
+        if ($this->interval !== null && trim($this->interval) === '') {
+            throw new InvalidPaystackInputException('The Paystack plan interval cannot be empty.');
+        }
+
         if ($this->invoiceLimit !== null && $this->invoiceLimit < 0) {
             throw new InvalidPaystackInputException('The Paystack invoice limit cannot be negative.');
         }
