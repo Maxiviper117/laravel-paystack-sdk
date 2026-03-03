@@ -1,6 +1,6 @@
 # Configuration
 
-Set the following environment variables in your Laravel application:
+Set the following environment variables in your Laravel application.
 
 ```env
 PAYSTACK_SECRET_KEY=sk_test_xxx
@@ -16,10 +16,13 @@ PAYSTACK_WEBHOOK_QUEUE=
 PAYSTACK_WEBHOOK_CONNECTION=
 ```
 
-## What these settings control
+## Required environment variables
 
-- `PAYSTACK_SECRET_KEY`: server-side authentication for API requests and Paystack webhook signature verification
-- `PAYSTACK_PUBLIC_KEY`: public Paystack key for application use where needed
+- `PAYSTACK_SECRET_KEY`: required for authenticated Paystack API requests and Paystack webhook signature verification
+
+## Optional environment variables
+
+- `PAYSTACK_PUBLIC_KEY`: optional; not used directly by this package, but needed if your application also integrates Paystack frontend tooling such as Paystack Inline or mobile SDKs
 - `PAYSTACK_BASE_URL`: override only if you need a non-default Paystack API host
 - `PAYSTACK_TIMEOUT`: overall request timeout in seconds
 - `PAYSTACK_CONNECT_TIMEOUT`: connect timeout in seconds
@@ -27,8 +30,8 @@ PAYSTACK_WEBHOOK_CONNECTION=
 - `PAYSTACK_RETRY_SLEEP_MS`: delay between retries in milliseconds
 - `PAYSTACK_THROW_ON_API_ERROR`: whether API failures are promoted to package exceptions
 - `PAYSTACK_WEBHOOK_DELETE_AFTER_DAYS`: retention period for stored `webhook_calls`
-- `PAYSTACK_WEBHOOK_QUEUE`: optional queue name for webhook processing jobs
-- `PAYSTACK_WEBHOOK_CONNECTION`: optional queue connection for webhook processing jobs
+- `PAYSTACK_WEBHOOK_QUEUE`: optional queue name for webhook processing jobs; if omitted, the package uses Laravel's default queue name
+- `PAYSTACK_WEBHOOK_CONNECTION`: optional queue connection for webhook processing jobs; if omitted, the package uses Laravel's default queue connection
 
 ## Connector behavior
 
@@ -56,7 +59,8 @@ Choose a feature area:
 Webhook handling is endpoint-first and asynchronous:
 
 - register the endpoint with `Route::webhooks('paystack/webhook', 'paystack')`
-- run the webhook client migration so the `webhook_calls` table exists
+- publish the webhook client migration with `php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientServiceProvider" --tag="webhook-client-migrations"`
+- run `php artisan migrate` so the `webhook_calls` table exists
 - run a queue worker so `ProcessPaystackWebhookJob` can dispatch `PaystackWebhookReceived`
 
 ## Example workflows
