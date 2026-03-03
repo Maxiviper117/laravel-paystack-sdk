@@ -41,16 +41,8 @@ Route::get('/paystack/test/callback', function (Request $request) {
     abort_if($reference === '', 400, 'Missing Paystack reference.');
 
     $verifyTransaction = app(VerifyTransactionAction::class);
-    $verified = $verifyTransaction(new VerifyTransactionInputData($reference));
 
-    return response()->json([
-        'reference' => $verified->transaction->reference,
-        'status' => $verified->transaction->status,
-        'amount' => $verified->transaction->amount,
-        'currency' => $verified->transaction->currency,
-        'customer' => $verified->transaction->customer?->email,
-        'raw' => $verified->transaction->raw,
-    ]);
+    return $verifyTransaction(new VerifyTransactionInputData($reference));
 });
 
 Route::get('/paystack/test/webhook', function () {
@@ -86,18 +78,12 @@ Route::match(['GET', 'POST'], '/paystack/test/plan', function (Request $request)
         ]);
     }
 
-    $result = Paystack::createPlan(new CreatePlanInputData(
+    return Paystack::createPlan(new CreatePlanInputData(
         name: (string) $request->input('name', 'Workbench Starter Plan'),
         amount: (int) $request->input('amount', 5000),
         interval: (string) $request->input('interval', 'monthly'),
         description: $request->filled('description') ? (string) $request->input('description') : 'Created from the workbench route.',
     ));
-
-    return response()->json([
-        'plan_code' => $result->plan->planCode,
-        'amount' => $result->plan->amount,
-        'interval' => $result->plan->interval,
-    ]);
 });
 
 Route::match(['GET', 'POST'], '/paystack/test/subscription', function (Request $request) {
@@ -107,16 +93,10 @@ Route::match(['GET', 'POST'], '/paystack/test/subscription', function (Request $
         ]);
     }
 
-    $result = Paystack::createSubscription(new CreateSubscriptionInputData(
+    return Paystack::createSubscription(new CreateSubscriptionInputData(
         customer: (string) $request->input('customer', ''),
         plan: (string) $request->input('plan', ''),
         authorization: $request->filled('authorization') ? (string) $request->input('authorization') : null,
         startDate: $request->filled('start_date') ? (string) $request->input('start_date') : null,
     ));
-
-    return response()->json([
-        'subscription_code' => $result->subscription->subscriptionCode,
-        'status' => $result->subscription->status,
-        'customer' => $result->subscription->customer?->customerCode,
-    ]);
 });

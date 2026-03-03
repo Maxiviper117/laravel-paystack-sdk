@@ -78,6 +78,7 @@ Outbound Paystack API usage still follows the package's current pattern:
 - action classes are container-resolved services
 - actions expose `execute(...)` and `__invoke(...)`
 - actions accept typed input DTOs and return action-specific response DTOs
+- response DTOs can be returned directly from Laravel routes and controllers as JSON responses
 - convenience access for application code also exists through the package manager and facade
 
 Webhook handling is now endpoint-first:

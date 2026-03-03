@@ -2,9 +2,12 @@
 
 namespace Maxiviper117\Paystack\Data\Output\Webhook\Typed;
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Customer\CustomerData;
 use Maxiviper117\Paystack\Data\Transaction\TransactionData;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
 class ChargeSuccessWebhookData extends Data implements PaystackTypedWebhookData
 {
@@ -18,7 +21,8 @@ class ChargeSuccessWebhookData extends Data implements PaystackTypedWebhookData
         public int $amount,
         public ?string $domain,
         public ?string $currency,
-        public ?string $paidAt,
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
+        public ?CarbonImmutable $paidAt,
         public ?string $channel,
         public ?string $gatewayResponse,
         public ?CustomerData $customer,

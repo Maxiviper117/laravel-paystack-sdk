@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Output\Webhook\PaystackWebhookEventData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeSuccessWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\InvoiceCreatedWebhookData;
@@ -42,6 +43,8 @@ it('resolves typed data for charge success webhooks', function () {
     expect($typedData->transaction->reference)->toBe('txn_123');
     expect($typedData->customer?->customerCode)->toBe('CUS_123');
     expect($typedData->gatewayResponse)->toBe('Successful');
+    expect($typedData->paidAt)->toBeInstanceOf(CarbonImmutable::class);
+    expect($typedData->paidAt?->toAtomString())->toBe('2026-03-03T08:00:00+00:00');
 });
 
 it('resolves typed data for invoice create webhooks', function () {
@@ -92,6 +95,8 @@ it('resolves typed data for invoice create webhooks', function () {
     expect($typedData->subscriptionCode)->toBe('SUB_123');
     expect($typedData->authorizationCode)->toBe('AUTH_123');
     expect($typedData->transaction?->reference)->toBe('txn_invoice_123');
+    expect($typedData->nextPaymentDate)->toBeInstanceOf(CarbonImmutable::class);
+    expect($typedData->nextPaymentDate?->toAtomString())->toBe('2026-04-01T00:00:00+00:00');
 });
 
 it('resolves typed data for invoice update webhooks', function () {
@@ -169,6 +174,8 @@ it('resolves typed data for subscription create webhooks', function () {
     /** @var SubscriptionCreatedWebhookData $typedData */
     expect($typedData->plan?->planCode)->toBe('PLAN_PRO');
     expect($typedData->customer?->customerCode)->toBe('CUS_200');
+    expect($typedData->nextPaymentDate)->toBeInstanceOf(CarbonImmutable::class);
+    expect($typedData->nextPaymentDate?->toAtomString())->toBe('2026-04-05T00:00:00+00:00');
 });
 
 it('resolves typed data for subscription not renew webhooks', function () {
@@ -243,3 +250,16 @@ it('rejects supported charge events with missing numeric amounts', function () {
 
     $event->typedData();
 })->throws(MalformedWebhookPayloadException::class);
+
+it('rejects malformed typed webhook timestamps', function () {
+    $event = PaystackWebhookEventData::fromPayload([
+        'event' => 'subscription.create',
+        'data' => [
+            'subscription_code' => 'SUB_BAD',
+            'status' => 'active',
+            'next_payment_date' => 'not-a-date',
+        ],
+    ]);
+
+    $event->typedData();
+})->throws(InvalidArgumentException::class);

@@ -2,12 +2,16 @@
 
 namespace Maxiviper117\Paystack\Data\Output\Webhook;
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\PaystackTypedWebhookData;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
+use Maxiviper117\Paystack\Support\PaystackDate;
 use Maxiviper117\Paystack\Support\Payload;
 use Maxiviper117\Paystack\Support\Webhooks\PaystackTypedWebhookDataResolver;
 use Maxiviper117\Paystack\Support\Webhooks\PaystackWebhook;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
 class PaystackWebhookEventData extends Data
 {
@@ -20,7 +24,8 @@ class PaystackWebhookEventData extends Data
         public string $resourceType,
         public array $data,
         public array $payload,
-        public ?string $occurredAt = null,
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
+        public ?CarbonImmutable $occurredAt = null,
         public ?string $domain = null,
         public int|string|null $id = null,
     ) {}
@@ -47,9 +52,11 @@ class PaystackWebhookEventData extends Data
             resourceType: PaystackWebhook::inferResourceType($event),
             data: $data,
             payload: $payload,
-            occurredAt: Payload::nullableString($data, 'paid_at')
+            occurredAt: PaystackDate::nullable(
+                Payload::nullableString($data, 'paid_at')
                 ?? Payload::nullableString($data, 'created_at')
-                ?? Payload::nullableString($payload, 'created_at'),
+                ?? Payload::nullableString($payload, 'created_at')
+            ),
             domain: Payload::nullableString($data, 'domain'),
             id: Payload::intOrStringOrNull($data, 'id'),
         );

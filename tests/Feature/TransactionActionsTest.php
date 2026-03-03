@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Actions\Transaction\FetchTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
@@ -86,6 +87,8 @@ it('verifies a transaction and returns a dto', function () {
 
     expect($result)->toBeInstanceOf(VerifyTransactionResponseData::class)
         ->and($result->transaction->status)->toBe('success')
+        ->and($result->transaction->paidAt)->toBeInstanceOf(CarbonImmutable::class)
+        ->and($result->transaction->paidAt?->toAtomString())->toBe('2026-03-01T10:00:00+00:00')
         ->and($result->transaction->customer?->customerCode)->toBe('CUS_123');
 });
 
@@ -283,3 +286,22 @@ it('throws on transaction api errors', function (string $action) {
         default => throw new InvalidArgumentException('Unknown transaction action test case.'),
     };
 })->with(['initialize', 'verify', 'fetch'])->throws(RequestException::class);
+
+it('rejects malformed transaction timestamps', function () {
+    app(PaystackConnector::class)->withMockClient(new MockClient([
+        VerifyTransactionRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Verification successful',
+            'data' => [
+                'id' => 10,
+                'status' => 'success',
+                'reference' => 'ref_bad_date',
+                'amount' => 1550,
+                'currency' => 'NGN',
+                'paid_at' => 'not-a-date',
+            ],
+        ], 200),
+    ]));
+
+    app(VerifyTransactionAction::class)->execute(new VerifyTransactionInputData('ref_bad_date'));
+})->throws(InvalidArgumentException::class);

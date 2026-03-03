@@ -87,6 +87,8 @@ class HandlePaystackWebhook
 }
 ```
 
+Typed webhook timestamp fields such as `$typed->paidAt` are exposed as `CarbonImmutable|null` in PHP.
+
 ## Queue the listener too
 
 ```php
