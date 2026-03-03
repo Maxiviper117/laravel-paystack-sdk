@@ -2,10 +2,14 @@
 
 namespace Maxiviper117\Paystack\Data\Subscription;
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Customer\CustomerData;
 use Maxiviper117\Paystack\Data\Plan\PlanData;
 use Maxiviper117\Paystack\Support\Payload;
+use Maxiviper117\Paystack\Support\PaystackDate;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
 class SubscriptionData extends Data
 {
@@ -17,7 +21,8 @@ class SubscriptionData extends Data
         public string $subscriptionCode,
         public ?string $status,
         public ?string $emailToken,
-        public ?string $nextPaymentDate,
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
+        public ?CarbonImmutable $nextPaymentDate,
         public int|string|null $openInvoice,
         public ?PlanData $plan,
         public ?CustomerData $customer,
@@ -49,7 +54,9 @@ class SubscriptionData extends Data
             subscriptionCode: Payload::nullableString($payload, 'subscription_code') ?? Payload::string($payload, 'subscriptionCode'),
             status: Payload::nullableString($payload, 'status'),
             emailToken: Payload::nullableString($payload, 'email_token') ?? Payload::nullableString($payload, 'emailToken'),
-            nextPaymentDate: Payload::nullableString($payload, 'next_payment_date') ?? Payload::nullableString($payload, 'nextPaymentDate'),
+            nextPaymentDate: PaystackDate::nullable(
+                Payload::nullableString($payload, 'next_payment_date') ?? Payload::nullableString($payload, 'nextPaymentDate')
+            ),
             openInvoice: Payload::intOrStringOrNull($payload, 'open_invoice') ?? Payload::intOrStringOrNull($payload, 'openInvoice'),
             plan: $plan,
             customer: $customer,

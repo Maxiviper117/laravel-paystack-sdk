@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\DisableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\EnableSubscriptionAction;
@@ -56,6 +57,7 @@ it('creates and fetches a subscription', function () {
                 'id' => 31,
                 'subscription_code' => 'SUB_123',
                 'status' => 'active',
+                'next_payment_date' => '2026-03-10T00:00:00+00:00',
             ],
         ], 200),
     ]);
@@ -73,7 +75,9 @@ it('creates and fetches a subscription', function () {
         ->and($created->subscription->subscriptionCode)->toBe('SUB_123')
         ->and($created->subscription->customer?->customerCode)->toBe('CUS_123')
         ->and($fetched)->toBeInstanceOf(FetchSubscriptionResponseData::class)
-        ->and($fetched->subscription->status)->toBe('active');
+        ->and($fetched->subscription->status)->toBe('active')
+        ->and($fetched->subscription->nextPaymentDate)->toBeInstanceOf(CarbonImmutable::class)
+        ->and($fetched->subscription->nextPaymentDate?->toAtomString())->toBe('2026-03-10T00:00:00+00:00');
 });
 
 it('lists subscriptions and supports invoking the action directly', function () {
@@ -279,3 +283,20 @@ it('throws on subscription api errors', function (string $action) {
         default => throw new InvalidArgumentException('Unknown subscription action test case.'),
     };
 })->with(['create', 'fetch', 'enable', 'disable'])->throws(RequestException::class);
+
+it('rejects malformed subscription timestamps', function () {
+    app(PaystackConnector::class)->withMockClient(new MockClient([
+        FetchSubscriptionRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Subscription fetched',
+            'data' => [
+                'id' => 31,
+                'subscription_code' => 'SUB_123',
+                'status' => 'active',
+                'next_payment_date' => 'not-a-date',
+            ],
+        ], 200),
+    ]));
+
+    app(FetchSubscriptionAction::class)->execute(new FetchSubscriptionInputData('SUB_123'));
+})->throws(InvalidArgumentException::class);

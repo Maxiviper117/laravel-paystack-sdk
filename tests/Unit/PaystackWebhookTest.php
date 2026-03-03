@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Output\Webhook\PaystackWebhookEventData;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Support\Webhooks\PaystackWebhook;
@@ -43,7 +44,8 @@ it('maps a valid payload into a paystack webhook event dto', function () {
         ->and($event->resourceType)->toBe('charge')
         ->and($event->id)->toBe(99)
         ->and($event->domain)->toBe('live')
-        ->and($event->occurredAt)->toBe('2026-03-02T10:00:00+00:00');
+        ->and($event->occurredAt)->toBeInstanceOf(CarbonImmutable::class)
+        ->and($event->occurredAt?->toAtomString())->toBe('2026-03-02T10:00:00+00:00');
 });
 
 it('rejects payloads missing an event name when mapping event data', function () {
@@ -53,3 +55,13 @@ it('rejects payloads missing an event name when mapping event data', function ()
         ],
     ]);
 })->throws(MalformedWebhookPayloadException::class);
+
+it('rejects malformed webhook event timestamps', function () {
+    PaystackWebhookEventData::fromPayload([
+        'event' => 'charge.success',
+        'data' => [
+            'id' => 1,
+            'created_at' => 'not-a-date',
+        ],
+    ]);
+})->throws(InvalidArgumentException::class);

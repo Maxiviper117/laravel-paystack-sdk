@@ -177,7 +177,7 @@ Useful properties on `$event->event`:
 - `resourceType`: inferred resource prefix such as `charge`
 - `id`: resource ID when present
 - `domain`: Paystack domain when present
-- `occurredAt`: `paid_at`, `created_at`, or payload fallback when available
+- `occurredAt`: `CarbonImmutable|null` resolved from `paid_at`, `created_at`, or payload fallback when available
 - `data`: the nested Paystack `data` object
 - `payload`: the full decoded webhook payload
 
@@ -195,7 +195,7 @@ Event::listen(PaystackWebhookReceived::class, function (PaystackWebhookReceived 
         'event' => $event->event->event,
         'resource_type' => $event->event->resourceType,
         'id' => $event->event->id,
-        'occurred_at' => $event->event->occurredAt,
+        'occurred_at' => $event->event->occurredAt?->toAtomString(),
         'reference' => $event->event->data['reference'] ?? null,
     ]);
 });
@@ -301,5 +301,5 @@ Processed webhooks dispatch `PaystackWebhookReceived`, which contains `PaystackW
 - invalid signatures are rejected before the webhook is stored
 - valid but malformed payloads are stored and then fail during processing, which gives you an audit trail
 - the package validates the raw request body exactly as Paystack sent it
-- typed payload mapping only resolves exact supported event names and rejects missing required fields instead of silently coercing them
+- typed payload mapping only resolves exact supported event names and rejects missing required fields or malformed timestamps instead of silently coercing them
 - typed DTOs help with ergonomics, but your application still owns idempotency, authorization, and side-effect safety

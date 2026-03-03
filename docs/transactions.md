@@ -32,6 +32,27 @@ $response = $action(
 );
 ```
 
+In PHP, timestamp fields on response DTOs are typed. For example, `$response->transaction->paidAt` is a `CarbonImmutable|null`.
+
+If you are in a controller or route that should return JSON, you can return the response DTO directly:
+
+```php
+use Illuminate\Http\Request;
+use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+
+Route::get('/billing/paystack/callback', function (
+    Request $request,
+    VerifyTransactionAction $verifyTransaction,
+) {
+    return $verifyTransaction(
+        new VerifyTransactionInputData(
+            reference: (string) $request->query('reference', '')
+        )
+    );
+});
+```
+
 ## Fetch and list
 
 Available action classes:

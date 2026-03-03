@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
@@ -62,7 +63,8 @@ it('stores and processes a valid paystack webhook', function () {
             && $event->event->event === 'charge.success'
             && $event->event->resourceType === 'charge'
             && $event->event->id === 123
-            && $event->event->occurredAt === '2026-03-01T10:00:00+00:00'
+            && $event->event->occurredAt instanceof CarbonImmutable
+            && $event->event->occurredAt->toAtomString() === '2026-03-01T10:00:00+00:00'
             && $event->event->typedData() instanceof ChargeSuccessWebhookData;
     });
 });

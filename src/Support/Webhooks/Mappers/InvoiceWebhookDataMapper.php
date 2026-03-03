@@ -12,6 +12,7 @@ use Maxiviper117\Paystack\Data\Subscription\SubscriptionData;
 use Maxiviper117\Paystack\Data\Transaction\TransactionData;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Support\Payload;
+use Maxiviper117\Paystack\Support\PaystackDate;
 
 class InvoiceWebhookDataMapper
 {
@@ -25,6 +26,12 @@ class InvoiceWebhookDataMapper
         $subscription = self::subscription($event->data);
         $customer = self::customer($event->data);
         $transaction = self::transaction($event->data);
+        $paidAt = $transaction instanceof TransactionData
+            ? $transaction->paidAt
+            : PaystackDate::nullable(Payload::nullableString($event->data, 'paid_at'));
+        $nextPaymentDate = $subscription instanceof SubscriptionData
+            ? $subscription->nextPaymentDate
+            : PaystackDate::nullable(Payload::nullableString($event->data, 'next_payment_date'));
 
         $invoiceData = [
             'event' => $event->event,
@@ -35,8 +42,8 @@ class InvoiceWebhookDataMapper
             'domain' => Payload::nullableString($event->data, 'domain'),
             'periodStart' => Payload::nullableString($event->data, 'period_start'),
             'periodEnd' => Payload::nullableString($event->data, 'period_end'),
-            'paidAt' => Payload::nullableString($event->data, 'paid_at'),
-            'nextPaymentDate' => Payload::nullableString($event->data, 'next_payment_date'),
+            'paidAt' => $paidAt,
+            'nextPaymentDate' => $nextPaymentDate,
             'description' => Payload::nullableString($event->data, 'description'),
             'subscriptionCode' => $subscription?->subscriptionCode,
             'customerCode' => $customer?->customerCode,

@@ -50,6 +50,8 @@ class ConfirmPaystackPayment
 }
 ```
 
+`$response->transaction->paidAt` is a `CarbonImmutable|null`, so it works cleanly with Eloquent date-casted attributes and can be formatted explicitly if your local column is string-backed.
+
 Callback controller entrypoint:
 
 ```php

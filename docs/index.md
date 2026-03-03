@@ -56,4 +56,8 @@ Input DTO -> Action -> Action-specific response DTO
 
 For convenience-oriented Laravel usage, the package also exposes `PaystackManager` and the `Paystack` facade with the same DTO-first style.
 
+Because response DTOs extend `spatie/laravel-data`, you can also return them directly from Laravel routes and controllers when you want a built-in JSON response.
+
+Response DTO timestamp fields such as transaction `paidAt`, subscription `nextPaymentDate`, and webhook `occurredAt` are exposed as `CarbonImmutable` in PHP and serialize to ISO-8601 strings in JSON responses.
+
 Webhook intake is intentionally separate from the manager and facade. Incoming Paystack webhooks are received through `Route::webhooks(...)`, stored, queued, and dispatched as package events.
