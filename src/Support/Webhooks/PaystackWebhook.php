@@ -3,20 +3,10 @@
 namespace Maxiviper117\Paystack\Support\Webhooks;
 
 use JsonException;
-use Maxiviper117\Paystack\Exceptions\InvalidWebhookSignatureException;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 
 class PaystackWebhook
 {
-    public static function verifySignature(string $payload, string $secretKey, string $signature): void
-    {
-        $expectedSignature = hash_hmac('sha512', $payload, $secretKey);
-
-        if (! hash_equals($expectedSignature, $signature)) {
-            throw new InvalidWebhookSignatureException('The Paystack webhook signature is invalid.');
-        }
-    }
-
     /**
      * @return array<string, mixed>
      */

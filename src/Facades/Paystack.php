@@ -19,7 +19,6 @@ use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
-use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Data\Output\Customer\CreateCustomerResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
@@ -36,7 +35,6 @@ use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
-use Maxiviper117\Paystack\Data\Output\Webhook\VerifyWebhookSignatureResponseData;
 use Maxiviper117\Paystack\PaystackManager;
 
 /**
@@ -58,7 +56,6 @@ use Maxiviper117\Paystack\PaystackManager;
  * @method static ListSubscriptionsResponseData listSubscriptions(ListSubscriptionsInputData $input)
  * @method static EnableSubscriptionResponseData enableSubscription(EnableSubscriptionInputData $input)
  * @method static DisableSubscriptionResponseData disableSubscription(DisableSubscriptionInputData $input)
- * @method static VerifyWebhookSignatureResponseData verifyWebhookSignature(VerifyWebhookSignatureInputData $input)
  */
 class Paystack extends Facade
 {

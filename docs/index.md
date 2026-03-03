@@ -12,21 +12,31 @@ The package currently supports:
 - customers
 - plans
 - subscriptions
-- webhook signature verification
+- Paystack webhook endpoints with persisted calls and queued processing
 
 ## Why this package
 
 - Actions-first usage for application service classes and controllers
 - DTO-first inputs and action-specific response DTOs
 - Saloon-backed HTTP integration with package-managed retries, timeouts, and API error handling
-- Laravel-native service provider, manager, and facade access
+- Laravel-native service provider, manager, and facade access for outbound Paystack actions
+- Endpoint-first webhook handling powered by `spatie/laravel-webhook-client`
 
 ## Start here
 
 - New project setup: [Getting Started](/getting-started)
 - Install the package: [Installation](/installation)
 - Configure credentials and transport behavior: [Configuration](/configuration)
+- Follow realistic Laravel workflows: [Examples](/examples/)
 - See supported features and current gaps: [Support Matrix](/support-matrix)
+
+## Example workflows
+
+The new examples area is a cookbook for application integrators. Start there if you want end-to-end flows instead of isolated API snippets.
+
+- [One-Time Checkout](/examples/checkout)
+- [Verify a Transaction](/examples/verify-transaction)
+- [Webhook Processing](/examples/webhooks)
 
 ## Feature guides
 
@@ -34,7 +44,7 @@ The package currently supports:
 - Customers: [Customers](/customers)
 - Billing plans: [Plans](/plans)
 - Subscriptions: [Subscriptions](/subscriptions)
-- Webhook verification: [Webhooks](/webhooks)
+- Webhooks: [Webhooks](/webhooks)
 
 ## Package model
 
@@ -45,3 +55,5 @@ Input DTO -> Action -> Action-specific response DTO
 ```
 
 For convenience-oriented Laravel usage, the package also exposes `PaystackManager` and the `Paystack` facade with the same DTO-first style.
+
+Webhook intake is intentionally separate from the manager and facade. Incoming Paystack webhooks are received through `Route::webhooks(...)`, stored, queued, and dispatched as package events.

@@ -19,7 +19,6 @@ use Maxiviper117\Paystack\Actions\Transaction\FetchTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
-use Maxiviper117\Paystack\Actions\Webhook\VerifyWebhookSignatureAction;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
@@ -36,7 +35,6 @@ use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
-use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Data\Output\Customer\CreateCustomerResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
@@ -53,7 +51,6 @@ use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
-use Maxiviper117\Paystack\Data\Output\Webhook\VerifyWebhookSignatureResponseData;
 
 class PaystackManager
 {
@@ -139,10 +136,5 @@ class PaystackManager
     public function disableSubscription(DisableSubscriptionInputData $input): DisableSubscriptionResponseData
     {
         return $this->container->make(DisableSubscriptionAction::class)->execute($input);
-    }
-
-    public function verifyWebhookSignature(VerifyWebhookSignatureInputData $input): VerifyWebhookSignatureResponseData
-    {
-        return $this->container->make(VerifyWebhookSignatureAction::class)->execute($input);
     }
 }

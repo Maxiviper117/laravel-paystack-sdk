@@ -6,7 +6,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
 - The package provides a Paystack SDK built on Saloon with an Actions-first public API.
-- Current implemented coverage includes transactions, customers, plans, subscriptions, and webhook signature verification.
+- Current implemented coverage includes transactions, customers, plans, subscriptions, and webhook intake/processing built on `spatie/laravel-webhook-client`.
 
 ## Source layout
 
@@ -15,6 +15,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `src/Data`: DTOs and response-shaping classes.
 - `src/Support`: small helper utilities used across the package.
 - `docs`: consumer-facing VitePress documentation content.
+- `docs/examples`: cookbook-style VitePress examples for realistic Laravel integration flows.
 - `.vitepress`: root VitePress site configuration and static docs assets.
 - `.github/skills/vitepress`: repository-local skill for inspecting, validating, and operating the VitePress docs setup.
 - `tests/Feature`: package behavior and request/response flow tests.
@@ -42,7 +43,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
 - Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
 - Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
-- Webhook verification is local package logic, not an outbound Saloon request. Keep signature verification and payload parsing outside the HTTP connector layer.
+- Webhook handling is local package logic, not an outbound Saloon request. Keep signature validation, stored webhook handling, and payload parsing outside the HTTP connector layer.
 
 ## Required verification
 

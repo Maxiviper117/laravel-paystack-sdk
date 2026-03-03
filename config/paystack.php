@@ -9,4 +9,13 @@ return [
     'retry_times' => (int) env('PAYSTACK_RETRY_TIMES', 2),
     'retry_sleep_ms' => (int) env('PAYSTACK_RETRY_SLEEP_MS', 250),
     'throw_on_api_error' => env('PAYSTACK_THROW_ON_API_ERROR', true),
+    'webhooks' => [
+        'config_name' => 'paystack',
+        'signing_secret' => env('PAYSTACK_SECRET_KEY'),
+        'signature_header_name' => 'x-paystack-signature',
+        'store_headers' => ['x-paystack-signature', 'content-type', 'user-agent'],
+        'delete_after_days' => (int) env('PAYSTACK_WEBHOOK_DELETE_AFTER_DAYS', 30),
+        'queue' => env('PAYSTACK_WEBHOOK_QUEUE'),
+        'connection' => env('PAYSTACK_WEBHOOK_CONNECTION'),
+    ],
 ];

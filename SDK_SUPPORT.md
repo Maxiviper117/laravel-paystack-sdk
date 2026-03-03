@@ -57,7 +57,7 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Facade / manager API | Supported | `Paystack` facade resolves `PaystackManager`, now with DTO-first method signatures. |
 | Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. |
 | Action-specific response DTOs | Supported | Response DTOs live under `src/Data/Output`. |
-| Webhook verification | Supported | Reuses the configured Paystack secret key to verify signatures and returns a generic typed event DTO. |
+| Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, stored webhook calls, queued event dispatch, and typed payload resolution for selected events. |
 | Live test workbench | Supported | `workbench/` tracks the current package integration style for manual Paystack test-mode checks. |
 
 ## Not yet implemented
@@ -68,7 +68,7 @@ These areas are planned or likely future work, but they are not currently suppor
 
 | Paystack area | Endpoint / capability | Status | Notes |
 | --- | --- | --- | --- |
-| Webhooks | Typed event-specific DTO mapping and event dispatch helpers | Not started | Current webhook support verifies signatures and returns a generic parsed event DTO only. |
+| Webhooks | Typed event-specific DTO mapping | Partially supported | `PaystackWebhookEventData` now exposes typed DTO resolution for `charge.success`, `invoice.create`, `invoice.update`, `invoice.payment_failed`, `subscription.create`, `subscription.not_renew`, and `subscription.disable`. Unsupported events still use the generic envelope. |
 | Subscriptions | Update link generation and sending helpers | Not started | Core subscription lifecycle is supported; update-link endpoints are still missing. |
 | Transfers | Initiate / finalize / verify / list / fetch / bulk transfer | Not started | No actions, DTOs, or requests yet. |
 | Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |

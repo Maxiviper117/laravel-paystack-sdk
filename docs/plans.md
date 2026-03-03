@@ -35,3 +35,7 @@ Matching DTOs:
 ## When to use plans
 
 Plans are the billing definition used by Paystack subscriptions. Create or fetch a plan first, then use its plan code when creating a subscription.
+
+## Need a workflow example?
+
+- [Subscription Billing Flow](/examples/subscriptions)

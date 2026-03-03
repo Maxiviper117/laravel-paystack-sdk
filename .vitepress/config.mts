@@ -10,6 +10,7 @@ export default defineConfig({
     logo: '/logo.svg',
     nav: [
       { text: 'Guide', link: '/getting-started' },
+      { text: 'Examples', link: '/examples/' },
       {
         text: 'Resources',
         items: [
@@ -30,6 +31,7 @@ export default defineConfig({
       '/': [
         {
           text: 'Start Here',
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/' },
             { text: 'Getting Started', link: '/getting-started' },
@@ -38,7 +40,21 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Examples',
+          collapsed: false,
+          items: [
+            { text: 'Examples Overview', link: '/examples/' },
+            { text: 'One-Time Checkout', link: '/examples/checkout' },
+            { text: 'Verify a Transaction', link: '/examples/verify-transaction' },
+            { text: 'Manage Customers', link: '/examples/customers' },
+            { text: 'Subscription Billing Flow', link: '/examples/subscriptions' },
+            { text: 'Webhook Processing', link: '/examples/webhooks' },
+            { text: 'Manager and Facade Usage', link: '/examples/manager-and-facade' },
+          ],
+        },
+        {
           text: 'Payments',
+          collapsed: true,
           items: [
             { text: 'Transactions', link: '/transactions' },
             { text: 'Customers', link: '/customers' },
@@ -46,6 +62,7 @@ export default defineConfig({
         },
         {
           text: 'Billing',
+          collapsed: true,
           items: [
             { text: 'Plans', link: '/plans' },
             { text: 'Subscriptions', link: '/subscriptions' },
@@ -53,6 +70,7 @@ export default defineConfig({
         },
         {
           text: 'Platform',
+          collapsed: true,
           items: [
             { text: 'Webhooks', link: '/webhooks' },
             { text: 'Support Matrix', link: '/support-matrix' },
