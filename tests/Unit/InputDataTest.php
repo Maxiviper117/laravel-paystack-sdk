@@ -6,7 +6,6 @@ use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
-use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 
 it('serializes initialize transaction input data for the request body', function () {
@@ -80,12 +79,4 @@ it('rejects empty transaction references at construction time', function () {
 
 it('rejects invalid customer update identifiers at construction time', function () {
     new UpdateCustomerInputData(customerCode: '   ');
-})->throws(InvalidPaystackInputException::class);
-
-it('rejects invalid webhook input at construction time', function () {
-    new VerifyWebhookSignatureInputData(payload: '', signature: '');
-})->throws(InvalidPaystackInputException::class);
-
-it('rejects whitespace-only webhook input at construction time', function () {
-    new VerifyWebhookSignatureInputData(payload: '   ', signature: '   ');
 })->throws(InvalidPaystackInputException::class);

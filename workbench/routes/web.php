@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
@@ -8,8 +9,9 @@ use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
-use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
+use Maxiviper117\Paystack\Models\PaystackWebhookCall;
+use Spatie\WebhookClient\Http\Controllers\WebhookController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,26 +53,29 @@ Route::get('/paystack/test/callback', function (Request $request) {
     ]);
 });
 
-Route::match(['GET', 'POST'], '/paystack/test/webhook', function (Request $request) {
-    if ($request->isMethod('get')) {
-        return response()->json([
-            'message' => 'POST a Paystack webhook payload to this route with the x-paystack-signature header to test webhook verification.',
-        ]);
-    }
+Route::get('/paystack/test/webhook', function () {
+    return response()->json([
+        'message' => 'POST a signed Paystack payload to this route. Valid calls are stored in webhook_calls and processed asynchronously.',
+        'endpoint' => url('/paystack/test/webhook'),
+        'latest_event_endpoint' => url('/paystack/test/webhook/latest-event'),
+        'latest_call_endpoint' => url('/paystack/test/webhook/latest-call'),
+    ]);
+});
 
-    $event = Paystack::verifyWebhookSignature(
-        new VerifyWebhookSignatureInputData(
-            payload: $request->getContent(),
-            signature: (string) $request->header('x-paystack-signature', ''),
-        )
-    );
+Route::post('/paystack/test/webhook', WebhookController::class)
+    ->name('webhook-client-paystack');
+
+Route::get('/paystack/test/webhook/latest-event', function () {
+    return response()->json([
+        'event' => Cache::get('paystack:last-webhook-event'),
+    ]);
+});
+
+Route::get('/paystack/test/webhook/latest-call', function () {
+    $webhookCall = PaystackWebhookCall::query()->latest()->first();
 
     return response()->json([
-        'event' => $event->event,
-        'resource_type' => $event->resourceType,
-        'id' => $event->id,
-        'domain' => $event->domain,
-        'occurred_at' => $event->occurredAt,
+        'webhook_call' => $webhookCall?->only(['id', 'name', 'url', 'headers', 'payload', 'exception', 'created_at']),
     ]);
 });
 

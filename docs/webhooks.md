@@ -1,38 +1,58 @@
 # Webhooks
 
-Webhook support is local package logic. It does not go through the outbound Saloon connector layer.
+Webhook support is local package logic built on top of `spatie/laravel-webhook-client`. It does not go through the outbound Saloon connector layer.
 
 ## What is supported
 
 - Paystack signature verification using the configured secret key
-- payload parsing into a generic typed event response DTO
+- persisted webhook calls in the `webhook_calls` table
+- queued processing through a package-provided webhook job
+- dispatch of a generic parsed Paystack webhook event object
 
-## Verify a webhook signature
+## Register the webhook endpoint
 
 ```php
-use Illuminate\Http\Request;
-use Maxiviper117\Paystack\Data\Input\Webhook\VerifyWebhookSignatureInputData;
-use Maxiviper117\Paystack\Facades\Paystack;
+use Illuminate\Support\Facades\Route;
 
-Route::post('/paystack/webhook', function (Request $request) {
-    $event = Paystack::verifyWebhookSignature(
-        new VerifyWebhookSignatureInputData(
-            payload: $request->getContent(),
-            signature: (string) $request->header('x-paystack-signature', ''),
-        )
-    );
+Route::webhooks('paystack/webhook', 'paystack');
+```
 
-    return response()->json([
-        'event' => $event->event,
-        'resource_type' => $event->resourceType,
-    ]);
+## Listen for processed Paystack webhooks
+
+```php
+use Illuminate\Support\Facades\Event;
+use Maxiviper117\Paystack\Events\PaystackWebhookReceived;
+
+Event::listen(PaystackWebhookReceived::class, function (PaystackWebhookReceived $event) {
+    $paystackEvent = $event->event;
+
+    // $paystackEvent->event
+    // $paystackEvent->resourceType
+    // $paystackEvent->data
 });
 ```
 
-## Returned type
+## Setup requirements
 
-Webhook verification returns `VerifyWebhookSignatureResponseData`.
+- keep `PAYSTACK_SECRET_KEY` configured so signature validation can succeed
+- run the webhook client migration so the `webhook_calls` table exists
+- run a queue worker for webhook processing
+- exclude your webhook route from CSRF protection in Laravel 11 or 12
+
+Example CSRF exclusion in `bootstrap/app.php`:
+
+```php
+->withMiddleware(function (Middleware $middleware): void {
+    $middleware->validateCsrfTokens(except: [
+        'paystack/webhook',
+    ]);
+})
+```
+
+## Returned event type
+
+Processed webhooks dispatch `PaystackWebhookReceived`, which contains `PaystackWebhookEventData`.
 
 ## Current boundary
 
-The package currently returns a generic parsed event DTO. Typed event-specific DTO mapping and dispatch helpers are not yet implemented.
+The package currently dispatches a generic parsed event DTO. Typed event-specific DTO mapping is not yet implemented.

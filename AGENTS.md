@@ -6,7 +6,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
 - The package provides a Paystack SDK built on Saloon with an Actions-first public API.
-- Current implemented coverage includes transactions, customers, plans, subscriptions, and webhook signature verification.
+- Current implemented coverage includes transactions, customers, plans, subscriptions, and webhook intake/processing built on `spatie/laravel-webhook-client`.
 
 ## Source layout
 
@@ -42,7 +42,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
 - Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
 - Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
-- Webhook verification is local package logic, not an outbound Saloon request. Keep signature verification and payload parsing outside the HTTP connector layer.
+- Webhook handling is local package logic, not an outbound Saloon request. Keep signature validation, stored webhook handling, and payload parsing outside the HTTP connector layer.
 
 ## Required verification
 

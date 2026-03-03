@@ -12,14 +12,15 @@ The package currently supports:
 - customers
 - plans
 - subscriptions
-- webhook signature verification
+- Paystack webhook endpoints with persisted calls and queued processing
 
 ## Why this package
 
 - Actions-first usage for application service classes and controllers
 - DTO-first inputs and action-specific response DTOs
 - Saloon-backed HTTP integration with package-managed retries, timeouts, and API error handling
-- Laravel-native service provider, manager, and facade access
+- Laravel-native service provider, manager, and facade access for outbound Paystack actions
+- Endpoint-first webhook handling powered by `spatie/laravel-webhook-client`
 
 ## Start here
 
@@ -34,7 +35,7 @@ The package currently supports:
 - Customers: [Customers](/customers)
 - Billing plans: [Plans](/plans)
 - Subscriptions: [Subscriptions](/subscriptions)
-- Webhook verification: [Webhooks](/webhooks)
+- Webhooks: [Webhooks](/webhooks)
 
 ## Package model
 
@@ -45,3 +46,5 @@ Input DTO -> Action -> Action-specific response DTO
 ```
 
 For convenience-oriented Laravel usage, the package also exposes `PaystackManager` and the `Paystack` facade with the same DTO-first style.
+
+Webhook intake is intentionally separate from the manager and facade. Incoming Paystack webhooks are received through `Route::webhooks(...)`, stored, queued, and dispatched as package events.

@@ -5,7 +5,12 @@ namespace Maxiviper117\Paystack;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Container\Container;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
+use Maxiviper117\Paystack\Jobs\ProcessPaystackWebhookJob;
+use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 use Maxiviper117\Paystack\Support\Payload;
+use Maxiviper117\Paystack\Webhooks\PaystackSignatureValidator;
+use Maxiviper117\Paystack\Webhooks\PaystackWebhookProfile;
+use Maxiviper117\Paystack\Webhooks\PaystackWebhookResponse;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -45,5 +50,31 @@ class PaystackServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(PaystackManager::class, fn (Container $app) => new PaystackManager($app));
         $this->app->singleton('paystack', fn (Container $app) => $app->make(PaystackManager::class));
+
+        /** @var ConfigRepository $config */
+        $config = $this->app->make('config');
+
+        $rawWebhookConfig = $config->get('paystack.webhooks', []);
+
+        if (! is_array($rawWebhookConfig)) {
+            $rawWebhookConfig = [];
+        }
+
+        /** @var array<string, mixed> $webhookConfig */
+        $webhookConfig = $rawWebhookConfig;
+        $configName = Payload::string($webhookConfig, 'config_name', 'paystack');
+
+        $config->set('webhook-client.configs', [[
+            'name' => $configName,
+            'signing_secret' => Payload::string($webhookConfig, 'signing_secret'),
+            'signature_header_name' => Payload::string($webhookConfig, 'signature_header_name', 'x-paystack-signature'),
+            'signature_validator' => PaystackSignatureValidator::class,
+            'webhook_profile' => PaystackWebhookProfile::class,
+            'webhook_response' => PaystackWebhookResponse::class,
+            'webhook_model' => PaystackWebhookCall::class,
+            'store_headers' => $webhookConfig['store_headers'] ?? [],
+            'process_webhook_job' => ProcessPaystackWebhookJob::class,
+        ]]);
+        $config->set('webhook-client.delete_after_days', Payload::int($webhookConfig, 'delete_after_days', 30));
     }
 }
