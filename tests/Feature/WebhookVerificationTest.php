@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeSuccessWebhookData;
-use Maxiviper117\Paystack\Tests\TestCase;
 use Maxiviper117\Paystack\Events\PaystackWebhookReceived;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Jobs\ProcessPaystackWebhookJob;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
+use Maxiviper117\Paystack\Tests\TestCase;
 use Spatie\WebhookClient\Exceptions\InvalidWebhookSignature;
 use Spatie\WebhookClient\Http\Controllers\WebhookController;
 
@@ -39,10 +39,10 @@ it('stores and processes a valid paystack webhook', function () {
     $signature = hash_hmac('sha512', $rawPayload, 'sk_test_123');
 
     $response = $testCase->postJson('/paystack/webhook', $payload, [
-            'X-Paystack-Signature' => $signature,
-            'User-Agent' => 'paystack-test',
-            'X-Unexpected-Header' => 'skip-me',
-        ]);
+        'X-Paystack-Signature' => $signature,
+        'User-Agent' => 'paystack-test',
+        'X-Unexpected-Header' => 'skip-me',
+    ]);
 
     $response->assertOk()
         ->assertJson([
@@ -112,8 +112,8 @@ it('rejects invalid webhook signatures before storage', function () {
     $testCase->withoutExceptionHandling();
 
     expect(fn () => $testCase->postJson('/paystack/webhook', $payload, [
-            'X-Paystack-Signature' => 'invalid-signature',
-        ]))->toThrow(InvalidWebhookSignature::class);
+        'X-Paystack-Signature' => 'invalid-signature',
+    ]))->toThrow(InvalidWebhookSignature::class);
 
     expect(PaystackWebhookCall::count())->toBe(0);
 });

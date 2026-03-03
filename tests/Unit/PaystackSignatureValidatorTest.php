@@ -39,7 +39,7 @@ it('accepts a valid paystack webhook signature', function () {
     $payload = '{"event":"charge.success","data":{"id":1}}';
     $signature = hash_hmac('sha512', $payload, 'sk_test_123');
 
-    $validator = new PaystackSignatureValidator();
+    $validator = new PaystackSignatureValidator;
 
     expect($validator->isValid(
         paystackWebhookRequest($payload, $signature),
@@ -48,7 +48,7 @@ it('accepts a valid paystack webhook signature', function () {
 });
 
 it('rejects an invalid paystack webhook signature', function () {
-    $validator = new PaystackSignatureValidator();
+    $validator = new PaystackSignatureValidator;
 
     expect($validator->isValid(
         paystackWebhookRequest('{"event":"charge.success","data":{"id":1}}', 'invalid'),
@@ -60,7 +60,7 @@ it('rejects a tampered paystack payload after signing', function () {
     $signedPayload = '{"event":"charge.success","data":{"id":1}}';
     $signature = hash_hmac('sha512', $signedPayload, 'sk_test_123');
 
-    $validator = new PaystackSignatureValidator();
+    $validator = new PaystackSignatureValidator;
 
     expect($validator->isValid(
         paystackWebhookRequest('{"event":"charge.success","data":{"id":2}}', $signature),
@@ -73,7 +73,7 @@ it('rejects missing paystack webhook signatures', function () {
         'CONTENT_TYPE' => 'application/json',
     ], '{"event":"charge.success","data":{"id":1}}');
 
-    $validator = new PaystackSignatureValidator();
+    $validator = new PaystackSignatureValidator;
 
     expect($validator->isValid($request, paystackWebhookConfig()))->toBeFalse();
 });
@@ -84,7 +84,7 @@ it('rejects validation when the signing secret is blank', function () {
     config()->set('paystack.secret_key', '');
     config()->set('paystack.webhooks.signing_secret', '');
 
-    $validator = new PaystackSignatureValidator();
+    $validator = new PaystackSignatureValidator;
 
     expect($validator->isValid(
         paystackWebhookRequest($payload, $signature),
