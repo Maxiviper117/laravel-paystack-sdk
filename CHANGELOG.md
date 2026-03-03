@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.2.0...v0.3.0) (2026-03-03)
+
+
+### Features
+
+* migrate webhook handling to spatie client ([#9](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/9)) ([35a561b](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/35a561b709ca45ad5896b1930db73d7f80acc25c))
+
+
+### Bug Fixes
+
+* harden webhook and input validation ([#8](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/8)) ([1fe103f](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/1fe103f016ac27df03228f83a34efd8ea7b2cd5f))
+
 ## [0.2.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.1.0...v0.2.0) (2026-03-02)
 
 
