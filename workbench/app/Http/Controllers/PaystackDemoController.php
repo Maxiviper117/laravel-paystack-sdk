@@ -323,7 +323,7 @@ class PaystackDemoController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function render(string $view, array $data = []): View
     {
