@@ -7,6 +7,7 @@ This cookbook shows realistic Laravel integration flows for the package. Use the
 - [One-Time Checkout](/examples/checkout): initialize a Paystack transaction from your app, return the authorization URL, and redirect the customer safely.
 - [Verify a Transaction](/examples/verify-transaction): verify a Paystack reference after callback or during an internal reconciliation flow.
 - [Manage Customers](/examples/customers): create and update Paystack customers while keeping your local customer records in sync.
+- [Optional Billing Layer](/examples/billing-layer): use the package-owned billing tables and `Billable` trait when you want Cashier-style local persistence without giving up the action-first SDK.
 - [Subscription Billing Flow](/examples/subscriptions): create plans, create subscriptions, and understand where webhooks fit into recurring billing.
 - [Webhook Processing](/examples/webhooks): register the endpoint, process incoming Paystack events, and use typed webhook payloads.
 - [Manager and Facade Usage](/examples/manager-and-facade): choose between injected actions, `PaystackManager`, and the `Paystack` facade.
@@ -22,5 +23,6 @@ This cookbook shows realistic Laravel integration flows for the package. Use the
 - [Transactions](/transactions)
 - [Customers](/customers)
 - [Plans](/plans)
+- [Billing Layer](/billing-layer)
 - [Subscriptions](/subscriptions)
 - [Webhooks](/webhooks)

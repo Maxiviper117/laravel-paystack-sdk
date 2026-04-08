@@ -20,7 +20,8 @@ class PaystackServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('paystack')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->discoversMigrations();
     }
 
     public function packageRegistered(): void

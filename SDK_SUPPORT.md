@@ -55,6 +55,7 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Saloon-based connector | Supported | `PaystackConnector` handles base URL, auth, timeouts, retries, and API error behavior. |
 | Laravel service provider | Supported | Auto-discovered package provider with config publishing. |
 | Facade / manager API | Supported | `Paystack` facade resolves `PaystackManager`, now with DTO-first method signatures. |
+| Optional billing layer | Supported | `Maxiviper117\Paystack\Concerns\Billable` plus `PaystackCustomer` and `PaystackSubscription` provide package-owned local persistence for apps that choose to publish the billing migrations. |
 | Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. |
 | Action-specific response DTOs | Supported | Response DTOs live under `src/Data/Output`. |
 | Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, stored webhook calls, queued event dispatch, and typed payload resolution for selected events. |

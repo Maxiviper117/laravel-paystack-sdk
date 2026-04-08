@@ -10,6 +10,7 @@ The package currently supports:
 
 - transactions
 - customers
+- an optional local billing layer for stored Paystack customers and subscriptions
 - plans
 - subscriptions
 - Paystack webhook endpoints with persisted calls and queued processing
@@ -20,6 +21,7 @@ The package currently supports:
 - DTO-first inputs and action-specific response DTOs
 - Saloon-backed HTTP integration with package-managed retries, timeouts, and API error handling
 - Laravel-native service provider, manager, and facade access for outbound Paystack actions
+- optional Billable Eloquent persistence when your app wants package-owned billing tables
 - Endpoint-first webhook handling powered by `spatie/laravel-webhook-client`
 
 ## Start here
@@ -42,6 +44,7 @@ The new examples area is a cookbook for application integrators. Start there if 
 
 - Transactions: [Transactions](/transactions)
 - Customers: [Customers](/customers)
+- Optional billing layer: [Billing Layer](/billing-layer)
 - Billing plans: [Plans](/plans)
 - Subscriptions: [Subscriptions](/subscriptions)
 - Webhooks: [Webhooks](/webhooks)
