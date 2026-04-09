@@ -12,8 +12,10 @@ use Maxiviper117\Paystack\Concerns\Billable;
 class User extends Authenticatable
 {
     use Billable;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use Notifiable;
 
     /**
