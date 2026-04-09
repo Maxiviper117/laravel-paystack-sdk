@@ -17,7 +17,7 @@ class TransactionData extends Data
      */
     public function __construct(
         public int|string|null $id,
-        public string $status,
+        public ?TransactionStatus $status,
         public string $reference,
         public int $amount,
         public ?string $currency,
@@ -43,7 +43,7 @@ class TransactionData extends Data
 
         return new self(
             id: Payload::intOrStringOrNull($payload, 'id'),
-            status: Payload::string($payload, 'status'),
+            status: self::transactionStatus($payload),
             reference: Payload::string($payload, 'reference'),
             amount: Payload::int($payload, 'amount'),
             currency: Payload::nullableString($payload, 'currency'),
@@ -54,5 +54,19 @@ class TransactionData extends Data
             channel: Payload::nullableString($payload, 'channel'),
             raw: $payload,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function transactionStatus(array $payload): ?TransactionStatus
+    {
+        $status = Payload::nullableString($payload, 'status');
+
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        return TransactionStatus::tryFrom($status);
     }
 }

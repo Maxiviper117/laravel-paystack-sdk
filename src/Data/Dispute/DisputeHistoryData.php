@@ -17,7 +17,7 @@ class DisputeHistoryData extends Data
     public function __construct(
         public int|string|null $id,
         public int|string|null $dispute,
-        public ?string $status,
+        public ?DisputeStatus $status,
         public ?string $by,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
         public ?CarbonImmutable $createdAt,
@@ -34,7 +34,7 @@ class DisputeHistoryData extends Data
         return new self(
             id: Payload::intOrStringOrNull($payload, 'id'),
             dispute: Payload::intOrStringOrNull($payload, 'dispute'),
-            status: Payload::nullableString($payload, 'status'),
+            status: self::disputeStatus($payload),
             by: Payload::nullableString($payload, 'by'),
             createdAt: PaystackDate::nullable(
                 Payload::nullableString($payload, 'createdAt') ?? Payload::nullableString($payload, 'created_at')
@@ -44,5 +44,19 @@ class DisputeHistoryData extends Data
             ),
             raw: $payload,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function disputeStatus(array $payload): ?DisputeStatus
+    {
+        $status = Payload::nullableString($payload, 'status');
+
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        return DisputeStatus::tryFrom($status);
     }
 }

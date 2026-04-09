@@ -2,6 +2,8 @@
 
 This document tracks the Paystack endpoints and SDK features currently supported by this package.
 
+Where Paystack documents a closed status vocabulary, the SDK uses backed enums for the supported input/output DTOs and workbench controls rather than raw free-form strings.
+
 Use it as the maintainer reference for:
 
 - what is implemented now

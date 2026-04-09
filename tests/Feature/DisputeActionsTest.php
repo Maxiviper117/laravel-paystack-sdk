@@ -9,6 +9,7 @@ use Maxiviper117\Paystack\Actions\Dispute\ListDisputesAction;
 use Maxiviper117\Paystack\Actions\Dispute\ListTransactionDisputesAction;
 use Maxiviper117\Paystack\Actions\Dispute\ResolveDisputeAction;
 use Maxiviper117\Paystack\Actions\Dispute\UpdateDisputeAction;
+use Maxiviper117\Paystack\Data\Dispute\DisputeStatus;
 use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
 use Maxiviper117\Paystack\Data\Input\Dispute\FetchDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
@@ -76,7 +77,7 @@ it('lists disputes and maps nested payload data', function () {
         perPage: 25,
         page: 1,
         transaction: '5991760',
-        status: 'pending',
+        status: DisputeStatus::Pending,
     ));
 
     expect($result)->toBeInstanceOf(ListDisputesResponseData::class)
@@ -163,7 +164,7 @@ it('fetches a dispute and transaction disputes with typed nested data', function
         ->and($fetched->dispute->transaction?->customer?->email)->toBe('customer@example.com')
         ->and($transactionDispute)->toBeInstanceOf(ListTransactionDisputesResponseData::class)
         ->and($transactionDispute->dispute->history)->toHaveCount(1)
-        ->and($transactionDispute->dispute->history[0]->status)->toBe('pending')
+        ->and($transactionDispute->dispute->history[0]->status)->toBe(DisputeStatus::Pending)
         ->and($transactionDispute->dispute->messages[0]->isDeleted)->toBeFalse();
 
     $mockClient->assertSent(fn (Request $request) => $request instanceof FetchDisputeRequest
@@ -268,7 +269,7 @@ it('updates exports and resolves disputes with the expected payloads', function 
         perPage: 25,
         page: 1,
         transaction: '5991760',
-        status: 'pending',
+        status: DisputeStatus::Pending,
     ));
 
     expect($updated)->toBeInstanceOf(UpdateDisputeResponseData::class)
@@ -280,7 +281,7 @@ it('updates exports and resolves disputes with the expected payloads', function 
         ->and($uploadUrl)->toBeInstanceOf(GetDisputeUploadUrlResponseData::class)
         ->and($uploadUrl->uploadUrl->signedUrl)->toBe('https://files.example.com/upload')
         ->and($resolved)->toBeInstanceOf(ResolveDisputeResponseData::class)
-        ->and($resolved->dispute->status)->toBe('resolved')
+        ->and($resolved->dispute->status)->toBe(DisputeStatus::Resolved)
         ->and($resolved->dispute->resolvedAt)->toBeInstanceOf(CarbonImmutable::class)
         ->and($export)->toBeInstanceOf(ExportDisputesResponseData::class)
         ->and($export->export->path)->toContain('disputes.csv');

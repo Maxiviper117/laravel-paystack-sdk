@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Data\Input\Dispute;
 
+use Maxiviper117\Paystack\Data\Dispute\DisputeStatus;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 use Spatie\LaravelData\Data;
 
@@ -16,7 +17,7 @@ class ListDisputesInputData extends Data
         public ?int $perPage = null,
         public ?int $page = null,
         public ?string $transaction = null,
-        public ?string $status = null,
+        public DisputeStatus|string|null $status = null,
         public array $extra = [],
     ) {
         if ($this->from !== null && trim($this->from) === '') {
@@ -39,7 +40,10 @@ class ListDisputesInputData extends Data
             throw new InvalidPaystackInputException('The Paystack dispute transaction filter cannot be empty.');
         }
 
-        if ($this->status !== null && ! in_array($this->status, self::allowedStatuses(), true)) {
+        if ($this->status !== null && ! (
+            $this->status instanceof DisputeStatus
+            || in_array($this->status, self::allowedStatuses(), true)
+        )) {
             throw new InvalidPaystackInputException('The Paystack dispute status filter is invalid.');
         }
     }
@@ -57,7 +61,7 @@ class ListDisputesInputData extends Data
             'perPage' => $this->perPage,
             'page' => $this->page,
             'transaction' => $this->transaction,
-            'status' => $this->status,
+            'status' => $this->status instanceof DisputeStatus ? $this->status->value : $this->status,
         ] as $key => $value) {
             if ($value !== null) {
                 $query[$key] = $value;
@@ -72,11 +76,6 @@ class ListDisputesInputData extends Data
      */
     public static function allowedStatuses(): array
     {
-        return [
-            'awaiting-merchant-feedback',
-            'awaiting-bank-feedback',
-            'pending',
-            'resolved',
-        ];
+        return DisputeStatus::values();
     }
 }

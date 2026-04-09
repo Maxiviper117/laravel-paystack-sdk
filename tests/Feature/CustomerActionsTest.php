@@ -7,6 +7,7 @@ use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
 use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\CustomerRiskAction;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
@@ -265,7 +266,7 @@ it('sets a customer risk action and sends the expected payload', function () {
 
     $result = app(SetCustomerRiskAction::class)->execute(new SetCustomerRiskActionInputData(
         customer: 'CUS_123',
-        riskAction: 'deny',
+        riskAction: CustomerRiskAction::Deny,
     ));
 
     expect($result)->toBeInstanceOf(SetCustomerRiskActionResponseData::class)
@@ -369,7 +370,7 @@ it('throws on customer api errors', function (string $action) {
         )),
         'risk-action' => app(SetCustomerRiskAction::class)->execute(new SetCustomerRiskActionInputData(
             customer: 'CUS_123',
-            riskAction: 'deny',
+            riskAction: CustomerRiskAction::Deny,
         )),
         default => throw new InvalidArgumentException('Unknown customer action test case.'),
     };

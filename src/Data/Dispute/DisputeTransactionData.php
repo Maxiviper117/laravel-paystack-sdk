@@ -3,6 +3,7 @@
 namespace Maxiviper117\Paystack\Data\Dispute;
 
 use Carbon\CarbonImmutable;
+use Maxiviper117\Paystack\Data\Transaction\TransactionStatus;
 use Maxiviper117\Paystack\Support\Payload;
 use Maxiviper117\Paystack\Support\PaystackDate;
 use Spatie\LaravelData\Attributes\WithTransformer;
@@ -24,7 +25,7 @@ class DisputeTransactionData extends Data
     public function __construct(
         public int|string|null $id,
         public ?string $domain,
-        public ?string $status,
+        public ?TransactionStatus $status,
         public ?string $reference,
         public ?int $amount,
         public ?string $message,
@@ -66,7 +67,7 @@ class DisputeTransactionData extends Data
         return new self(
             id: Payload::intOrStringOrNull($payload, 'id'),
             domain: Payload::nullableString($payload, 'domain'),
-            status: Payload::nullableString($payload, 'status'),
+            status: self::transactionStatus($payload),
             reference: Payload::nullableString($payload, 'reference'),
             amount: array_key_exists('amount', $payload) ? Payload::int($payload, 'amount') : null,
             message: Payload::nullableString($payload, 'message'),
@@ -95,5 +96,19 @@ class DisputeTransactionData extends Data
                 : null,
             raw: $payload,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function transactionStatus(array $payload): ?TransactionStatus
+    {
+        $status = Payload::nullableString($payload, 'status');
+
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        return TransactionStatus::tryFrom($status);
     }
 }

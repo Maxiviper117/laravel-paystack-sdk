@@ -111,8 +111,13 @@
                             class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
                     </label>
                     <label class="block text-sm font-medium text-slate-700">Status
-                        <input name="status" type="text" placeholder="Optional"
-                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                        <select name="status"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-orange-400 focus:outline-none">
+                            <option value="">Optional</option>
+                            @foreach ($transactionStatuses as $value => $label)
+                                <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
                     </label>
                     <label class="block text-sm font-medium text-slate-700">From
                         <input name="from" type="text" placeholder="2026-01-01"

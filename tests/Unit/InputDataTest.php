@@ -1,6 +1,8 @@
 <?php
 
+use Maxiviper117\Paystack\Data\Dispute\DisputeStatus;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\CustomerRiskAction;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
@@ -17,6 +19,7 @@ use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInpu
 use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\TransactionStatus;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 
@@ -93,7 +96,7 @@ it('serializes fetch customer input data and risk validation bodies', function (
 
     $riskAction = new SetCustomerRiskActionInputData(
         customer: 'CUS_123',
-        riskAction: 'deny',
+        riskAction: CustomerRiskAction::Deny,
         extra: ['note' => 'manual review'],
     );
 
@@ -116,7 +119,7 @@ it('serializes fetch customer input data and risk validation bodies', function (
 });
 
 it('serializes list filters to request queries', function () {
-    $transactions = new ListTransactionsInputData(perPage: 50, page: 2, customer: 'CUS_123', status: 'success', extra: ['amount' => 5000], terminalId: 'TAL_123');
+    $transactions = new ListTransactionsInputData(perPage: 50, page: 2, customer: 'CUS_123', status: TransactionStatus::Success, extra: ['amount' => 5000], terminalId: 'TAL_123');
     $customers = new ListCustomersInputData(perPage: 25, email: 'jane@example.com', extra: ['from' => '2026-01-01']);
 
     expect($transactions->toRequestQuery())->toBe([
@@ -157,7 +160,7 @@ it('serializes dispute input data for requests', function () {
         perPage: 25,
         page: 2,
         transaction: '5991760',
-        status: 'pending',
+        status: DisputeStatus::Pending,
         extra: ['source' => 'workbench'],
     );
 
@@ -278,6 +281,10 @@ it('rejects invalid customer update identifiers at construction time', function 
 
 it('rejects invalid dispute dto input at construction time', function () {
     new ListDisputesInputData(status: 'archived');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid transaction status filters at construction time', function () {
+    new ListTransactionsInputData(status: 'archived');
 })->throws(InvalidPaystackInputException::class);
 
 it('rejects invalid dispute mutation input at construction time', function () {
