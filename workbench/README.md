@@ -12,6 +12,7 @@ The current workbench flow covers:
 - redirecting to Paystack checkout
 - verifying the transaction on the callback route
 - receiving Paystack webhooks through a stored and queued endpoint
+- listing customers through the local package
 - creating plans through the local package
 - creating subscriptions through the local package
 
@@ -36,9 +37,10 @@ PAYSTACK_SECRET_KEY=sk_test_xxx
 PAYSTACK_PUBLIC_KEY=pk_test_xxx
 ```
 
-Run the webhook client migration so the workbench can store inbound webhook calls:
+Publish the webhook client migration, then run the workbench migrations so inbound webhook calls can be stored:
 
 ```bash
+php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientServiceProvider" --tag="webhook-client-migrations"
 php artisan migrate
 ```
 
@@ -63,15 +65,17 @@ Then open:
 - `/paystack/test/webhook` for the webhook endpoint instructions
 - `/paystack/test/webhook/latest-call` to inspect the most recently stored webhook call
 - `/paystack/test/webhook/latest-event` to inspect the latest processed event captured by the workbench listener
+- `/paystack/test/customers` to list customers with optional `per_page`, `page`, `email`, `from`, and `to` query filters
 - `/paystack/test/plan` for the plan creation example route
 - `/paystack/test/subscription` for the subscription creation example route
 
 ## Current integration shape
 
-The workbench resolves package actions from the Laravel container and uses their invokable form:
+The workbench uses Laravel controllers for action-based examples so actions are injected through the container:
 
 - `InitializeTransactionAction`
 - `VerifyTransactionAction`
+- `ListCustomersAction`
 
 Outbound Paystack API usage still follows the package's current pattern:
 
@@ -83,7 +87,7 @@ Outbound Paystack API usage still follows the package's current pattern:
 
 Webhook handling is now endpoint-first:
 
-- register the endpoint with `Route::webhooks('/paystack/test/webhook', 'paystack')`
+- register the endpoint with `Route::post('/paystack/test/webhook', 'Spatie\WebhookClient\Http\Controllers\WebhookController')->name('webhook-client-paystack')`
 - let the package validate the `x-paystack-signature` header
 - inspect stored calls in `webhook_calls`
 - react to `PaystackWebhookReceived` after the queued job runs

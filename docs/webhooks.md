@@ -8,7 +8,7 @@ Looking for an end-to-end Laravel integration flow? Start with [Webhook Processi
 
 1. Register a webhook endpoint in your app.
 2. Exclude that endpoint from CSRF protection.
-3. Run the webhook client migration so valid calls can be stored.
+3. Publish and run the webhook client migration so valid calls can be stored.
 4. Run a queue worker so the stored call can be processed.
 5. Listen for `PaystackWebhookReceived` and handle the normalized event data.
 
@@ -41,6 +41,7 @@ Route::post('paystack/webhook', WebhookController::class)
 ## Local setup example
 
 ```bash
+php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientServiceProvider" --tag="webhook-client-migrations"
 php artisan migrate
 php artisan queue:work
 ```
@@ -278,7 +279,8 @@ $decodedInput = $latestWebhook?->inputPayload();
 ## Setup requirements
 
 - keep `PAYSTACK_SECRET_KEY` configured so signature validation can succeed
-- run the webhook client migration so the `webhook_calls` table exists
+- publish the webhook client migration with `php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientServiceProvider" --tag="webhook-client-migrations"`
+- run `php artisan migrate` so the `webhook_calls` table exists
 - run a queue worker for webhook processing
 - exclude your webhook route from CSRF protection in Laravel 11 or 12
 

@@ -1,49 +1,21 @@
 <?php
 
+use App\Http\Controllers\PaystackTestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
-use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
-use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
-use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
-use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
-use Spatie\WebhookClient\Http\Controllers\WebhookController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/paystack/test/start', function () {
-    $initializeTransaction = app(InitializeTransactionAction::class);
+Route::get('/paystack/test/start', [PaystackTestController::class, 'start']);
 
-    $initialized = $initializeTransaction(
-        new InitializeTransactionInputData(
-            email: 'customer@example.com',
-            amount: 15.50,
-            callbackUrl: url('/paystack/test/callback'),
-            metadata: [
-                'source' => 'workbench',
-                'purpose' => 'live-test',
-            ],
-        ),
-    );
-
-    return redirect()->away($initialized->authorizationUrl);
-});
-
-Route::get('/paystack/test/callback', function (Request $request) {
-    $reference = (string) $request->query('reference', '');
-
-    abort_if($reference === '', 400, 'Missing Paystack reference.');
-
-    $verifyTransaction = app(VerifyTransactionAction::class);
-
-    return $verifyTransaction(new VerifyTransactionInputData($reference));
-});
+Route::get('/paystack/test/callback', [PaystackTestController::class, 'callback']);
 
 Route::get('/paystack/test/webhook', function () {
     return response()->json([
@@ -54,7 +26,7 @@ Route::get('/paystack/test/webhook', function () {
     ]);
 });
 
-Route::post('/paystack/test/webhook', WebhookController::class)
+Route::post('/paystack/test/webhook', 'Spatie\WebhookClient\Http\Controllers\WebhookController')
     ->name('webhook-client-paystack');
 
 Route::get('/paystack/test/webhook/latest-event', function () {
@@ -70,6 +42,8 @@ Route::get('/paystack/test/webhook/latest-call', function () {
         'webhook_call' => $webhookCall?->only(['id', 'name', 'url', 'headers', 'payload', 'exception', 'created_at']),
     ]);
 });
+
+Route::get('/paystack/test/customers', [PaystackTestController::class, 'customers']);
 
 Route::match(['GET', 'POST'], '/paystack/test/plan', function (Request $request) {
     if ($request->isMethod('get')) {
