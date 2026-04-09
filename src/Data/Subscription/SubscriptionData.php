@@ -19,7 +19,7 @@ class SubscriptionData extends Data
     public function __construct(
         public int|string|null $id,
         public string $subscriptionCode,
-        public ?string $status,
+        public ?SubscriptionStatus $status,
         public ?string $emailToken,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
         public ?CarbonImmutable $nextPaymentDate,
@@ -52,7 +52,7 @@ class SubscriptionData extends Data
         return new self(
             id: Payload::intOrStringOrNull($payload, 'id'),
             subscriptionCode: Payload::nullableString($payload, 'subscription_code') ?? Payload::string($payload, 'subscriptionCode'),
-            status: Payload::nullableString($payload, 'status'),
+            status: self::subscriptionStatus($payload),
             emailToken: Payload::nullableString($payload, 'email_token') ?? Payload::nullableString($payload, 'emailToken'),
             nextPaymentDate: PaystackDate::nullable(
                 Payload::nullableString($payload, 'next_payment_date') ?? Payload::nullableString($payload, 'nextPaymentDate')
@@ -62,5 +62,19 @@ class SubscriptionData extends Data
             customer: $customer,
             raw: $payload,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function subscriptionStatus(array $payload): ?SubscriptionStatus
+    {
+        $status = Payload::nullableString($payload, 'status');
+
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        return SubscriptionStatus::tryFrom($status);
     }
 }

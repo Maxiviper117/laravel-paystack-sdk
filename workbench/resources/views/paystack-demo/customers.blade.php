@@ -126,9 +126,10 @@
                         <label class="block text-sm font-medium text-slate-700 md:col-span-2">Risk action
                             <select name="risk_action"
                                 class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-orange-400 focus:outline-none">
-                                <option value="allow">allow</option>
-                                <option value="deny">deny</option>
-                                <option value="default" selected>default</option>
+                                <option value="">Optional</option>
+                                @foreach ($customerRiskActions as $value => $label)
+                                    <option value="{{ $value }}" @selected(request('risk_action', 'default') === $value)>{{ $label }}</option>
+                                @endforeach
                             </select>
                         </label>
                     </div>

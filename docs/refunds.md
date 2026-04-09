@@ -59,6 +59,8 @@ Matching response DTOs:
 
 `ListRefundsInputData` supports the documented `transaction`, `currency`, `from`, `to`, `perPage`, and `page` query parameters.
 
+Refund response DTOs expose the documented refund lifecycle through the backed `RefundStatus` enum: `pending`, `processing`, `needs-attention`, `failed`, and `processed`.
+
 ## Facade usage
 
 ```php

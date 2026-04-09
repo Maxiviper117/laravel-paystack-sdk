@@ -8,11 +8,13 @@ use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\TransactionStatus;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
+use Maxiviper117\Paystack\Data\Transaction\TransactionStatus as TransactionResponseStatus;
 use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\FetchTransactionRequest;
@@ -105,7 +107,7 @@ it('verifies a transaction and returns a dto', function () {
     $result = app(VerifyTransactionAction::class)->execute(new VerifyTransactionInputData('ref_123'));
 
     expect($result)->toBeInstanceOf(VerifyTransactionResponseData::class)
-        ->and($result->transaction->status)->toBe('success')
+        ->and($result->transaction->status)->toBe(TransactionResponseStatus::Success)
         ->and($result->transaction->paidAt)->toBeInstanceOf(CarbonImmutable::class)
         ->and($result->transaction->paidAt?->toAtomString())->toBe('2026-03-01T10:00:00+00:00')
         ->and($result->transaction->customer?->customerCode)->toBe('CUS_123');
@@ -227,7 +229,7 @@ it('lists transactions and maps pagination', function () {
         && $request->query()->all()['perPage'] === 50);
 });
 
-it('sends terminal and amount list filters when present', function () {
+it('sends terminal amount and enum status list filters when present', function () {
     $mockClient = new MockClient([
         ListTransactionsRequest::class => MockResponse::make([
             'status' => true,
@@ -249,13 +251,15 @@ it('sends terminal and amount list filters when present', function () {
         amount: 5000,
         reference: 'ref_123',
         terminalId: 'TAL_123',
+        status: TransactionStatus::Abandoned,
     ));
 
     $mockClient->assertSent(fn (Request $request) => $request instanceof ListTransactionsRequest
         && $request->query()->all()['customer'] === 'CUS_123'
         && $request->query()->all()['terminalid'] === 'TAL_123'
         && $request->query()->all()['amount'] === 5000
-        && $request->query()->all()['reference'] === 'ref_123');
+        && $request->query()->all()['reference'] === 'ref_123'
+        && $request->query()->all()['status'] === 'abandoned');
 });
 
 it('lists transactions with empty data and without meta', function () {

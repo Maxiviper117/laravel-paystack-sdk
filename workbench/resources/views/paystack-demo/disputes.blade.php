@@ -33,10 +33,9 @@
                         <select name="status"
                             class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-orange-400 focus:outline-none">
                             <option value="">Any status</option>
-                            <option value="awaiting-merchant-feedback">awaiting-merchant-feedback</option>
-                            <option value="awaiting-bank-feedback">awaiting-bank-feedback</option>
-                            <option value="pending">pending</option>
-                            <option value="resolved">resolved</option>
+                            @foreach ($disputeStatuses as $value => $label)
+                                <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </label>
                 </div>

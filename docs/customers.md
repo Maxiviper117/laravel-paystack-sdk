@@ -88,6 +88,8 @@ $response = $action(
 
 Use `ListCustomersAction` with `ListCustomersInputData` to query the supported customer list filters and pagination inputs exposed by the package.
 
+`SetCustomerRiskActionInputData` uses the backed `CustomerRiskAction` enum for the documented `default`, `allow`, and `deny` values.
+
 ## Returned data
 
 Customer operations return typed response DTOs:

@@ -9,6 +9,7 @@ use Maxiviper117\Paystack\Data\Output\Webhook\Typed\InvoiceUpdatedWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionCreatedWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionDisabledWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionNotRenewingWebhookData;
+use Maxiviper117\Paystack\Data\Subscription\SubscriptionStatus;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 
 it('resolves typed data for charge success webhooks', function () {
@@ -193,7 +194,7 @@ it('resolves typed data for subscription not renew webhooks', function () {
     expect($typedData)->toBeInstanceOf(SubscriptionNotRenewingWebhookData::class);
 
     /** @var SubscriptionNotRenewingWebhookData $typedData */
-    expect($typedData->status)->toBe('non-renewing');
+    expect($typedData->status)->toBe(SubscriptionStatus::NonRenewing);
 });
 
 it('resolves typed data for subscription disable webhooks', function () {

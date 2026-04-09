@@ -22,6 +22,7 @@ use Maxiviper117\Paystack\Data\Output\Subscription\FetchSubscriptionResponseData
 use Maxiviper117\Paystack\Data\Output\Subscription\GenerateSubscriptionUpdateLinkResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\ListSubscriptionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\SendSubscriptionUpdateLinkResponseData;
+use Maxiviper117\Paystack\Data\Subscription\SubscriptionStatus;
 use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\CreateSubscriptionRequest;
@@ -83,7 +84,7 @@ it('creates and fetches a subscription', function () {
         ->and($created->subscription->subscriptionCode)->toBe('SUB_123')
         ->and($created->subscription->customer?->customerCode)->toBe('CUS_123')
         ->and($fetched)->toBeInstanceOf(FetchSubscriptionResponseData::class)
-        ->and($fetched->subscription->status)->toBe('active')
+        ->and($fetched->subscription->status)->toBe(SubscriptionStatus::Active)
         ->and($fetched->subscription->nextPaymentDate)->toBeInstanceOf(CarbonImmutable::class)
         ->and($fetched->subscription->nextPaymentDate?->toAtomString())->toBe('2026-03-10T00:00:00+00:00');
 });

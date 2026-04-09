@@ -8,6 +8,7 @@ use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionDisabledWebhookD
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionNotRenewingWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionWebhookData;
 use Maxiviper117\Paystack\Data\Subscription\SubscriptionData;
+use Maxiviper117\Paystack\Data\Subscription\SubscriptionStatus;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Support\Payload;
 
@@ -20,25 +21,53 @@ class SubscriptionWebhookDataMapper
 
         $subscription = SubscriptionData::fromPayload($event->data);
 
-        $subscriptionData = [
-            'event' => $event->event,
-            'subscriptionCode' => $subscription->subscriptionCode,
-            'status' => Payload::string($event->data, 'status'),
-            'domain' => Payload::nullableString($event->data, 'domain'),
-            'emailToken' => $subscription->emailToken,
-            'amount' => self::nullableIntLike($event->data, 'amount') ?? $subscription->plan?->amount,
-            'nextPaymentDate' => $subscription->nextPaymentDate,
-            'openInvoice' => $subscription->openInvoice,
-            'customer' => $subscription->customer,
-            'plan' => $subscription->plan,
-            'subscription' => $subscription,
-            'rawData' => $event->data,
-        ];
+        $status = self::subscriptionStatus($event->data, $event->event);
+        $domain = Payload::nullableString($event->data, 'domain');
+        $amount = self::nullableIntLike($event->data, 'amount') ?? $subscription->plan?->amount;
 
         return match ($event->event) {
-            'subscription.create' => new SubscriptionCreatedWebhookData(...$subscriptionData),
-            'subscription.not_renew' => new SubscriptionNotRenewingWebhookData(...$subscriptionData),
-            'subscription.disable' => new SubscriptionDisabledWebhookData(...$subscriptionData),
+            'subscription.create' => new SubscriptionCreatedWebhookData(
+                event: $event->event,
+                subscriptionCode: $subscription->subscriptionCode,
+                status: $status,
+                domain: $domain,
+                emailToken: $subscription->emailToken,
+                amount: $amount,
+                nextPaymentDate: $subscription->nextPaymentDate,
+                openInvoice: $subscription->openInvoice,
+                customer: $subscription->customer,
+                plan: $subscription->plan,
+                subscription: $subscription,
+                rawData: $event->data,
+            ),
+            'subscription.not_renew' => new SubscriptionNotRenewingWebhookData(
+                event: $event->event,
+                subscriptionCode: $subscription->subscriptionCode,
+                status: $status,
+                domain: $domain,
+                emailToken: $subscription->emailToken,
+                amount: $amount,
+                nextPaymentDate: $subscription->nextPaymentDate,
+                openInvoice: $subscription->openInvoice,
+                customer: $subscription->customer,
+                plan: $subscription->plan,
+                subscription: $subscription,
+                rawData: $event->data,
+            ),
+            'subscription.disable' => new SubscriptionDisabledWebhookData(
+                event: $event->event,
+                subscriptionCode: $subscription->subscriptionCode,
+                status: $status,
+                domain: $domain,
+                emailToken: $subscription->emailToken,
+                amount: $amount,
+                nextPaymentDate: $subscription->nextPaymentDate,
+                openInvoice: $subscription->openInvoice,
+                customer: $subscription->customer,
+                plan: $subscription->plan,
+                subscription: $subscription,
+                rawData: $event->data,
+            ),
             default => throw new MalformedWebhookPayloadException(sprintf(
                 'Unsupported subscription webhook event [%s] requested for typed mapping.',
                 $event->event,
@@ -74,5 +103,23 @@ class SubscriptionWebhookDataMapper
         $value = $payload[$key];
 
         return is_numeric($value) ? (int) $value : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function subscriptionStatus(array $payload, string $event): SubscriptionStatus
+    {
+        $status = Payload::string($payload, 'status');
+        $subscriptionStatus = SubscriptionStatus::tryFrom($status);
+
+        if ($subscriptionStatus === null) {
+            throw new MalformedWebhookPayloadException(sprintf(
+                'The Paystack webhook payload for [%s] contains an unsupported [status] field.',
+                $event,
+            ));
+        }
+
+        return $subscriptionStatus;
     }
 }

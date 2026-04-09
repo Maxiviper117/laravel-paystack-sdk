@@ -28,6 +28,10 @@ $response = app(ListDisputesAction::class)(
 - `transaction`
 - `status`
 
+`status` is enum-backed through `DisputeStatus` with the documented values `awaiting-merchant-feedback`, `awaiting-bank-feedback`, `pending`, and `resolved`.
+
+The same `DisputeStatus` enum is used on dispute response DTOs so fetched and resolved disputes stay type-safe in PHP.
+
 `ExportDisputesAction` reuses the same input DTO so exports and lists stay aligned.
 
 ## Fetch and transaction disputes

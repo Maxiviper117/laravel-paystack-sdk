@@ -14,6 +14,7 @@ use Maxiviper117\Paystack\Data\Output\Refund\CreateRefundResponseData;
 use Maxiviper117\Paystack\Data\Output\Refund\FetchRefundResponseData;
 use Maxiviper117\Paystack\Data\Output\Refund\ListRefundsResponseData;
 use Maxiviper117\Paystack\Data\Output\Refund\RetryRefundResponseData;
+use Maxiviper117\Paystack\Data\Refund\RefundStatus;
 use Maxiviper117\Paystack\Data\Transaction\TransactionData;
 use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
@@ -155,7 +156,7 @@ it('retries a refund and exposes manager and facade access', function () {
     $facadeResult = Paystack::retryRefund($input);
 
     expect($managerResult)->toBeInstanceOf(RetryRefundResponseData::class)
-        ->and($managerResult->refund->status)->toBe('processing')
+        ->and($managerResult->refund->status)->toBe(RefundStatus::Processing)
         ->and($facadeResult)->toBeInstanceOf(RetryRefundResponseData::class)
         ->and($facadeResult->refund->transaction)->toBe(3298598423);
 });

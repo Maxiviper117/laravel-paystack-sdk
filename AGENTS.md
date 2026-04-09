@@ -46,6 +46,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Keep the optional Billable layer as a convenience wrapper over the existing actions and DTOs; do not let it become a second, conflicting SDK surface.
 - Prefer small, typed DTOs over passing raw arrays through public APIs.
 - For richer resource domains, compose shared resource DTOs inside action-specific response DTOs instead of flattening everything into duplicated response shapes.
+- When Paystack documents a closed set of status or action values, model them as backed enums and reuse those enums in DTOs, docs, and workbench controls.
 - Keep request classes thin and API-focused; keep business rules in actions or support classes.
 - Treat security as a first-class concern in every change. Be alert to potentially introducing security bugs, especially around payment flows, webhook handling, secrets, signatures, request validation, authorization boundaries, and any code that processes sensitive financial or customer data.
 - Preserve compatibility with Laravel `11.x` and `12.x` and PHP `8.3` and `8.4`.

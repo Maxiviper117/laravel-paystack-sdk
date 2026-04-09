@@ -14,7 +14,7 @@ class ListTransactionsInputData extends Data
         public ?int $perPage = null,
         public ?int $page = null,
         public ?string $customer = null,
-        public ?string $status = null,
+        public TransactionStatus|string|null $status = null,
         public ?string $from = null,
         public ?string $to = null,
         public int|string|null $amount = null,
@@ -28,6 +28,10 @@ class ListTransactionsInputData extends Data
 
         if ($this->page !== null && $this->page < 1) {
             throw new InvalidPaystackInputException('The Paystack page filter must be greater than zero.');
+        }
+
+        if (is_string($this->status) && ! in_array($this->status, TransactionStatus::values(), true)) {
+            throw new InvalidPaystackInputException('The Paystack transaction status filter is invalid.');
         }
     }
 
@@ -43,7 +47,7 @@ class ListTransactionsInputData extends Data
             'page' => $this->page,
             'customer' => $this->customer,
             'terminalid' => $this->terminalId,
-            'status' => $this->status,
+            'status' => $this->status instanceof TransactionStatus ? $this->status->value : $this->status,
             'from' => $this->from,
             'to' => $this->to,
             'amount' => $this->amount,

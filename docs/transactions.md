@@ -101,6 +101,10 @@ Matching response DTOs:
 
 `ListTransactionsInputData` supports the documented query filters for `customer`, `terminalId`/`terminalid`, `status`, `from`, `to`, `amount`, and `reference`, in addition to the standard `perPage` and `page` pagination inputs.
 
+The list `status` filter is enum-backed through `TransactionStatus` with the documented values `failed`, `success`, and `abandoned`.
+
+Transaction response DTOs also expose the broader backed `TransactionStatus` enum for verified and listed transactions, including `ongoing`, `pending`, `processing`, `queued`, and `reversed`.
+
 ## Amount handling
 
 `InitializeTransactionInputData` accepts the amount in major currency units and converts it to Paystack subunits during request serialization. For example, `15.50` becomes `1550`.

@@ -40,6 +40,8 @@ Matching DTOs:
 - `GenerateSubscriptionUpdateLinkResponseData`
 - `SendSubscriptionUpdateLinkResponseData`
 
+Subscription response DTOs use the backed `SubscriptionStatus` enum for the documented values `active`, `non-renewing`, `attention`, `completed`, and `cancelled`.
+
 ## Relationship to plans
 
 Subscriptions depend on an existing Paystack plan. A common flow is:

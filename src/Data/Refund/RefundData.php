@@ -35,7 +35,7 @@ class RefundData extends Data
         public ?CarbonImmutable $expectedAt,
         public ?string $customerNote,
         public ?string $merchantNote,
-        public ?string $status,
+        public ?RefundStatus $status,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
         public ?CarbonImmutable $createdAt,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: DATE_ATOM)]
@@ -72,8 +72,6 @@ class RefundData extends Data
             $customer = CustomerData::fromPayload($customerPayload);
         }
 
-        $status = Payload::nullableString($payload, 'status');
-
         return new self(
             id: Payload::intOrStringOrNull($payload, 'id'),
             integration: Payload::intOrStringOrNull($payload, 'integration'),
@@ -99,7 +97,7 @@ class RefundData extends Data
             ),
             customerNote: Payload::nullableString($payload, 'customer_note') ?? Payload::nullableString($payload, 'customerNote'),
             merchantNote: Payload::nullableString($payload, 'merchant_note') ?? Payload::nullableString($payload, 'merchantNote'),
-            status: $status,
+            status: self::refundStatus($payload),
             createdAt: PaystackDate::nullable(
                 Payload::nullableString($payload, 'created_at')
                 ?? Payload::nullableString($payload, 'createdAt')
@@ -118,5 +116,19 @@ class RefundData extends Data
             sessionId: Payload::nullableString($payload, 'session_id') ?? Payload::nullableString($payload, 'sessionId'),
             raw: $payload,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function refundStatus(array $payload): ?RefundStatus
+    {
+        $status = Payload::nullableString($payload, 'status');
+
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        return RefundStatus::tryFrom($status);
     }
 }

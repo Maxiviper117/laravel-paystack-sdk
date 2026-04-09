@@ -21,7 +21,7 @@ class DisputeData extends Data
         public int|string|null $id,
         public ?int $refundAmount,
         public ?string $currency,
-        public ?string $status,
+        public ?DisputeStatus $status,
         public ?string $resolution,
         public ?string $domain,
         public ?string $category,
@@ -73,6 +73,7 @@ class DisputeData extends Data
         }
 
         $history = [];
+        /** @var array<int, array<string, mixed>>|null $historyPayload */
         $historyPayload = Payload::nullableArray($payload, 'history');
 
         if ($historyPayload !== null) {
@@ -83,6 +84,7 @@ class DisputeData extends Data
         }
 
         $messages = [];
+        /** @var array<int, array<string, mixed>>|null $messagesPayload */
         $messagesPayload = Payload::nullableArray($payload, 'messages');
 
         if ($messagesPayload !== null) {
@@ -101,7 +103,7 @@ class DisputeData extends Data
                 ? Payload::int($payload, array_key_exists('refund_amount', $payload) ? 'refund_amount' : 'refundAmount')
                 : null,
             currency: Payload::nullableString($payload, 'currency'),
-            status: Payload::nullableString($payload, 'status'),
+            status: self::disputeStatus($payload),
             resolution: Payload::nullableString($payload, 'resolution'),
             domain: Payload::nullableString($payload, 'domain'),
             category: Payload::nullableString($payload, 'category'),
@@ -134,5 +136,19 @@ class DisputeData extends Data
             messages: $messages,
             raw: $payload,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function disputeStatus(array $payload): ?DisputeStatus
+    {
+        $status = Payload::nullableString($payload, 'status');
+
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        return DisputeStatus::tryFrom($status);
     }
 }

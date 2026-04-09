@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Customer\CustomerData;
 use Maxiviper117\Paystack\Data\Plan\PlanData;
 use Maxiviper117\Paystack\Data\Subscription\SubscriptionData;
+use Maxiviper117\Paystack\Data\Subscription\SubscriptionStatus;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
@@ -18,7 +19,7 @@ class SubscriptionWebhookData extends Data implements PaystackTypedWebhookData
     public function __construct(
         public string $event,
         public string $subscriptionCode,
-        public string $status,
+        public SubscriptionStatus $status,
         public ?string $domain,
         public ?string $emailToken,
         public ?int $amount,

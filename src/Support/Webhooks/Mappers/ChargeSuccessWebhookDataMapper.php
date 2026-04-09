@@ -22,7 +22,7 @@ class ChargeSuccessWebhookDataMapper
         return new ChargeSuccessWebhookData(
             event: $event->event,
             reference: $transaction->reference,
-            status: $transaction->status,
+            status: Payload::string($event->data, 'status'),
             amount: $transaction->amount,
             domain: Payload::nullableString($event->data, 'domain'),
             currency: $transaction->currency,

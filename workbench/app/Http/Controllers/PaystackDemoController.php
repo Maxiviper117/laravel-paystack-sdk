@@ -39,7 +39,9 @@ use Maxiviper117\Paystack\Actions\Subscription\SendSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Dispute\DisputeStatus;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\CustomerRiskAction;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
@@ -70,7 +72,9 @@ use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\TransactionStatus;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 use Throwable;
 
@@ -117,7 +121,7 @@ class PaystackDemoController extends Controller
                         perPage: $request->integer('per_page') ?: 10,
                         page: $request->integer('page') ?: 1,
                         customer: $request->filled('customer') ? (string) $request->input('customer') : null,
-                        status: $request->filled('status') ? (string) $request->input('status') : null,
+                        status: $this->transactionStatus($request->input('status')),
                         from: $request->filled('from') ? (string) $request->input('from') : null,
                         to: $request->filled('to') ? (string) $request->input('to') : null,
                         amount: $request->filled('amount_filter') ? $request->input('amount_filter') : null,
@@ -173,6 +177,7 @@ class PaystackDemoController extends Controller
             'resultLabel' => $resultLabel,
             'callbackReference' => $callbackReference,
             'verificationNotice' => $verificationNotice,
+            'transactionStatuses' => TransactionStatus::options(),
             'currentPath' => '/paystack/demo/transactions',
         ]);
     }
@@ -251,6 +256,7 @@ class PaystackDemoController extends Controller
             'description' => 'Create, fetch, update, validate, risk-manage, and list customer records.',
             'result' => $result,
             'resultLabel' => $resultLabel,
+            'customerRiskActions' => CustomerRiskAction::options(),
             'currentPath' => '/paystack/demo/customers',
         ]);
     }
@@ -345,6 +351,7 @@ class PaystackDemoController extends Controller
             'description' => 'List, fetch, update, resolve, and export disputes, plus upload and evidence helpers.',
             'result' => $result,
             'resultLabel' => $resultLabel,
+            'disputeStatuses' => DisputeStatus::options(),
             'currentPath' => '/paystack/demo/disputes',
         ]);
     }
@@ -665,6 +672,25 @@ class PaystackDemoController extends Controller
         return trim($reference) === '' ? null : $reference;
     }
 
+    private function transactionStatus(mixed $value): ?TransactionStatus
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        return TransactionStatus::tryFrom($value)
+            ?? throw new InvalidPaystackInputException('The Paystack transaction status filter is invalid.');
+    }
+
+    private function enumValue(mixed $value): string
+    {
+        if ($value instanceof \BackedEnum) {
+            return (string) $value->value;
+        }
+
+        return is_string($value) ? $value : (string) $value;
+    }
+
     /**
      * @return array{title: string, message: string, tone: 'success'|'danger'}|null
      */
@@ -687,7 +713,7 @@ class PaystackDemoController extends Controller
             ];
         }
 
-        $status = strtolower((string) data_get($result, 'transaction.status', ''));
+        $status = strtolower($this->enumValue(data_get($result, 'transaction.status', '')));
         $reference = (string) data_get($result, 'transaction.reference', '');
 
         if ($status === 'success') {
