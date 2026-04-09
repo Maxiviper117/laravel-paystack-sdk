@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.6.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.5.1...v0.6.0) (2026-04-09)
+
+
+### Features
+
+* add built-assets workbench workflow ([#24](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/24)) ([9ff129e](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/9ff129e34148afecc8169105fb550f3ad6ac62a8))
+* add demo panel titles ([9956cda](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/9956cdab1640515ae2dcfb808703baa7f05a4f87))
+* add disputes api integration ([4ad2ea0](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/4ad2ea01adc1c811e76d3c4ecfc5b05b641c6601))
+* add disputes api integration ([#25](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/25)) ([4ad2ea0](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/4ad2ea01adc1c811e76d3c4ecfc5b05b641c6601))
+* add enum-backed status handling ([#27](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/27)) ([878b481](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/878b481f85dff36b66d48b4523fcd2c478140c82))
+* add missing Paystack endpoint actions ([#22](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/22)) ([8616db6](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/8616db6492c7fb9d00c2c0e9921ac843d965a275))
+* add refunds api support ([9956cda](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/9956cdab1640515ae2dcfb808703baa7f05a4f87))
+* add refunds api support ([#26](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/26)) ([9956cda](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/9956cdab1640515ae2dcfb808703baa7f05a4f87))
+* add transactions list demo ([9956cda](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/9956cdab1640515ae2dcfb808703baa7f05a4f87))
+
+
+### Bug Fixes
+
+* harden paystack fetch request paths ([#23](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/23)) ([3f74c6b](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/3f74c6b88f57b605abbd86a20c3f790ed3fc2407))
+
+
+### Miscellaneous Chores
+
+* format and refactor disputes integration ([4ad2ea0](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/4ad2ea01adc1c811e76d3c4ecfc5b05b641c6601))
+
 ## [0.5.1](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.5.0...v0.5.1) (2026-04-09)
 
 
