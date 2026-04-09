@@ -11,11 +11,11 @@ use Maxiviper117\Paystack\Concerns\Billable;
 
 class User extends Authenticatable
 {
-
     use Billable;
-    use Notifiable;
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
