@@ -28,6 +28,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - The `workbench` app uses `pnpm` for frontend package management in Composer scripts.
 - `workbench` is committed for development and live testing, but it is excluded from package distribution archives via `.gitattributes` `export-ignore`.
 - `workbench` is a standalone Laravel app with its own Composer configuration; do not autoload it from the root package `composer.json`.
+- `workbench` now supports two front-end run modes: `composer dev` for the Vite dev server and `composer dev-built` for serving compiled assets, clearing stale caches, and priming config/view caches without `public/hot`.
 - `workbench/routes/web.php` and `workbench/README.md` should reflect the current recommended package integration style when live-test examples change.
 - Keep the workbench app up to date with the current package state. If package APIs, DTOs, response shapes, config, or recommended integration patterns change, update the relevant workbench routes/docs in the same change.
 - `SDK_SUPPORT.md` is the maintainer-facing support matrix for Paystack endpoints and SDK capabilities; keep it aligned with the actual implemented package surface.
@@ -102,6 +103,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Check Rector changes: `composer refactor-dry`
 - Apply Rector changes: `composer refactor`
 - Format code: `composer format`
+- Run the workbench with built assets and cached config/views: `cd workbench && composer dev-built`
 - Run docs dev server: `pnpm run docs:dev`
 - Build docs: `pnpm run docs:build`
 - Workbench install: `cd workbench && composer install`

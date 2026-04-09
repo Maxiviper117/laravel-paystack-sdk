@@ -1,17 +1,20 @@
-<x-paystack-demo.layout
-    title="Legacy Playground"
-    heading="The old single-page playground has been split into separate feature pages."
-    description="Use the demo hub below to open the dedicated transaction, customer, plan, subscription, webhook, and billing pages."
-    :pages="$pages"
->
-    <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/60">
-        <h2 class="text-2xl font-black tracking-tight text-slate-900 sm:text-4xl">Legacy playground</h2>
-        <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            The single-page playground has been replaced by separate feature pages so each flow is easier to test and reason about.
+<x-paystack-demo.layout title="Legacy Playground" heading="Playground"
+    description="The old single-page playground has been split into separate feature pages." :pages="$pages"
+    current-path="/paystack/demo/playground">
+    <section class="border border-slate-200 bg-white p-5">
+        <p class="text-sm text-slate-600">
+            The legacy playground has been replaced by dedicated feature pages. Each page isolates one SDK feature so it
+            is easier to test and inspect.
         </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/paystack/demo" class="inline-flex items-center rounded-2xl bg-orange-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-300">Go to demo hub</a>
-            <a href="/paystack/demo/transactions" class="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-slate-100">Transactions</a>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a href="/paystack/demo/transactions"
+                class="bg-orange-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-orange-300">Transactions</a>
+            <a href="/paystack/demo/customers"
+                class="border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">Customers</a>
+            <a href="/paystack/demo/plans"
+                class="border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">Plans</a>
+            <a href="/paystack/demo/subscriptions"
+                class="border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">Subscriptions</a>
         </div>
     </section>
 </x-paystack-demo.layout>

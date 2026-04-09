@@ -62,6 +62,16 @@ Start the Laravel dev server:
 php artisan serve
 ```
 
+If you want the workbench to run **without** the Vite dev server, use the built-assets workflow instead:
+
+```bash
+composer dev-built
+```
+
+That mode removes `public/hot`, clears stale Laravel caches, primes the config and view caches, runs Vite in build-watch mode, and serves the compiled assets directly.
+
+The workbench intentionally does **not** route-cache or event-cache by default because the demo app still uses closure routes and a closure webhook listener.
+
 For webhook processing, also run a queue worker:
 
 ```bash

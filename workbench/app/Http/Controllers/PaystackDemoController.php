@@ -77,6 +77,8 @@ class PaystackDemoController extends Controller
         InitializeTransactionAction $initializeTransaction,
         VerifyTransactionAction $verifyTransaction,
     ): View {
+        $callbackReference = $this->callbackTransactionReference($request);
+
         [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $initializeTransaction, $verifyTransaction): array {
             return match ((string) $request->input('action', 'initialize')) {
                 'verify' => [
@@ -107,12 +109,29 @@ class PaystackDemoController extends Controller
             };
         });
 
+        if ($result === null && $request->isMethod('get') && $callbackReference !== null) {
+            try {
+                $result = $verifyTransaction(new VerifyTransactionInputData($callbackReference));
+                $resultLabel = 'Transaction verification';
+            } catch (Throwable $throwable) {
+                $result = [
+                    'error' => $throwable->getMessage(),
+                    'type' => $throwable::class,
+                ];
+                $resultLabel = 'Transaction verification';
+            }
+        }
+
+        $verificationNotice = $this->verificationNotice($request, $result, $resultLabel);
+
         return $this->render('transactions', [
             'title' => 'Transactions Demo',
             'heading' => 'Transactions',
             'description' => 'Initialize a checkout or verify a returned reference.',
             'result' => $result,
             'resultLabel' => $resultLabel,
+            'callbackReference' => $callbackReference,
+            'verificationNotice' => $verificationNotice,
             'currentPath' => '/paystack/demo/transactions',
         ]);
     }
@@ -442,5 +461,60 @@ class PaystackDemoController extends Controller
         $values = array_values(array_filter(array_map('trim', explode(',', $value)), static fn (string $item): bool => $item !== ''));
 
         return $values === [] ? null : $values;
+    }
+
+    private function callbackTransactionReference(Request $request): ?string
+    {
+        $reference = (string) ($request->query('reference') ?? $request->query('trxref') ?? '');
+
+        return trim($reference) === '' ? null : $reference;
+    }
+
+    /**
+     * @return array{title: string, message: string, tone: 'success'|'danger'}|null
+     */
+    private function verificationNotice(Request $request, mixed $result, ?string $resultLabel): ?array
+    {
+        $isVerificationContext = $resultLabel === 'Transaction verification'
+            || ($request->isMethod('post') && (string) $request->input('action', '') === 'verify');
+
+        if (! $isVerificationContext) {
+            return null;
+        }
+
+        $error = data_get($result, 'error');
+
+        if (is_string($error) && trim($error) !== '') {
+            return [
+                'title' => 'Verification failed',
+                'message' => $error,
+                'tone' => 'danger',
+            ];
+        }
+
+        $status = strtolower((string) data_get($result, 'transaction.status', ''));
+        $reference = (string) data_get($result, 'transaction.reference', '');
+
+        if ($status === 'success') {
+            return [
+                'title' => 'Verification successful',
+                'message' => $reference !== ''
+                    ? "Transaction {$reference} was verified successfully."
+                    : 'Transaction verification was successful.',
+                'tone' => 'success',
+            ];
+        }
+
+        if ($status !== '') {
+            return [
+                'title' => 'Verification failed',
+                'message' => $reference !== ''
+                    ? "Transaction {$reference} returned status {$status}."
+                    : "Transaction verification returned status {$status}.",
+                'tone' => 'danger',
+            ];
+        }
+
+        return null;
     }
 }
