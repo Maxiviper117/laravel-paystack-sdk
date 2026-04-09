@@ -6,6 +6,7 @@
             <form method="post" action="/paystack/demo/refunds" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="create">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Create refund</p>
                 <div class="space-y-3">
                     <label class="block text-sm font-medium text-slate-700">Transaction
                         <input name="transaction" type="text" placeholder="T685312322670591"
@@ -34,6 +35,7 @@
             <form method="post" action="/paystack/demo/refunds" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="fetch">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Fetch refund</p>
                 <label class="block text-sm font-medium text-slate-700">Refund ID
                     <input name="refund_id" type="text" placeholder="1234567"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -46,6 +48,7 @@
             <form method="post" action="/paystack/demo/refunds" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="list">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List refunds</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700">Transaction filter
                         <input name="transaction" type="text" placeholder="Optional"
@@ -78,6 +81,7 @@
             <form method="post" action="/paystack/demo/refunds" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="retry">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Retry refund</p>
                 <label class="block text-sm font-medium text-slate-700">Refund ID
                     <input name="refund_id" type="text" placeholder="1234567"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">

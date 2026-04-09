@@ -17,6 +17,7 @@
             <form method="post" action="/paystack/demo/transactions" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="initialize">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Initialize transaction</p>
                 <div class="space-y-3">
                     <label class="block text-sm font-medium text-slate-700">Email
                         <input name="email" type="email" value="customer@example.com"
@@ -74,6 +75,7 @@
             <form method="post" action="/paystack/demo/transactions" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="verify">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Verify transaction</p>
                 <label class="block text-sm font-medium text-slate-700">Reference
                     <input name="reference" type="text" value="{{ $callbackReference ?? '' }}" placeholder="reference"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -98,6 +100,7 @@
             <form method="post" action="/paystack/demo/transactions" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="list">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List transactions</p>
                 <div class="space-y-3">
                     <label class="block text-sm font-medium text-slate-700">Customer filter
                         <input name="customer" type="text" placeholder="Optional"

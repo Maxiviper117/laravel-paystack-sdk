@@ -6,6 +6,7 @@
             <form method="post" action="/paystack/demo/customers" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="create">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Create customer</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700 md:col-span-2">Email
                         <input name="email" type="email" value="customer@example.com"
@@ -33,6 +34,7 @@
                     class="border border-slate-100 bg-slate-50/60 p-4">
                     @csrf
                     <input type="hidden" name="action" value="fetch">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Fetch customer</p>
                     <label class="block text-sm font-medium text-slate-700">Customer identifier
                         <input name="customer_identifier" type="text" placeholder="CUS_123 or email@example.com"
                             class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -45,6 +47,7 @@
                     class="border border-slate-100 bg-slate-50/60 p-4">
                     @csrf
                     <input type="hidden" name="action" value="update">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Update customer</p>
                     <label class="block text-sm font-medium text-slate-700">Customer code
                         <input name="customer_code" type="text" placeholder="CUS_123"
                             class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -71,6 +74,7 @@
                     class="border border-slate-100 bg-slate-50/60 p-4">
                     @csrf
                     <input type="hidden" name="action" value="validate">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Validate customer</p>
                     <div class="grid gap-3 md:grid-cols-2">
                         <label class="block text-sm font-medium text-slate-700 md:col-span-2">Customer code
                             <input name="customer_code" type="text" placeholder="CUS_123"
@@ -113,6 +117,7 @@
                     class="border border-slate-100 bg-slate-50/60 p-4">
                     @csrf
                     <input type="hidden" name="action" value="risk-action">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Set risk action</p>
                     <div class="grid gap-3 md:grid-cols-2">
                         <label class="block text-sm font-medium text-slate-700 md:col-span-2">Customer
                             <input name="customer" type="text" placeholder="CUS_123"
@@ -136,6 +141,7 @@
                     class="border border-slate-100 bg-slate-50/60 p-4">
                     @csrf
                     <input type="hidden" name="action" value="list">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List customers</p>
                     <div class="grid gap-3 md:grid-cols-2">
                         <label class="block text-sm font-medium text-slate-700">Per page
                             <input name="per_page" type="number" value="10"

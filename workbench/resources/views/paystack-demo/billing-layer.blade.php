@@ -7,6 +7,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="sync">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Sync customer</p>
                 <label class="block text-sm font-medium text-slate-700">Email
                     <input name="email" type="email" value="billable@example.com"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -24,6 +25,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="create-subscription">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Create subscription</p>
                 <label class="block text-sm font-medium text-slate-700">Email
                     <input name="email" type="email" value="billable@example.com"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -47,6 +49,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="enable">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Enable subscription</p>
                 <label class="block text-sm font-medium text-slate-700">Subscription name
                     <input name="subscription_name" type="text" value="default"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -59,6 +62,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="disable">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Disable subscription</p>
                 <label class="block text-sm font-medium text-slate-700">Subscription name
                     <input name="subscription_name" type="text" value="default"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">

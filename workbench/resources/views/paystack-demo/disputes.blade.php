@@ -7,6 +7,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="list">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List disputes</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700">From
                         <input name="from" type="text" placeholder="2026-01-01"
@@ -47,6 +48,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="fetch">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Fetch dispute</p>
                 <label class="block text-sm font-medium text-slate-700">Dispute identifier
                     <input name="dispute_identifier" type="text" placeholder="2867"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -59,6 +61,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="transaction">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List transaction disputes</p>
                 <label class="block text-sm font-medium text-slate-700">Transaction identifier
                     <input name="transaction_identifier" type="text" placeholder="5991760"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -71,6 +74,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="update">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Update dispute</p>
                 <div class="grid gap-3">
                     <label class="block text-sm font-medium text-slate-700">Dispute identifier
                         <input name="dispute_id" type="text" placeholder="2867"
@@ -93,6 +97,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="evidence">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Add evidence</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700 md:col-span-2">Dispute identifier
                         <input name="dispute_id" type="text" placeholder="2867"
@@ -131,6 +136,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="upload-url">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Get upload URL</p>
                 <div class="grid gap-3">
                     <label class="block text-sm font-medium text-slate-700">Dispute identifier
                         <input name="dispute_id" type="text" placeholder="2867"
@@ -149,6 +155,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="resolve">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Resolve dispute</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700 md:col-span-2">Dispute identifier
                         <input name="dispute_id" type="text" placeholder="2867"
@@ -186,6 +193,7 @@
             <form method="post" action="/paystack/demo/disputes" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="export">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Export disputes</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700">From
                         <input name="from" type="text" placeholder="2026-01-01"
