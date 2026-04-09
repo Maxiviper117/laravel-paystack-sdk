@@ -21,6 +21,7 @@ Route::match(['GET', 'POST'], '/paystack/demo/playground', [PaystackDemoControll
 Route::match(['GET', 'POST'], '/paystack/demo/transactions', [PaystackDemoController::class, 'transactions']);
 Route::match(['GET', 'POST'], '/paystack/demo/customers', [PaystackDemoController::class, 'customers']);
 Route::match(['GET', 'POST'], '/paystack/demo/disputes', [PaystackDemoController::class, 'disputes']);
+Route::match(['GET', 'POST'], '/paystack/demo/refunds', [PaystackDemoController::class, 'refunds']);
 Route::match(['GET', 'POST'], '/paystack/demo/plans', [PaystackDemoController::class, 'plans']);
 Route::match(['GET', 'POST'], '/paystack/demo/subscriptions', [PaystackDemoController::class, 'subscriptions']);
 Route::get('/paystack/demo/webhooks', [PaystackDemoController::class, 'webhooks']);

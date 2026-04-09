@@ -25,6 +25,10 @@ use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
 use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
 use Maxiviper117\Paystack\Actions\Plan\UpdatePlanAction;
+use Maxiviper117\Paystack\Actions\Refund\CreateRefundAction;
+use Maxiviper117\Paystack\Actions\Refund\FetchRefundAction;
+use Maxiviper117\Paystack\Actions\Refund\ListRefundsAction;
+use Maxiviper117\Paystack\Actions\Refund\RetryRefundAction;
 use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\DisableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\EnableSubscriptionAction;
@@ -33,6 +37,7 @@ use Maxiviper117\Paystack\Actions\Subscription\GenerateSubscriptionUpdateLinkAct
 use Maxiviper117\Paystack\Actions\Subscription\ListSubscriptionsAction;
 use Maxiviper117\Paystack\Actions\Subscription\SendSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
+use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
@@ -51,6 +56,11 @@ use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\UpdatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\CreateRefundInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\FetchRefundInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\ListRefundsInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\RefundAccountDetailsInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\RetryRefundInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
@@ -59,6 +69,7 @@ use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLink
 use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 use Throwable;
@@ -91,14 +102,29 @@ class PaystackDemoController extends Controller
         Request $request,
         InitializeTransactionAction $initializeTransaction,
         VerifyTransactionAction $verifyTransaction,
+        ListTransactionsAction $listTransactions,
     ): View {
         $callbackReference = $this->callbackTransactionReference($request);
 
-        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $initializeTransaction, $verifyTransaction): array {
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $initializeTransaction, $verifyTransaction, $listTransactions): array {
             return match ((string) $request->input('action', 'initialize')) {
                 'verify' => [
                     $verifyTransaction(new VerifyTransactionInputData((string) $request->input('reference', ''))),
                     'Transaction verification',
+                ],
+                'list' => [
+                    $listTransactions(new ListTransactionsInputData(
+                        perPage: $request->integer('per_page') ?: 10,
+                        page: $request->integer('page') ?: 1,
+                        customer: $request->filled('customer') ? (string) $request->input('customer') : null,
+                        status: $request->filled('status') ? (string) $request->input('status') : null,
+                        from: $request->filled('from') ? (string) $request->input('from') : null,
+                        to: $request->filled('to') ? (string) $request->input('to') : null,
+                        amount: $request->filled('amount_filter') ? $request->input('amount_filter') : null,
+                        reference: $request->filled('list_reference') ? (string) $request->input('list_reference') : null,
+                        terminalId: $request->filled('terminal_id') ? (string) $request->input('terminal_id') : null,
+                    )),
+                    'Transaction list',
                 ],
                 default => [
                     $initializeTransaction(new InitializeTransactionInputData(
@@ -142,7 +168,7 @@ class PaystackDemoController extends Controller
         return $this->render('transactions', [
             'title' => 'Transactions Demo',
             'heading' => 'Transactions',
-            'description' => 'Initialize a checkout or verify a returned reference.',
+            'description' => 'Initialize a checkout, verify a returned reference, or list transactions.',
             'result' => $result,
             'resultLabel' => $resultLabel,
             'callbackReference' => $callbackReference,
@@ -320,6 +346,64 @@ class PaystackDemoController extends Controller
             'result' => $result,
             'resultLabel' => $resultLabel,
             'currentPath' => '/paystack/demo/disputes',
+        ]);
+    }
+
+    public function refunds(
+        Request $request,
+        CreateRefundAction $createRefund,
+        RetryRefundAction $retryRefund,
+        FetchRefundAction $fetchRefund,
+        ListRefundsAction $listRefunds,
+    ): View {
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $createRefund, $retryRefund, $fetchRefund, $listRefunds): array {
+            return match ((string) $request->input('action', 'create')) {
+                'fetch' => [
+                    $fetchRefund(new FetchRefundInputData($request->input('refund_id', ''))),
+                    'Refund fetch',
+                ],
+                'list' => [
+                    $listRefunds(new ListRefundsInputData(
+                        transaction: $request->filled('transaction') ? $request->input('transaction') : null,
+                        currency: $request->filled('currency') ? (string) $request->input('currency') : null,
+                        from: $request->filled('from') ? (string) $request->input('from') : null,
+                        to: $request->filled('to') ? (string) $request->input('to') : null,
+                        perPage: $request->integer('per_page') ?: 10,
+                        page: $request->integer('page') ?: 1,
+                    )),
+                    'Refund list',
+                ],
+                'retry' => [
+                    $retryRefund(new RetryRefundInputData(
+                        id: $request->input('refund_id', ''),
+                        refundAccountDetails: new RefundAccountDetailsInputData(
+                            currency: (string) $request->input('refund_currency', 'NGN'),
+                            accountNumber: (string) $request->input('account_number', ''),
+                            bankId: (string) $request->input('bank_id', ''),
+                        ),
+                    )),
+                    'Refund retry',
+                ],
+                default => [
+                    $createRefund(new CreateRefundInputData(
+                        transaction: $request->input('transaction', ''),
+                        amount: $request->filled('amount') ? $request->integer('amount') : null,
+                        currency: $request->filled('currency') ? (string) $request->input('currency') : null,
+                        customerNote: $request->filled('customer_note') ? (string) $request->input('customer_note') : null,
+                        merchantNote: $request->filled('merchant_note') ? (string) $request->input('merchant_note') : null,
+                    )),
+                    'Refund creation',
+                ],
+            };
+        });
+
+        return $this->render('refunds', [
+            'title' => 'Refunds Demo',
+            'heading' => 'Refunds',
+            'description' => 'Create, retry, fetch, and list refunds.',
+            'result' => $result,
+            'resultLabel' => $resultLabel,
+            'currentPath' => '/paystack/demo/refunds',
         ]);
     }
 
@@ -552,6 +636,7 @@ class PaystackDemoController extends Controller
             ['title' => 'Transactions', 'path' => '/paystack/demo/transactions', 'description' => 'Initialize and verify payment flows.'],
             ['title' => 'Customers', 'path' => '/paystack/demo/customers', 'description' => 'Create, update, and list customers.'],
             ['title' => 'Disputes', 'path' => '/paystack/demo/disputes', 'description' => 'List, fetch, update, and resolve disputes.'],
+            ['title' => 'Refunds', 'path' => '/paystack/demo/refunds', 'description' => 'Create, retry, fetch, and list refunds.'],
             ['title' => 'Plans', 'path' => '/paystack/demo/plans', 'description' => 'Create, update, fetch, and list plans.'],
             ['title' => 'Subscriptions', 'path' => '/paystack/demo/subscriptions', 'description' => 'Create, fetch, list, enable, disable, and manage subscription update links.'],
             ['title' => 'Webhooks', 'path' => '/paystack/demo/webhooks', 'description' => 'Inspect webhook intake and stored calls.'],

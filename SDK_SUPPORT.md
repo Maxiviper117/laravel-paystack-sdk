@@ -93,7 +93,7 @@ These areas are planned or likely future work, but they are not currently suppor
 | Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |
 | Transfer recipients | Create / bulk create / update / delete / list / fetch | Not started | No actions, DTOs, or requests yet. |
 | Dedicated virtual accounts | Account lifecycle and split-management endpoints | Not started | No actions, DTOs, or requests yet. |
-| Refunds | Create / list / fetch / retry | Not started | No actions, DTOs, or requests yet. |
+| Refunds | Create / list / fetch / retry | Supported | `CreateRefundAction`, `RetryRefundAction`, `FetchRefundAction`, `ListRefundsAction` and their typed DTOs/requests |
 | Bulk charges | Create / list / fetch / pause / resume | Not started | No actions, DTOs, or requests yet. |
 
 ## Update rules

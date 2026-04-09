@@ -4,6 +4,7 @@
         <form method="post" action="/paystack/demo/plans" class="border border-slate-100 bg-slate-50/60 p-4">
             @csrf
             <input type="hidden" name="action" value="create">
+            <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Create plan</p>
             <div class="grid gap-3 md:grid-cols-2">
                 <label class="block text-sm font-medium text-slate-700">Name
                     <input name="name" type="text" value="Workbench Plan"
@@ -31,6 +32,7 @@
             <form method="post" action="/paystack/demo/plans" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="update">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Update plan</p>
                 <label class="block text-sm font-medium text-slate-700">Plan code
                     <input name="plan_code" type="text" placeholder="PLN_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -60,6 +62,7 @@
             <form method="post" action="/paystack/demo/plans" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="fetch">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Fetch plan</p>
                 <label class="block text-sm font-medium text-slate-700">Plan identifier
                     <input name="plan_identifier" type="text" placeholder="PLN_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -72,6 +75,7 @@
         <form method="post" action="/paystack/demo/plans" class="mt-4 border border-slate-200 bg-slate-50 p-4">
             @csrf
             <input type="hidden" name="action" value="list">
+            <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List plans</p>
             <div class="grid gap-3 md:grid-cols-2">
                 <label class="block text-sm font-medium text-slate-700">Per page
                     <input name="per_page" type="number" value="10"

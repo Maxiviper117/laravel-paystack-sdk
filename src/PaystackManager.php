@@ -21,6 +21,10 @@ use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
 use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
 use Maxiviper117\Paystack\Actions\Plan\UpdatePlanAction;
+use Maxiviper117\Paystack\Actions\Refund\CreateRefundAction;
+use Maxiviper117\Paystack\Actions\Refund\FetchRefundAction;
+use Maxiviper117\Paystack\Actions\Refund\ListRefundsAction;
+use Maxiviper117\Paystack\Actions\Refund\RetryRefundAction;
 use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\DisableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\EnableSubscriptionAction;
@@ -49,6 +53,10 @@ use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\UpdatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\CreateRefundInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\FetchRefundInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\ListRefundsInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\RetryRefundInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
@@ -78,6 +86,10 @@ use Maxiviper117\Paystack\Data\Output\Plan\CreatePlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\FetchPlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\ListPlansResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\UpdatePlanResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\CreateRefundResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\FetchRefundResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\ListRefundsResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\RetryRefundResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\CreateSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\DisableSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\EnableSubscriptionResponseData;
@@ -144,6 +156,26 @@ class PaystackManager
     public function exportDisputes(ListDisputesInputData $input): ExportDisputesResponseData
     {
         return $this->container->make(ExportDisputesAction::class)->execute($input);
+    }
+
+    public function createRefund(CreateRefundInputData $input): CreateRefundResponseData
+    {
+        return $this->container->make(CreateRefundAction::class)->execute($input);
+    }
+
+    public function retryRefund(RetryRefundInputData $input): RetryRefundResponseData
+    {
+        return $this->container->make(RetryRefundAction::class)->execute($input);
+    }
+
+    public function fetchRefund(FetchRefundInputData $input): FetchRefundResponseData
+    {
+        return $this->container->make(FetchRefundAction::class)->execute($input);
+    }
+
+    public function listRefunds(ListRefundsInputData $input): ListRefundsResponseData
+    {
+        return $this->container->make(ListRefundsAction::class)->execute($input);
     }
 
     public function fetchTransaction(FetchTransactionInputData $input): FetchTransactionResponseData

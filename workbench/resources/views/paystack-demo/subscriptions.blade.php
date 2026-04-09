@@ -5,6 +5,7 @@
         <form method="post" action="/paystack/demo/subscriptions" class="border border-slate-100 bg-slate-50/60 p-4">
             @csrf
             <input type="hidden" name="action" value="create">
+            <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Create subscription</p>
             <div class="grid gap-3 md:grid-cols-2">
                 <label class="block text-sm font-medium text-slate-700">Customer code
                     <input name="customer" type="text" value="CUS_123"
@@ -33,6 +34,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="fetch">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Fetch subscription</p>
                 <label class="block text-sm font-medium text-slate-700">Subscription identifier
                     <input name="subscription_identifier" type="text" placeholder="SUB_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -45,6 +47,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="list">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">List subscriptions</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="block text-sm font-medium text-slate-700">Customer filter
                         <input name="customer" type="text" placeholder="Optional"
@@ -73,6 +76,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="enable">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Enable subscription</p>
                 <label class="block text-sm font-medium text-slate-700">Code
                     <input name="code" type="text" placeholder="SUB_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -89,6 +93,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="disable">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Disable subscription</p>
                 <label class="block text-sm font-medium text-slate-700">Code
                     <input name="code" type="text" placeholder="SUB_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -107,6 +112,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="generate-link">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Generate update link</p>
                 <label class="block text-sm font-medium text-slate-700">Code
                     <input name="code" type="text" placeholder="SUB_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
@@ -120,6 +126,7 @@
                 class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="send-link">
+                <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Send update link</p>
                 <label class="block text-sm font-medium text-slate-700">Code
                     <input name="code" type="text" placeholder="SUB_123"
                         class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
