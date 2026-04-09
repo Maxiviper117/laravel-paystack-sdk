@@ -36,6 +36,14 @@ This page summarizes the currently implemented Paystack surface in the package.
 - dispute input DTOs cover the documented list, fetch, transaction lookup, update, evidence, upload URL, and resolution payloads directly
 - export uses the same list filters so the export and list surfaces stay aligned
 
+### Refunds
+
+- create refund
+- retry refund with customer details
+- fetch refund
+- list refunds
+- refund input DTOs cover the documented create, retry, fetch, and list payloads directly
+
 ### Plans
 
 - create plan
@@ -70,8 +78,8 @@ This page summarizes the currently implemented Paystack surface in the package.
 - transfer control
 - transfer recipients
 - dedicated virtual accounts
-- refunds
 - bulk charges
+- refunds
 
 ## Maintainer reference
 

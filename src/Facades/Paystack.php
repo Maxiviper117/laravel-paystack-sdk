@@ -20,6 +20,10 @@ use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\UpdatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\CreateRefundInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\FetchRefundInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\ListRefundsInputData;
+use Maxiviper117\Paystack\Data\Input\Refund\RetryRefundInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
@@ -49,6 +53,10 @@ use Maxiviper117\Paystack\Data\Output\Plan\CreatePlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\FetchPlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\ListPlansResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\UpdatePlanResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\CreateRefundResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\FetchRefundResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\ListRefundsResponseData;
+use Maxiviper117\Paystack\Data\Output\Refund\RetryRefundResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\CreateSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\DisableSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\EnableSubscriptionResponseData;
@@ -75,6 +83,10 @@ use Maxiviper117\Paystack\PaystackManager;
  * @method static GetDisputeUploadUrlResponseData getDisputeUploadUrl(GetDisputeUploadUrlInputData $input)
  * @method static ResolveDisputeResponseData resolveDispute(ResolveDisputeInputData $input)
  * @method static ExportDisputesResponseData exportDisputes(ListDisputesInputData $input)
+ * @method static CreateRefundResponseData createRefund(CreateRefundInputData $input)
+ * @method static RetryRefundResponseData retryRefund(RetryRefundInputData $input)
+ * @method static FetchRefundResponseData fetchRefund(FetchRefundInputData $input)
+ * @method static ListRefundsResponseData listRefunds(ListRefundsInputData $input)
  * @method static FetchTransactionResponseData fetchTransaction(FetchTransactionInputData $input)
  * @method static ListTransactionsResponseData listTransactions(ListTransactionsInputData $input)
  * @method static CreateCustomerResponseData createCustomer(CreateCustomerInputData $input)
