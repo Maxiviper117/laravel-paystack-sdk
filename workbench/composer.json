@@ -49,6 +49,14 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php -d variables_order=GPCS artisan serve\" \"php -d variables_order=GPCS artisan queue:listen --tries=1\" \"pnpm run dev\" --names='server,queue,vite'"
         ],
+        "dev-built": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php -r \"file_exists('public/hot') && unlink('public/hot');\"",
+            "@php artisan optimize:clear --ansi",
+            "@php artisan config:cache --ansi",
+            "@php artisan view:cache --ansi",
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php -d variables_order=GPCS artisan serve\" \"php -d variables_order=GPCS artisan queue:listen --tries=1\" \"pnpm exec vite build --watch\" --names='server,queue,build'"
+        ],
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
