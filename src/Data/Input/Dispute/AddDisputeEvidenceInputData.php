@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Data\Input\Dispute;
 
+use DateTimeImmutable;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
 use Spatie\LaravelData\Data;
 
@@ -35,7 +36,7 @@ class AddDisputeEvidenceInputData extends Data
             'serviceDetails' => $this->serviceDetails,
         ] as $label => $value) {
             if (trim($value) === '') {
-                throw new InvalidPaystackInputException("The Paystack dispute {$label} cannot be empty.");
+                throw new InvalidPaystackInputException(sprintf('The Paystack dispute %s cannot be empty.', $label));
             }
         }
 
@@ -44,7 +45,7 @@ class AddDisputeEvidenceInputData extends Data
         }
 
         if ($this->deliveryDate !== null) {
-            $date = \DateTimeImmutable::createFromFormat('Y-m-d', $this->deliveryDate);
+            $date = DateTimeImmutable::createFromFormat('Y-m-d', $this->deliveryDate);
 
             if ($date === false || $date->format('Y-m-d') !== $this->deliveryDate) {
                 throw new InvalidPaystackInputException('The Paystack dispute delivery date must use the YYYY-MM-DD format.');

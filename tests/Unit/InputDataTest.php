@@ -1,16 +1,16 @@
 <?php
 
-use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
-use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
-use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
-use Maxiviper117\Paystack\Data\Input\Dispute\ResolveDisputeInputData;
-use Maxiviper117\Paystack\Data\Input\Dispute\UpdateDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ResolveDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\UpdateDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\UpdatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;

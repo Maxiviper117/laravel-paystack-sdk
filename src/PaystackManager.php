@@ -3,6 +3,12 @@
 namespace Maxiviper117\Paystack;
 
 use Illuminate\Contracts\Container\Container;
+use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
+use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
+use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
 use Maxiviper117\Paystack\Actions\Dispute\AddDisputeEvidenceAction;
 use Maxiviper117\Paystack\Actions\Dispute\ExportDisputesAction;
 use Maxiviper117\Paystack\Actions\Dispute\FetchDisputeAction;
@@ -11,12 +17,6 @@ use Maxiviper117\Paystack\Actions\Dispute\ListDisputesAction;
 use Maxiviper117\Paystack\Actions\Dispute\ListTransactionDisputesAction;
 use Maxiviper117\Paystack\Actions\Dispute\ResolveDisputeAction;
 use Maxiviper117\Paystack\Actions\Dispute\UpdateDisputeAction;
-use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
-use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
-use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
-use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
-use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
-use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
 use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
 use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
