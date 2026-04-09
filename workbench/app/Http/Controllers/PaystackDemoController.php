@@ -379,7 +379,7 @@ class PaystackDemoController extends Controller
             return [[
                 'user' => $user->only(['id', 'name', 'email']),
                 'paystack_customer' => $user->paystackCustomer?->only(['id', 'customer_code', 'email']),
-                'paystack_subscriptions' => $user->paystackSubscriptions->map(static fn(mixed $subscription): array => $subscription->only([
+                'paystack_subscriptions' => $user->paystackSubscriptions->map(static fn (mixed $subscription): array => $subscription->only([
                     'id',
                     'name',
                     'subscription_code',
@@ -458,7 +458,7 @@ class PaystackDemoController extends Controller
             return null;
         }
 
-        $values = array_values(array_filter(array_map('trim', explode(',', $value)), static fn(string $item): bool => $item !== ''));
+        $values = array_values(array_filter(array_map('trim', explode(',', $value)), static fn (string $item): bool => $item !== ''));
 
         return $values === [] ? null : $values;
     }
