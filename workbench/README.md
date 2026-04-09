@@ -15,6 +15,15 @@ The current workbench flow covers:
 - listing customers through the local package
 - creating plans through the local package
 - creating subscriptions through the local package
+- exercising the optional Billable persistence layer against a local `users` table
+- browsing the Tailwind demo hub at `/paystack/demo`
+- using the legacy playground compatibility page at `/paystack/demo/playground`
+- opening the dedicated transactions page at `/paystack/demo/transactions`
+- opening the dedicated customers page at `/paystack/demo/customers`
+- opening the dedicated plans page at `/paystack/demo/plans`
+- opening the dedicated subscriptions page at `/paystack/demo/subscriptions`
+- opening the dedicated webhooks page at `/paystack/demo/webhooks`
+- opening the dedicated billing layer page at `/paystack/demo/billing-layer`
 
 ## Setup
 
@@ -41,6 +50,7 @@ Publish the webhook client migration, then run the workbench migrations so inbou
 
 ```bash
 php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientServiceProvider" --tag="webhook-client-migrations"
+php artisan vendor:publish --tag="paystack-migrations"
 php artisan migrate
 ```
 
@@ -60,6 +70,14 @@ php artisan queue:work
 
 Then open:
 
+- `/paystack/demo` for the demo hub
+- `/paystack/demo/playground` for the legacy compatibility page
+- `/paystack/demo/transactions` for transaction demos
+- `/paystack/demo/customers` for customer demos
+- `/paystack/demo/plans` for plan demos
+- `/paystack/demo/subscriptions` for subscription demos
+- `/paystack/demo/webhooks` for webhook inspection
+- `/paystack/demo/billing-layer` for the optional Billable trait flow
 - `/paystack/test/start` to begin a real Paystack test transaction
 - `/paystack/test/callback` as the callback route used by the live test flow
 - `/paystack/test/webhook` for the webhook endpoint instructions
@@ -68,6 +86,7 @@ Then open:
 - `/paystack/test/customers` to list customers with optional `per_page`, `page`, `email`, `from`, and `to` query filters
 - `/paystack/test/plan` for the plan creation example route
 - `/paystack/test/subscription` for the subscription creation example route
+- `/paystack/test/billing-layer` for the optional Billable trait flow that stores Paystack customer and subscription identifiers locally
 
 ## Current integration shape
 
@@ -84,6 +103,7 @@ Outbound Paystack API usage still follows the package's current pattern:
 - actions accept typed input DTOs and return action-specific response DTOs
 - response DTOs can be returned directly from Laravel routes and controllers as JSON responses
 - convenience access for application code also exists through the package manager and facade
+- the optional Billable layer stores Paystack customers and subscriptions in local package tables when you publish and migrate them
 
 Webhook handling is now endpoint-first:
 

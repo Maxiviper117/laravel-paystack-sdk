@@ -9,6 +9,7 @@ This package is for Laravel applications that want a typed Paystack integration 
 - action-specific response DTOs under `src/Data/Output`
 - a Saloon connector that handles auth, base URL, retries, timeouts, and API error behavior
 - optional `Paystack` facade and `PaystackManager`
+- optional Billable persistence for local Paystack customer and subscription records
 
 ## Typical flow
 
@@ -41,5 +42,6 @@ From here, continue with:
 - [Configuration](/configuration)
 - [Transactions](/transactions)
 - [Examples Overview](/examples/)
+- [Billing Layer](/billing-layer)
 - [One-Time Checkout](/examples/checkout)
 - [Webhook Processing](/examples/webhooks)

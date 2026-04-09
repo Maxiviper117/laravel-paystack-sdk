@@ -16,6 +16,7 @@ export default defineConfig({
         items: [
           { text: 'Transactions', link: '/transactions' },
           { text: 'Customers', link: '/customers' },
+          { text: 'Billing Layer', link: '/billing-layer' },
           { text: 'Plans', link: '/plans' },
           { text: 'Subscriptions', link: '/subscriptions' },
           { text: 'Webhooks', link: '/webhooks' },
@@ -47,6 +48,7 @@ export default defineConfig({
             { text: 'One-Time Checkout', link: '/examples/checkout' },
             { text: 'Verify a Transaction', link: '/examples/verify-transaction' },
             { text: 'Manage Customers', link: '/examples/customers' },
+            { text: 'Optional Billing Layer', link: '/examples/billing-layer' },
             { text: 'Subscription Billing Flow', link: '/examples/subscriptions' },
             { text: 'Webhook Processing', link: '/examples/webhooks' },
             { text: 'Manager and Facade Usage', link: '/examples/manager-and-facade' },
@@ -64,6 +66,7 @@ export default defineConfig({
           text: 'Billing',
           collapsed: true,
           items: [
+            { text: 'Billing Layer', link: '/billing-layer' },
             { text: 'Plans', link: '/plans' },
             { text: 'Subscriptions', link: '/subscriptions' },
           ],

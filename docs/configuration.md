@@ -49,6 +49,7 @@ Choose a feature area:
 
 - [Transactions](/transactions)
 - [Customers](/customers)
+- [Billing Layer](/billing-layer)
 - [Plans](/plans)
 - [Subscriptions](/subscriptions)
 - [Webhooks](/webhooks)
@@ -66,4 +67,5 @@ Webhook handling is endpoint-first and asynchronous:
 ## Example workflows
 
 - [One-Time Checkout](/examples/checkout)
+- [Optional Billing Layer](/examples/billing-layer)
 - [Webhook Processing](/examples/webhooks)

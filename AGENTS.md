@@ -6,14 +6,17 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
 - The package provides a Paystack SDK built on Saloon with an Actions-first public API.
-- Current implemented coverage includes transactions, customers, plans, subscriptions, and webhook intake/processing built on `spatie/laravel-webhook-client`.
+- Current implemented coverage includes transactions, customers, plans, subscriptions, an optional Billable persistence layer, and webhook intake/processing built on `spatie/laravel-webhook-client`.
 
 ## Source layout
 
 - `src/Actions`: high-level action classes intended for consumer-facing package usage.
+- `src/Concerns`: opt-in Laravel traits such as the optional Billable Eloquent integration.
 - `src/Integrations`: Saloon connector and request classes for Paystack HTTP integration.
 - `src/Data`: DTOs and response-shaping classes.
+- `src/Models`: package Eloquent models for webhook calls and optional billing-layer persistence.
 - `src/Support`: small helper utilities used across the package.
+- `database/migrations`: optional package-owned billing-layer migrations that consumers may publish into their apps.
 - `docs`: consumer-facing VitePress documentation content.
 - `docs/examples`: cookbook-style VitePress examples for realistic Laravel integration flows.
 - `.vitepress`: root VitePress site configuration and static docs assets.
@@ -34,6 +37,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Keep the package Laravel-native and Actions-first.
 - Treat action classes as injectable services; do not add static self-resolving helpers that call `app()` internally.
 - Use DTO-first action contracts. Public action, manager, and facade APIs should accept typed input DTOs and return typed action-specific response DTOs.
+- Keep the optional Billable layer as a convenience wrapper over the existing actions and DTOs; do not let it become a second, conflicting SDK surface.
 - Prefer small, typed DTOs over passing raw arrays through public APIs.
 - For richer resource domains, compose shared resource DTOs inside action-specific response DTOs instead of flattening everything into duplicated response shapes.
 - Keep request classes thin and API-focused; keep business rules in actions or support classes.
@@ -42,6 +46,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - CI coverage is Linux-only. Do not add or restore Windows test jobs unless the package scope changes materially.
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
 - Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
+- If the optional Billable layer changes, keep its trait methods delegating to the existing manager/actions rather than bypassing package transport, validation, or response mapping.
 - Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
 - Webhook handling is local package logic, not an outbound Saloon request. Keep signature validation, stored webhook handling, and payload parsing outside the HTTP connector layer.
 
@@ -75,6 +80,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - Any repository change that affects package architecture, public APIs, supported tooling, commands, workflows, or constraints must keep this `AGENTS.md` file up to date in the same change.
 - Any repository change that affects supported Paystack endpoints, SDK features, action/input/output DTO coverage, or live-test coverage must also update `SDK_SUPPORT.md` in the same change.
+- Any repository change that affects the optional billing-layer trait, models, or package migrations must update the relevant docs, workbench flow, and this file in the same change.
 - Keep the root VitePress docs in `docs/` aligned with the current public package API, configuration, and supported feature set.
 - Keep VitePress config, navigation, GitHub Pages deployment details, and docs output path aligned with the actual root docs structure and build output.
 - Keep consumer docs focused on the package itself; do not let VitePress docs drift into workbench-specific guidance unless the task explicitly targets workbench documentation.
