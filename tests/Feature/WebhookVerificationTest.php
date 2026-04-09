@@ -143,7 +143,7 @@ it('stores malformed signed payloads and records processing exceptions', functio
     $exception = $webhookCall->exception;
 
     if (! is_array($exception) || ! array_key_exists('message', $exception) || ! is_string($exception['message'])) {
-        throw new \RuntimeException('Expected the stored webhook exception payload to contain a message.');
+        throw new RuntimeException('Expected the stored webhook exception payload to contain a message.');
     }
 
     expect($exception['message'])->toContain('not valid JSON');
