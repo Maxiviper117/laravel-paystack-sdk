@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.4.0...v0.5.0) (2026-04-09)
+
+
+### Features
+
+* add optional billing layer ([#18](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/18)) ([cdf4974](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/cdf4974561cf5c6a1640f5294863319f0580ed86))
+
+
+### Miscellaneous Chores
+
+* apply Rector refactors and format ([c21fcff](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/c21fcffc1c2fe4c2584ec4a271ebab50bc9af3a3))
+
 ## [0.4.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.3.0...v0.4.0) (2026-04-09)
 
 
