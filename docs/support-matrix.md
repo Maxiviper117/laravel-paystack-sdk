@@ -33,6 +33,8 @@ This page summarizes the currently implemented Paystack surface in the package.
 - get dispute upload URL
 - resolve dispute
 - export disputes
+- dispute input DTOs cover the documented list, fetch, transaction lookup, update, evidence, upload URL, and resolution payloads directly
+- export uses the same list filters so the export and list surfaces stay aligned
 
 ### Plans
 
