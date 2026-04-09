@@ -88,6 +88,7 @@ it('updates and fetches a plan', function () {
         planCode: 'PLN_start',
         name: 'Starter Pro',
         amount: 7500,
+        updateExistingSubscriptions: true,
     ));
 
     $fetched = app(FetchPlanAction::class)->execute(new FetchPlanInputData('PLN_start'));
@@ -96,6 +97,9 @@ it('updates and fetches a plan', function () {
         ->and($updated->plan->name)->toBe('Starter Pro')
         ->and($fetched)->toBeInstanceOf(FetchPlanResponseData::class)
         ->and($fetched->plan->amount)->toBe(750000);
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof UpdatePlanRequest
+        && $request->body()->all()['update_existing_subscriptions'] === true);
 });
 
 it('lists plans and exposes manager or facade usage', function () {

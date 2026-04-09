@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Plan\ListPlansResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Plan\ListPlansRequest;
 
+/**
+ * List plans available on the integration.
+ *
+ * @see https://paystack.com/docs/api/plan/#list-plans
+ */
 final class ListPlansAction
 {
     public function __construct(

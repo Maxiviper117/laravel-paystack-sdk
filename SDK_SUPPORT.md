@@ -26,7 +26,10 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Paystack area | Endpoint / capability | Status | Public SDK surface |
 | --- | --- | --- | --- |
 | Customers | Create customer | Supported | `CreateCustomerAction`, `CreateCustomerInputData`, `CreateCustomerResponseData` |
+| Customers | Fetch customer | Supported | `FetchCustomerAction`, `FetchCustomerInputData`, `FetchCustomerResponseData` |
 | Customers | Update customer | Supported | `UpdateCustomerAction`, `UpdateCustomerInputData`, `UpdateCustomerResponseData` |
+| Customers | Validate customer | Supported | `ValidateCustomerAction`, `ValidateCustomerInputData`, `ValidateCustomerResponseData` |
+| Customers | Set customer risk action | Supported | `SetCustomerRiskAction`, `SetCustomerRiskActionInputData`, `SetCustomerRiskActionResponseData` |
 | Customers | List customers | Supported | `ListCustomersAction`, `ListCustomersInputData`, `ListCustomersResponseData` |
 
 ### Plans
@@ -37,6 +40,7 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Plans | Update plan | Supported | `UpdatePlanAction`, `UpdatePlanInputData`, `UpdatePlanResponseData` |
 | Plans | Fetch plan | Supported | `FetchPlanAction`, `FetchPlanInputData`, `FetchPlanResponseData` |
 | Plans | List plans | Supported | `ListPlansAction`, `ListPlansInputData`, `ListPlansResponseData` |
+| Plans | Update existing subscriptions flag | Supported | `UpdatePlanInputData` now maps `update_existing_subscriptions` for Paystack plan updates |
 
 ### Subscriptions
 
@@ -47,6 +51,8 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Subscriptions | List subscriptions | Supported | `ListSubscriptionsAction`, `ListSubscriptionsInputData`, `ListSubscriptionsResponseData` |
 | Subscriptions | Enable subscription | Supported | `EnableSubscriptionAction`, `EnableSubscriptionInputData`, `EnableSubscriptionResponseData` |
 | Subscriptions | Disable subscription | Supported | `DisableSubscriptionAction`, `DisableSubscriptionInputData`, `DisableSubscriptionResponseData` |
+| Subscriptions | Generate update link | Supported | `GenerateSubscriptionUpdateLinkAction`, `GenerateSubscriptionUpdateLinkInputData`, `GenerateSubscriptionUpdateLinkResponseData` |
+| Subscriptions | Send update link | Supported | `SendSubscriptionUpdateLinkAction`, `SendSubscriptionUpdateLinkInputData`, `SendSubscriptionUpdateLinkResponseData` |
 
 ## Shared SDK capabilities
 
@@ -56,7 +62,7 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Laravel service provider | Supported | Auto-discovered package provider with config publishing. |
 | Facade / manager API | Supported | `Paystack` facade resolves `PaystackManager`, now with DTO-first method signatures. |
 | Optional billing layer | Supported | `Maxiviper117\Paystack\Concerns\Billable` plus `PaystackCustomer` and `PaystackSubscription` provide package-owned local persistence for apps that choose to publish the billing migrations. |
-| Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. |
+| Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. `InitializeTransactionInputData` covers the documented initialize transaction body parameters directly and still accepts `extra` for forward-compatible request fields. `FetchTransactionInputData` maps to the documented numeric transaction id path parameter. `FetchCustomerInputData` maps to the documented email-or-code path parameter, and the validation/risk-action DTOs cover the documented customer identification and risk-action payloads. |
 | Action-specific response DTOs | Supported | Response DTOs live under `src/Data/Output`. |
 | Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, stored webhook calls, queued event dispatch, and typed payload resolution for selected events. |
 | Live test workbench | Supported | `workbench/` tracks the current package integration style for manual Paystack test-mode checks. |
@@ -70,7 +76,6 @@ These areas are planned or likely future work, but they are not currently suppor
 | Paystack area | Endpoint / capability | Status | Notes |
 | --- | --- | --- | --- |
 | Webhooks | Typed event-specific DTO mapping | Partially supported | `PaystackWebhookEventData` now exposes typed DTO resolution for `charge.success`, `invoice.create`, `invoice.update`, `invoice.payment_failed`, `subscription.create`, `subscription.not_renew`, and `subscription.disable`. Unsupported events still use the generic envelope. |
-| Subscriptions | Update link generation and sending helpers | Not started | Core subscription lifecycle is supported; update-link endpoints are still missing. |
 | Transfers | Initiate / finalize / verify / list / fetch / bulk transfer | Not started | No actions, DTOs, or requests yet. |
 | Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |
 | Transfer recipients | Create / bulk create / update / delete / list / fetch | Not started | No actions, DTOs, or requests yet. |

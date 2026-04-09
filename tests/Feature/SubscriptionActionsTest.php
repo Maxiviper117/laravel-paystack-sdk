@@ -5,24 +5,32 @@ use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\DisableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\EnableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\FetchSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\GenerateSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Actions\Subscription\ListSubscriptionsAction;
+use Maxiviper117\Paystack\Actions\Subscription\SendSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\FetchSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Output\Subscription\CreateSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\DisableSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\EnableSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\FetchSubscriptionResponseData;
+use Maxiviper117\Paystack\Data\Output\Subscription\GenerateSubscriptionUpdateLinkResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\ListSubscriptionsResponseData;
+use Maxiviper117\Paystack\Data\Output\Subscription\SendSubscriptionUpdateLinkResponseData;
 use Maxiviper117\Paystack\Facades\Paystack;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\CreateSubscriptionRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\DisableSubscriptionRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\EnableSubscriptionRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\FetchSubscriptionRequest;
+use Maxiviper117\Paystack\Integrations\Requests\Subscription\GenerateSubscriptionUpdateLinkRequest;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\ListSubscriptionsRequest;
+use Maxiviper117\Paystack\Integrations\Requests\Subscription\SendSubscriptionUpdateLinkRequest;
 use Maxiviper117\Paystack\PaystackManager;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Faking\MockClient;
@@ -158,6 +166,55 @@ it('enables and disables a subscription', function () {
         ]);
 });
 
+it('generates and emails a subscription update link', function () {
+    $mockClient = new MockClient([
+        GenerateSubscriptionUpdateLinkRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Link generated',
+            'data' => [
+                'link' => 'https://paystack.com/manage/subscriptions/SUB_123?subscription_token=abc',
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    $input = new GenerateSubscriptionUpdateLinkInputData(code: 'SUB_123');
+    $generated = app(PaystackManager::class)->generateSubscriptionUpdateLink($input);
+    $facadeGenerated = Paystack::generateSubscriptionUpdateLink($input);
+
+    expect($generated)->toBeInstanceOf(GenerateSubscriptionUpdateLinkResponseData::class)
+        ->and($generated->status)->toBeTrue()
+        ->and($generated->link)->toContain('subscription_token=abc')
+        ->and($facadeGenerated->link)->toBe($generated->link);
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof GenerateSubscriptionUpdateLinkRequest
+        && $request->resolveEndpoint() === '/subscription/SUB_123/manage/link');
+});
+
+it('sends a subscription update link by email', function () {
+    $mockClient = new MockClient([
+        SendSubscriptionUpdateLinkRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Email successfully sent',
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    $input = new SendSubscriptionUpdateLinkInputData(code: 'SUB_123');
+    $sent = app(PaystackManager::class)->sendSubscriptionUpdateLink($input);
+    $facadeSent = Paystack::sendSubscriptionUpdateLink($input);
+
+    expect($sent)->toBeInstanceOf(SendSubscriptionUpdateLinkResponseData::class)
+        ->and($sent->status)->toBeTrue()
+        ->and($sent->message)->toBe('Email successfully sent')
+        ->and($facadeSent->message)->toBe($sent->message);
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof SendSubscriptionUpdateLinkRequest
+        && $request->resolveEndpoint() === '/subscription/SUB_123/manage/email');
+});
+
 it('creates a subscription without an authorization code and supports manager or facade usage', function () {
     $mockClient = new MockClient([
         CreateSubscriptionRequest::class => MockResponse::make([
@@ -262,6 +319,14 @@ it('throws on subscription api errors', function (string $action) {
             'status' => false,
             'message' => 'Subscription could not be disabled',
         ], 422),
+        GenerateSubscriptionUpdateLinkRequest::class => MockResponse::make([
+            'status' => false,
+            'message' => 'Link could not be generated',
+        ], 422),
+        SendSubscriptionUpdateLinkRequest::class => MockResponse::make([
+            'status' => false,
+            'message' => 'Email could not be sent',
+        ], 422),
     ]);
 
     app(PaystackConnector::class)->withMockClient($mockClient);
@@ -280,9 +345,15 @@ it('throws on subscription api errors', function (string $action) {
             code: 'SUB_123',
             token: 'TOKEN_123',
         )),
+        'generate-link' => app(GenerateSubscriptionUpdateLinkAction::class)->execute(
+            new GenerateSubscriptionUpdateLinkInputData(code: 'SUB_123')
+        ),
+        'send-link' => app(SendSubscriptionUpdateLinkAction::class)->execute(
+            new SendSubscriptionUpdateLinkInputData(code: 'SUB_123')
+        ),
         default => throw new InvalidArgumentException('Unknown subscription action test case.'),
     };
-})->with(['create', 'fetch', 'enable', 'disable'])->throws(RequestException::class);
+})->with(['create', 'fetch', 'enable', 'disable', 'generate-link', 'send-link'])->throws(RequestException::class);
 
 it('rejects malformed subscription timestamps', function () {
     app(PaystackConnector::class)->withMockClient(new MockClient([

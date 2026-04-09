@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Subscription\FetchSubscriptionResponseData
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\FetchSubscriptionRequest;
 
+/**
+ * Fetch a subscription by ID or subscription code.
+ *
+ * @see https://paystack.com/docs/api/subscription/#fetch-subscription
+ */
 final class FetchSubscriptionAction
 {
     public function __construct(

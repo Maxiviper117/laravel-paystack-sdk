@@ -18,7 +18,7 @@ class FetchTransactionRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/transaction/'.$this->input->idOrReference;
+        return '/transaction/'.$this->input->id;
     }
 
     public function createDtoFromResponse(Response $response): FetchTransactionResponseData

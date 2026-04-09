@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Subscription\DisableSubscriptionResponseDa
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\DisableSubscriptionRequest;
 
+/**
+ * Disable a subscription using its code and email token.
+ *
+ * @see https://paystack.com/docs/api/subscription/#disable-subscription
+ */
 final class DisableSubscriptionAction
 {
     public function __construct(

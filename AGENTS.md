@@ -31,6 +31,9 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `workbench/routes/web.php` and `workbench/README.md` should reflect the current recommended package integration style when live-test examples change.
 - Keep the workbench app up to date with the current package state. If package APIs, DTOs, response shapes, config, or recommended integration patterns change, update the relevant workbench routes/docs in the same change.
 - `SDK_SUPPORT.md` is the maintainer-facing support matrix for Paystack endpoints and SDK capabilities; keep it aligned with the actual implemented package surface.
+- Customer actions currently cover create, fetch, update, validate, set risk action, and list operations.
+- Plan actions currently cover create, update, fetch, and list operations, and `UpdatePlanInputData` includes the documented `update_existing_subscriptions` flag.
+- Subscription actions currently cover create, fetch, list, enable, disable, generate update link, and send update link operations.
 
 ## Working rules
 

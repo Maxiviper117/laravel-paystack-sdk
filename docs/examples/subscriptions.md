@@ -17,16 +17,19 @@ namespace App\Services\Billing;
 use App\Models\Account;
 use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\GenerateSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLinkInputData;
 
 class StartSubscriptionBilling
 {
     public function __construct(
-        private SyncPaystackCustomer $syncPaystackCustomer,
-        private CreatePlanAction $createPlan,
-        private CreateSubscriptionAction $createSubscription,
-    ) {}
+    private SyncPaystackCustomer $syncPaystackCustomer,
+    private CreatePlanAction $createPlan,
+    private CreateSubscriptionAction $createSubscription,
+    private GenerateSubscriptionUpdateLinkAction $generateSubscriptionUpdateLink,
+) {}
 
     public function handle(Account $account): string
     {
@@ -49,7 +52,13 @@ class StartSubscriptionBilling
             )
         );
 
-        return $subscriptionResponse->subscription->subscriptionCode;
+        $updateLink = ($this->generateSubscriptionUpdateLink)(
+            new GenerateSubscriptionUpdateLinkInputData(
+                code: $subscriptionResponse->subscription->subscriptionCode,
+            )
+        );
+
+        return $updateLink->link;
     }
 }
 ```
@@ -97,6 +106,7 @@ $subscription = Paystack::createSubscription(
 - plans define billing rules; they are not subscriptions themselves
 - store the Paystack `planCode` and `subscriptionCode` separately
 - recurring lifecycle updates should be driven by webhooks, not by synchronous assumptions after creation
+- use the subscription update-link helpers when a customer needs to refresh their card details
 
 ## Next steps
 

@@ -1,7 +1,7 @@
 <x-paystack-demo.layout
     title="Subscriptions Demo"
     heading="Subscriptions"
-    description="Create, fetch, list, enable, and disable subscriptions."
+    description="Create, fetch, list, enable, disable, and manage subscription update links."
     :pages="$pages"
     :result="$result ?? null"
     :result-label="$resultLabel ?? null"
@@ -9,7 +9,7 @@
 >
     <section class="rounded-3xl border border-slate-200 bg-white p-6">
         <h2 class="text-2xl font-bold text-slate-900">Subscriptions</h2>
-        <p class="mt-2 text-sm leading-6 text-slate-600">Create, fetch, list, enable, and disable subscriptions.</p>
+        <p class="mt-2 text-sm leading-6 text-slate-600">Create, fetch, list, enable, disable, and manage subscription update links.</p>
 
         <form method="post" action="/paystack/demo/subscriptions" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             @csrf
@@ -85,6 +85,26 @@
                     <input name="token" type="text" placeholder="email token" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
                 </label>
                 <button class="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Disable</button>
+            </form>
+        </div>
+
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <form method="post" action="/paystack/demo/subscriptions" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                @csrf
+                <input type="hidden" name="action" value="generate-link">
+                <label class="block text-sm font-medium text-slate-700">Code
+                    <input name="code" type="text" placeholder="SUB_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                </label>
+                <button class="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Generate update link</button>
+            </form>
+
+            <form method="post" action="/paystack/demo/subscriptions" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                @csrf
+                <input type="hidden" name="action" value="send-link">
+                <label class="block text-sm font-medium text-slate-700">Code
+                    <input name="code" type="text" placeholder="SUB_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                </label>
+                <button class="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Email update link</button>
             </form>
         </div>
     </section>

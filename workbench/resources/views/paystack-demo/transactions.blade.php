@@ -22,8 +22,35 @@
                     <label class="block text-sm font-medium text-slate-700">Amount
                         <input name="amount" type="number" step="0.01" value="15.50" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
                     </label>
+                    <label class="block text-sm font-medium text-slate-700">Channels
+                        <input name="channels" type="text" value="card,bank_transfer" placeholder="card,bank_transfer" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
                     <label class="block text-sm font-medium text-slate-700">Callback URL
                         <input name="callback_url" type="text" value="{{ url('/paystack/demo/transactions') }}" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Reference
+                        <input name="reference" type="text" placeholder="ref_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Plan
+                        <input name="plan" type="text" placeholder="PLN_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Invoice Limit
+                        <input name="invoice_limit" type="number" step="1" min="0" placeholder="3" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Currency
+                        <input name="currency" type="text" placeholder="NGN" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Split Code
+                        <input name="split_code" type="text" placeholder="SPL_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Subaccount
+                        <input name="subaccount" type="text" placeholder="ACCT_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Transaction Charge
+                        <input name="transaction_charge" type="number" step="1" min="0" placeholder="250" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Bearer
+                        <input name="bearer" type="text" placeholder="account" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
                     </label>
                 </div>
                 <button class="mt-4 w-full rounded-xl bg-orange-400 px-4 py-2.5 text-sm font-bold text-slate-950 hover:bg-orange-300">Initialize</button>

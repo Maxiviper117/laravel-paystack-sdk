@@ -31,7 +31,10 @@ class StartCheckout
             new InitializeTransactionInputData(
                 email: $order->customer_email,
                 amount: $order->total_amount,
+                channels: ['card', 'bank_transfer'],
                 callbackUrl: route('billing.paystack.callback'),
+                reference: 'order_'.$order->getKey(),
+                currency: 'NGN',
                 metadata: [
                     'order_id' => $order->getKey(),
                 ],
@@ -73,7 +76,10 @@ $response = Paystack::initializeTransaction(
     new InitializeTransactionInputData(
         email: $order->customer_email,
         amount: $order->total_amount,
+        channels: ['card', 'bank_transfer'],
         callbackUrl: route('billing.paystack.callback'),
+        reference: 'order_'.$order->getKey(),
+        currency: 'NGN',
         metadata: [
             'order_id' => $order->getKey(),
         ],

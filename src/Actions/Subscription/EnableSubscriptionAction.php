@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Subscription\EnableSubscriptionResponseDat
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\EnableSubscriptionRequest;
 
+/**
+ * Enable a subscription using its code and email token.
+ *
+ * @see https://paystack.com/docs/api/subscription/#enable-subscription
+ */
 final class EnableSubscriptionAction
 {
     public function __construct(

@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Plan\CreatePlanResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Plan\CreatePlanRequest;
 
+/**
+ * Create a new plan on the Paystack integration.
+ *
+ * @see https://paystack.com/docs/api/plan/#create-plan
+ */
 final class CreatePlanAction
 {
     public function __construct(

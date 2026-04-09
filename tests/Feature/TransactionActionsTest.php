@@ -48,6 +48,15 @@ it('initializes a transaction and normalizes amount', function () {
         metadata: [
             'order_id' => 'ORD-123',
         ],
+        currency: 'NGN',
+        channels: ['card', 'bank_transfer'],
+        reference: 'ref_123',
+        plan: 'PLN_123',
+        invoiceLimit: 3,
+        splitCode: 'SPL_123',
+        subaccount: 'ACCT_123',
+        transactionCharge: 250,
+        bearer: 'subaccount',
     ));
 
     expect($result)->toBeInstanceOf(InitializeTransactionResponseData::class)
@@ -56,7 +65,17 @@ it('initializes a transaction and normalizes amount', function () {
     $mockClient->assertSent(fn (Request $request) => $request instanceof InitializeTransactionRequest
         && $request->body()->all()['amount'] === '1550'
         && $request->body()->all()['email'] === 'jane@example.com'
-        && $request->body()->all()['metadata'] === '{"order_id":"ORD-123"}');
+        && $request->body()->all()['channels'] === ['card', 'bank_transfer']
+        && $request->body()->all()['callback_url'] === 'https://example.com/callback'
+        && $request->body()->all()['reference'] === 'ref_123'
+        && $request->body()->all()['plan'] === 'PLN_123'
+        && $request->body()->all()['invoice_limit'] === 3
+        && $request->body()->all()['currency'] === 'NGN'
+        && $request->body()->all()['metadata'] === '{"order_id":"ORD-123"}'
+        && $request->body()->all()['split_code'] === 'SPL_123'
+        && $request->body()->all()['subaccount'] === 'ACCT_123'
+        && $request->body()->all()['transaction_charge'] === 250
+        && $request->body()->all()['bearer'] === 'subaccount');
 });
 
 it('verifies a transaction and returns a dto', function () {
@@ -208,6 +227,37 @@ it('lists transactions and maps pagination', function () {
         && $request->query()->all()['perPage'] === 50);
 });
 
+it('sends terminal and amount list filters when present', function () {
+    $mockClient = new MockClient([
+        ListTransactionsRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Transactions retrieved',
+            'data' => [],
+            'meta' => [
+                'next' => null,
+                'previous' => null,
+                'perPage' => 50,
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    app(ListTransactionsAction::class)->execute(new ListTransactionsInputData(
+        perPage: 50,
+        customer: 'CUS_123',
+        amount: 5000,
+        reference: 'ref_123',
+        terminalId: 'TAL_123',
+    ));
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof ListTransactionsRequest
+        && $request->query()->all()['customer'] === 'CUS_123'
+        && $request->query()->all()['terminalid'] === 'TAL_123'
+        && $request->query()->all()['amount'] === 5000
+        && $request->query()->all()['reference'] === 'ref_123');
+});
+
 it('lists transactions with empty data and without meta', function () {
     $mockClient = new MockClient([
         ListTransactionsRequest::class => MockResponse::make([
@@ -280,9 +330,10 @@ it('throws on transaction api errors', function (string $action) {
         'initialize' => app(InitializeTransactionAction::class)->execute(new InitializeTransactionInputData(
             email: 'jane@example.com',
             amount: 15.5,
+            reference: 'ref_123',
         )),
         'verify' => app(VerifyTransactionAction::class)->execute(new VerifyTransactionInputData('ref_123')),
-        'fetch' => app(FetchTransactionAction::class)->execute(new FetchTransactionInputData('ref_123')),
+        'fetch' => app(FetchTransactionAction::class)->execute(new FetchTransactionInputData(123)),
         default => throw new InvalidArgumentException('Unknown transaction action test case.'),
     };
 })->with(['initialize', 'verify', 'fetch'])->throws(RequestException::class);

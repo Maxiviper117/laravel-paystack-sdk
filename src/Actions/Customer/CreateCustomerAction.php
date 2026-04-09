@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Customer\CreateCustomerResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Customer\CreateCustomerRequest;
 
+/**
+ * Create a new customer on the Paystack integration.
+ *
+ * @see https://paystack.com/docs/api/customer/#create-customer
+ */
 final class CreateCustomerAction
 {
     public function __construct(
