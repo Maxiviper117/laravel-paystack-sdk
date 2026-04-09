@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.3.0...v0.4.0) (2026-04-09)
+
+
+### Features
+
+* add VitePress skill documentation for inspection and validation ([fa7f7b3](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/fa7f7b3d4f2c170aae386e670a63b4d204479845))
+* improve workbench examples and webhook setup docs ([fa7f7b3](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/fa7f7b3d4f2c170aae386e670a63b4d204479845))
+* improve workbench examples and webhook setup docs ([#17](https://github.com/Maxiviper117/laravel-paystack-sdk/issues/17)) ([fa7f7b3](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/fa7f7b3d4f2c170aae386e670a63b4d204479845))
+
 ## [0.3.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.2.0...v0.3.0) (2026-03-03)
 
 
