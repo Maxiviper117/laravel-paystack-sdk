@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.5.0...v0.5.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* align docs workflow pnpm version ([11da1d8](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/11da1d873fdf0715d647d155113f8ecfcac1f47e))
+* rely on package manager pnpm version ([67bd7a0](https://github.com/Maxiviper117/laravel-paystack-sdk/commit/67bd7a01f8430a89b752ee2b37189cebf63c0943))
+
 ## [0.5.0](https://github.com/Maxiviper117/laravel-paystack-sdk/compare/v0.4.0...v0.5.0) (2026-04-09)
 
 
