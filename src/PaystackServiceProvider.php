@@ -21,7 +21,10 @@ class PaystackServiceProvider extends PackageServiceProvider
         $package
             ->name('paystack')
             ->hasConfigFile()
-            ->discoversMigrations();
+            ->hasMigrations([
+                'create_paystack_customers_table',
+                'create_paystack_subscriptions_table',
+            ]);
     }
 
     public function packageRegistered(): void
