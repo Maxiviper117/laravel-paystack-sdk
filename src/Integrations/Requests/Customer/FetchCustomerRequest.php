@@ -18,7 +18,7 @@ class FetchCustomerRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/customer/'.$this->input->emailOrCode;
+        return '/customer/'.rawurlencode($this->input->emailOrCode);
     }
 
     public function createDtoFromResponse(Response $response): FetchCustomerResponseData

@@ -18,7 +18,7 @@ class FetchPlanRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/plan/'.$this->input->idOrCode;
+        return '/plan/'.rawurlencode((string) $this->input->idOrCode);
     }
 
     public function createDtoFromResponse(Response $response): FetchPlanResponseData

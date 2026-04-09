@@ -18,7 +18,7 @@ class FetchSubscriptionRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/subscription/'.$this->input->idOrCode;
+        return '/subscription/'.rawurlencode((string) $this->input->idOrCode);
     }
 
     public function createDtoFromResponse(Response $response): FetchSubscriptionResponseData

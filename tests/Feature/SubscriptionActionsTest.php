@@ -284,6 +284,27 @@ it('fetches a subscription by integer identifier and maps sparse nested payloads
         ->and($result->subscription->customer?->customerCode)->toBeNull();
 });
 
+it('encodes subscription identifiers in fetch request paths', function () {
+    $mockClient = new MockClient([
+        FetchSubscriptionRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Subscription fetched',
+            'data' => [
+                'id' => 31,
+                'subscription_code' => 'SUB/2026?beta',
+                'status' => 'active',
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    app(FetchSubscriptionAction::class)->execute(new FetchSubscriptionInputData('SUB/2026?beta'));
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof FetchSubscriptionRequest
+        && $request->resolveEndpoint() === '/subscription/SUB%2F2026%3Fbeta');
+});
+
 it('lists subscriptions with empty data and without meta', function () {
     $mockClient = new MockClient([
         ListSubscriptionsRequest::class => MockResponse::make([
