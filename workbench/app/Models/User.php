@@ -13,8 +13,7 @@ class User extends Authenticatable
 {
     use Billable;
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-
+    use HasFactory;
     use Notifiable;
 
     /**
