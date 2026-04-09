@@ -14,9 +14,7 @@ it('can return an action response dto directly from a route as json', function (
     /** @var TestCase $testCase */
     $testCase = $this;
 
-    Route::get('/test/paystack/action-response', function (VerifyTransactionAction $verifyTransaction) {
-        return $verifyTransaction(new VerifyTransactionInputData('ref_action'));
-    });
+    Route::get('/test/paystack/action-response', fn (VerifyTransactionAction $verifyTransaction) => $verifyTransaction(new VerifyTransactionInputData('ref_action')));
 
     app(PaystackConnector::class)->withMockClient(new MockClient([
         VerifyTransactionRequest::class => MockResponse::make([
@@ -50,9 +48,7 @@ it('can return a facade response dto directly from a route as json', function ()
     /** @var TestCase $testCase */
     $testCase = $this;
 
-    Route::get('/test/paystack/facade-response', function () {
-        return Paystack::verifyTransaction(new VerifyTransactionInputData('ref_facade'));
-    });
+    Route::get('/test/paystack/facade-response', fn () => Paystack::verifyTransaction(new VerifyTransactionInputData('ref_facade')));
 
     app(PaystackConnector::class)->withMockClient(new MockClient([
         VerifyTransactionRequest::class => MockResponse::make([

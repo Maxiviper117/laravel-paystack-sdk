@@ -5,6 +5,7 @@ namespace Maxiviper117\Paystack\Models;
 use Illuminate\Http\Request;
 use Maxiviper117\Paystack\Data\Output\Webhook\PaystackWebhookEventData;
 use Maxiviper117\Paystack\Support\Webhooks\PaystackWebhook;
+use Override;
 use Spatie\WebhookClient\Models\WebhookCall;
 use Spatie\WebhookClient\WebhookConfig;
 
@@ -12,6 +13,7 @@ class PaystackWebhookCall extends WebhookCall
 {
     protected $table = 'webhook_calls';
 
+    #[Override]
     public static function storeWebhook(WebhookConfig $config, Request $request): WebhookCall
     {
         $headers = self::headersToStore($config, $request);

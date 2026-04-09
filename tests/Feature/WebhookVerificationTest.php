@@ -58,15 +58,13 @@ it('stores and processes a valid paystack webhook', function () {
         ->and($webhookCall->headers()->has('x-paystack-signature'))->toBeTrue()
         ->and($webhookCall->headers()->has('x-unexpected-header'))->toBeFalse();
 
-    Event::assertDispatched(PaystackWebhookReceived::class, function (PaystackWebhookReceived $event) use ($webhookCall): bool {
-        return $event->webhookCall->is($webhookCall)
-            && $event->event->event === 'charge.success'
-            && $event->event->resourceType === 'charge'
-            && $event->event->id === 123
-            && $event->event->occurredAt instanceof CarbonImmutable
-            && $event->event->occurredAt->toAtomString() === '2026-03-01T10:00:00+00:00'
-            && $event->event->typedData() instanceof ChargeSuccessWebhookData;
-    });
+    Event::assertDispatched(PaystackWebhookReceived::class, fn (PaystackWebhookReceived $event): bool => $event->webhookCall->is($webhookCall)
+        && $event->event->event === 'charge.success'
+        && $event->event->resourceType === 'charge'
+        && $event->event->id === 123
+        && $event->event->occurredAt instanceof CarbonImmutable
+        && $event->event->occurredAt->toAtomString() === '2026-03-01T10:00:00+00:00'
+        && $event->event->typedData() instanceof ChargeSuccessWebhookData);
 });
 
 it('queues the paystack webhook processing job', function () {
@@ -94,9 +92,7 @@ it('queues the paystack webhook processing job', function () {
 
     $response->assertOk();
 
-    Queue::assertPushed(ProcessPaystackWebhookJob::class, function (ProcessPaystackWebhookJob $job): bool {
-        return $job->connection === 'sync' && $job->queue === 'paystack-webhooks';
-    });
+    Queue::assertPushed(ProcessPaystackWebhookJob::class, fn (ProcessPaystackWebhookJob $job): bool => $job->connection === 'sync' && $job->queue === 'paystack-webhooks');
 });
 
 it('rejects invalid webhook signatures before storage', function () {

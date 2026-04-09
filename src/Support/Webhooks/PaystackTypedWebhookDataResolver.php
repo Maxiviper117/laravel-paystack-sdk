@@ -13,7 +13,7 @@ class PaystackTypedWebhookDataResolver
     /**
      * @var list<string>
      */
-    private const SUPPORTED_EVENTS = [
+    private const array SUPPORTED_EVENTS = [
         'charge.success',
         'invoice.create',
         'invoice.update',
