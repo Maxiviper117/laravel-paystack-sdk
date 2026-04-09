@@ -56,7 +56,7 @@
         "analyse": "@php tools/phpstan-analyse.php",
         "refactor": "vendor/bin/rector process",
         "refactor-dry": "vendor/bin/rector process --dry-run",
-        "test": "vendor/bin/pest",
+        "test": "vendor/bin/pest --parallel",
         "test-parallel": "vendor/bin/pest --parallel",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint"
