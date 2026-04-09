@@ -1,5 +1,5 @@
 @php
-    $pageTitle = $title ?? 'Paystack Demo';
+    $pageTitle = $title ?? 'Paystack SDK Kitchen Sink';
     $result = $result ?? null;
     $resultLabel = $resultLabel ?? null;
     $currentPath = $currentPath ?? null;
@@ -38,7 +38,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $heading ?? $pageTitle }} — Paystack SDK</title>
+    <title>{{ $heading ?? $pageTitle }} — Paystack SDK Kitchen Sink</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -48,7 +48,7 @@
     <aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
 
         {{-- App header --}}
-        <div class="flex items-center gap-2.5 border-b border-slate-200 px-4 py-[14px]">
+        <div class="flex items-center gap-2.5 border-b border-slate-200 px-4 py-3.5">
             <div class="flex h-7 w-7 shrink-0 items-center justify-center bg-orange-400">
                 <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
                     aria-hidden="true">
@@ -56,7 +56,7 @@
                         d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                 </svg>
             </div>
-            <span class="text-sm font-semibold tracking-tight text-slate-800">Paystack SDK</span>
+            <span class="text-sm font-semibold tracking-tight text-slate-800">Paystack SDK Kitchen Sink</span>
         </div>
 
         {{-- Navigation --}}
@@ -99,9 +99,9 @@
     <div class="flex flex-1 flex-col overflow-hidden bg-[#f7f7f8]">
 
         {{-- Top bar / breadcrumb --}}
-        <header class="flex items-center border-b border-slate-200 bg-white px-6 py-[11px]">
+        <header class="flex items-center border-b border-slate-200 bg-white px-6 py-2.75">
             <nav class="flex items-center gap-1.5 text-sm text-slate-500" aria-label="Breadcrumb">
-                <a href="/paystack/demo" class="hover:text-slate-900">Paystack SDK</a>
+                <a href="/paystack/demo" class="hover:text-slate-900">Paystack SDK Kitchen Sink</a>
                 @if (!empty($heading) && $currentPath !== '/paystack/demo')
                     <svg class="h-3.5 w-3.5 shrink-0 text-slate-300" fill="none" stroke="currentColor" stroke-width="2.5"
                         viewBox="0 0 24 24" aria-hidden="true">
@@ -129,7 +129,8 @@
             {{-- API result panel --}}
             <section class="border border-slate-200 bg-white p-5">
                 <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                    {{ $resultLabel ?? 'API Response' }}</p>
+                    {{ $resultLabel ?? 'API Response' }}
+                </p>
                 @if (!is_null($result))
                     <pre
                         class="mt-3 overflow-auto border-l-2 border-orange-400 bg-slate-50 pl-4 pr-4 pt-3 pb-3 font-mono text-xs leading-6 text-slate-700">{{ json_encode($renderedResult, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>

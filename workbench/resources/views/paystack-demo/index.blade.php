@@ -1,4 +1,4 @@
-<x-paystack-demo.layout title="Paystack SDK Demo" heading="Dashboard"
+<x-paystack-demo.layout title="Paystack SDK Kitchen Sink" heading="Dashboard"
     description="Pick a feature from the sidebar to start testing." current-path="/paystack/demo" :pages="$pages">
     {{-- Feature grid --}}
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
