@@ -10,10 +10,10 @@
 @endphp
 
 <x-paystack-demo.layout title="Transactions Demo" heading="Transactions"
-    description="Initialize a checkout or verify a returned reference." :pages="$pages" :result="$result ?? null"
+    description="Initialize a checkout, verify a returned reference, or list transactions." :pages="$pages" :result="$result ?? null"
     :result-label="$resultLabel ?? null" current-path="/paystack/demo/transactions">
     <section class="border border-slate-200 bg-white p-5">
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-3">
             <form method="post" action="/paystack/demo/transactions" class="border border-slate-100 bg-slate-50/60 p-4">
                 @csrf
                 <input type="hidden" name="action" value="initialize">
@@ -93,6 +93,54 @@
                         <p class="mt-2 text-sm leading-6">{{ $verificationNotice['message'] }}</p>
                     </div>
                 @endif
+            </form>
+
+            <form method="post" action="/paystack/demo/transactions" class="border border-slate-100 bg-slate-50/60 p-4">
+                @csrf
+                <input type="hidden" name="action" value="list">
+                <div class="space-y-3">
+                    <label class="block text-sm font-medium text-slate-700">Customer filter
+                        <input name="customer" type="text" placeholder="Optional"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Terminal ID
+                        <input name="terminal_id" type="text" placeholder="Optional"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Status
+                        <input name="status" type="text" placeholder="Optional"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">From
+                        <input name="from" type="text" placeholder="2026-01-01"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">To
+                        <input name="to" type="text" placeholder="2026-12-31"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Amount filter
+                        <input name="amount_filter" type="number" step="1" min="0" placeholder="5000"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">Reference
+                        <input name="list_reference" type="text" placeholder="ref_123"
+                            class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="block text-sm font-medium text-slate-700">Per page
+                            <input name="per_page" type="number" value="10"
+                                class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">Page
+                            <input name="page" type="number" value="1"
+                                class="mt-1 w-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none">
+                        </label>
+                    </div>
+                </div>
+                <button
+                    class="mt-4 w-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">List
+                    transactions</button>
             </form>
         </div>
 

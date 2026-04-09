@@ -21,6 +21,7 @@
             ['title' => 'Transactions', 'path' => '/paystack/demo/transactions'],
             ['title' => 'Customers', 'path' => '/paystack/demo/customers'],
             ['title' => 'Disputes', 'path' => '/paystack/demo/disputes'],
+            ['title' => 'Refunds', 'path' => '/paystack/demo/refunds'],
             ['title' => 'Plans', 'path' => '/paystack/demo/plans'],
             ['title' => 'Subscriptions', 'path' => '/paystack/demo/subscriptions'],
         ],
