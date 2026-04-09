@@ -1,12 +1,7 @@
-<x-paystack-demo.layout
-    title="Webhooks Demo"
-    heading="Webhooks"
-    description="Inspect the webhook endpoint, latest stored call, and the latest cached parsed event."
-    :pages="$pages"
-    :latest-webhook-call="$latestWebhookCall ?? null"
-    :latest-webhook-event="$latestWebhookEvent ?? null"
-    current-path="/paystack/demo/webhooks"
->
+<x-paystack-demo.layout title="Webhooks Demo" heading="Webhooks"
+    description="Inspect the webhook endpoint, latest stored call, and the latest cached parsed event." :pages="$pages"
+    :latest-webhook-call="$latestWebhookCall ?? null" :latest-webhook-event="$latestWebhookEvent ?? null"
+    current-path="/paystack/demo/webhooks">
     <section class="border border-slate-200 bg-white p-5">
         <div class="grid gap-4 md:grid-cols-2">
             <div class="border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
@@ -20,19 +15,23 @@
 
             <div class="border border-slate-100 bg-slate-50/60 p-4">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Latest cached event</p>
-                <pre class="mt-3 overflow-auto text-xs leading-6 text-slate-800">{{ json_encode($latestWebhookEvent, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                <pre
+                    class="mt-3 overflow-auto text-xs leading-6 text-slate-800">{{ json_encode($latestWebhookEvent, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
             </div>
         </div>
 
         <div class="mt-4 grid gap-4 md:grid-cols-2">
             <div class="border border-slate-100 bg-slate-50/60 p-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Latest stored webhook call</p>
-                <pre class="mt-3 overflow-auto text-xs leading-6 text-slate-800">{{ json_encode($latestWebhookCall?->only(['id', 'name', 'url', 'headers', 'payload', 'exception', 'created_at']), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Latest stored webhook call
+                </p>
+                <pre
+                    class="mt-3 overflow-auto text-xs leading-6 text-slate-800">{{ json_encode($latestWebhookCall?->only(['id', 'name', 'url', 'headers', 'payload', 'exception', 'created_at']), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
             </div>
             <div class="border border-slate-100 bg-slate-50/60 p-4">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Webhook notes</p>
                 <p class="mt-3 text-sm leading-6 text-slate-600">
-                    Post a signed Paystack payload to the endpoint above, then inspect the stored call and the cached event payload here.
+                    Post a signed Paystack payload to the endpoint above, then inspect the stored call and the cached
+                    event payload here.
                 </p>
             </div>
         </div>
