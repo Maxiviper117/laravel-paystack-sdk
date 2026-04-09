@@ -92,6 +92,26 @@ it('fetches a customer by email or code', function () {
         && $request->resolveEndpoint() === '/customer/CUS_123');
 });
 
+it('encodes customer identifiers in fetch request paths', function () {
+    $mockClient = new MockClient([
+        FetchCustomerRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Customer retrieved',
+            'data' => [
+                'email' => 'jane+promo@example.com',
+                'customer_code' => 'CUS_123',
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    app(FetchCustomerAction::class)->execute(new FetchCustomerInputData('jane+promo@example.com'));
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof FetchCustomerRequest
+        && $request->resolveEndpoint() === '/customer/jane%2Bpromo%40example.com');
+});
+
 it('lists customers and returns pagination data', function () {
     $mockClient = new MockClient([
         ListCustomersRequest::class => MockResponse::make([

@@ -171,6 +171,26 @@ it('fetches a plan by integer identifier and maps sparse payloads safely', funct
         ->and($result->plan->currency)->toBeNull();
 });
 
+it('encodes plan identifiers in fetch request paths', function () {
+    $mockClient = new MockClient([
+        FetchPlanRequest::class => MockResponse::make([
+            'status' => true,
+            'message' => 'Plan retrieved',
+            'data' => [
+                'id' => 11,
+                'plan_code' => 'PLN/Starter 01',
+            ],
+        ], 200),
+    ]);
+
+    app(PaystackConnector::class)->withMockClient($mockClient);
+
+    app(FetchPlanAction::class)->execute(new FetchPlanInputData('PLN/Starter 01'));
+
+    $mockClient->assertSent(fn (Request $request) => $request instanceof FetchPlanRequest
+        && $request->resolveEndpoint() === '/plan/PLN%2FStarter%2001');
+});
+
 it('lists plans with empty data and without meta', function () {
     $mockClient = new MockClient([
         ListPlansRequest::class => MockResponse::make([
