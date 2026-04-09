@@ -32,6 +32,19 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Customers | Set customer risk action | Supported | `SetCustomerRiskAction`, `SetCustomerRiskActionInputData`, `SetCustomerRiskActionResponseData` |
 | Customers | List customers | Supported | `ListCustomersAction`, `ListCustomersInputData`, `ListCustomersResponseData` |
 
+### Disputes
+
+| Paystack area | Endpoint / capability | Status | Public SDK surface |
+| --- | --- | --- | --- |
+| Disputes | List disputes | Supported | `ListDisputesAction`, `ListDisputesInputData`, `ListDisputesResponseData` |
+| Disputes | Fetch dispute | Supported | `FetchDisputeAction`, `FetchDisputeInputData`, `FetchDisputeResponseData` |
+| Disputes | List transaction disputes | Supported | `ListTransactionDisputesAction`, `ListTransactionDisputesInputData`, `ListTransactionDisputesResponseData` |
+| Disputes | Update dispute | Supported | `UpdateDisputeAction`, `UpdateDisputeInputData`, `UpdateDisputeResponseData` |
+| Disputes | Add dispute evidence | Supported | `AddDisputeEvidenceAction`, `AddDisputeEvidenceInputData`, `AddDisputeEvidenceResponseData` |
+| Disputes | Get upload URL | Supported | `GetDisputeUploadUrlAction`, `GetDisputeUploadUrlInputData`, `GetDisputeUploadUrlResponseData` |
+| Disputes | Resolve dispute | Supported | `ResolveDisputeAction`, `ResolveDisputeInputData`, `ResolveDisputeResponseData` |
+| Disputes | Export disputes | Supported | `ExportDisputesAction`, `ListDisputesInputData`, `ExportDisputesResponseData` |
+
 ### Plans
 
 | Paystack area | Endpoint / capability | Status | Public SDK surface |
@@ -80,7 +93,6 @@ These areas are planned or likely future work, but they are not currently suppor
 | Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |
 | Transfer recipients | Create / bulk create / update / delete / list / fetch | Not started | No actions, DTOs, or requests yet. |
 | Dedicated virtual accounts | Account lifecycle and split-management endpoints | Not started | No actions, DTOs, or requests yet. |
-| Disputes | List / fetch / update / evidence flows | Not started | No actions, DTOs, or requests yet. |
 | Refunds | Create / list / fetch / retry | Not started | No actions, DTOs, or requests yet. |
 | Bulk charges | Create / list / fetch / pause / resume | Not started | No actions, DTOs, or requests yet. |
 

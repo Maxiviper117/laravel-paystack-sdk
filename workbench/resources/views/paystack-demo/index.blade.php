@@ -23,6 +23,8 @@
                     verify transactions</li>
                 <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 bg-orange-400"></span> Create, update &amp;
                     list customers</li>
+                <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 bg-orange-400"></span> List, fetch,
+                    update &amp; resolve disputes</li>
                 <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 bg-orange-400"></span> Create, update &amp;
                     list plans</li>
                 <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 bg-orange-400"></span> Create, fetch,

@@ -41,7 +41,19 @@ class Payload
     {
         $value = $payload[$key] ?? $default;
 
-        return is_bool($value) ? $value : $default;
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value !== 0;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
+            return (int) $value !== 0;
+        }
+
+        return $default;
     }
 
     /**

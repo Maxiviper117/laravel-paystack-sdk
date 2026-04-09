@@ -13,6 +13,14 @@ use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
 use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
 use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
+use Maxiviper117\Paystack\Actions\Dispute\AddDisputeEvidenceAction;
+use Maxiviper117\Paystack\Actions\Dispute\ExportDisputesAction;
+use Maxiviper117\Paystack\Actions\Dispute\FetchDisputeAction;
+use Maxiviper117\Paystack\Actions\Dispute\GetDisputeUploadUrlAction;
+use Maxiviper117\Paystack\Actions\Dispute\ListDisputesAction;
+use Maxiviper117\Paystack\Actions\Dispute\ListTransactionDisputesAction;
+use Maxiviper117\Paystack\Actions\Dispute\ResolveDisputeAction;
+use Maxiviper117\Paystack\Actions\Dispute\UpdateDisputeAction;
 use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
 use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
@@ -32,6 +40,13 @@ use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\FetchDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListTransactionDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ResolveDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\UpdateDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
@@ -211,6 +226,100 @@ class PaystackDemoController extends Controller
             'result' => $result,
             'resultLabel' => $resultLabel,
             'currentPath' => '/paystack/demo/customers',
+        ]);
+    }
+
+    public function disputes(
+        Request $request,
+        ListDisputesAction $listDisputes,
+        FetchDisputeAction $fetchDispute,
+        ListTransactionDisputesAction $listTransactionDisputes,
+        UpdateDisputeAction $updateDispute,
+        AddDisputeEvidenceAction $addDisputeEvidence,
+        GetDisputeUploadUrlAction $getDisputeUploadUrl,
+        ResolveDisputeAction $resolveDispute,
+        ExportDisputesAction $exportDisputes,
+    ): View {
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $listDisputes, $fetchDispute, $listTransactionDisputes, $updateDispute, $addDisputeEvidence, $getDisputeUploadUrl, $resolveDispute, $exportDisputes): array {
+            return match ((string) $request->input('action', 'list')) {
+                'fetch' => [
+                    $fetchDispute(new FetchDisputeInputData((string) $request->input('dispute_identifier', ''))),
+                    'Dispute fetch',
+                ],
+                'transaction' => [
+                    $listTransactionDisputes(new ListTransactionDisputesInputData((string) $request->input('transaction_identifier', ''))),
+                    'Transaction disputes',
+                ],
+                'update' => [
+                    $updateDispute(new UpdateDisputeInputData(
+                        id: (string) $request->input('dispute_id', ''),
+                        refundAmount: $request->filled('refund_amount') ? $request->integer('refund_amount') : null,
+                        uploadedFilename: $request->filled('uploaded_filename') ? (string) $request->input('uploaded_filename') : null,
+                    )),
+                    'Dispute update',
+                ],
+                'evidence' => [
+                    $addDisputeEvidence(new AddDisputeEvidenceInputData(
+                        id: (string) $request->input('dispute_id', ''),
+                        customerEmail: (string) $request->input('customer_email', 'customer@example.com'),
+                        customerName: (string) $request->input('customer_name', 'Jane Doe'),
+                        customerPhone: (string) $request->input('customer_phone', '08023456789'),
+                        serviceDetails: (string) $request->input('service_details', 'Service details'),
+                        deliveryAddress: $request->filled('delivery_address') ? (string) $request->input('delivery_address') : null,
+                        deliveryDate: $request->filled('delivery_date') ? (string) $request->input('delivery_date') : null,
+                    )),
+                    'Dispute evidence',
+                ],
+                'upload-url' => [
+                    $getDisputeUploadUrl(new GetDisputeUploadUrlInputData(
+                        id: (string) $request->input('dispute_id', ''),
+                        uploadFilename: (string) $request->input('upload_filename', 'evidence.pdf'),
+                    )),
+                    'Dispute upload URL',
+                ],
+                'resolve' => [
+                    $resolveDispute(new ResolveDisputeInputData(
+                        id: (string) $request->input('dispute_id', ''),
+                        resolution: (string) $request->input('resolution', 'merchant-accepted'),
+                        message: $request->filled('message') ? (string) $request->input('message') : null,
+                        refundAmount: $request->filled('refund_amount') ? $request->integer('refund_amount') : null,
+                        uploadedFilename: $request->filled('uploaded_filename') ? (string) $request->input('uploaded_filename') : null,
+                        evidence: $request->filled('evidence') ? $request->integer('evidence') : null,
+                    )),
+                    'Dispute resolution',
+                ],
+                'export' => [
+                    $exportDisputes(new ListDisputesInputData(
+                        from: $request->filled('from') ? (string) $request->input('from') : null,
+                        to: $request->filled('to') ? (string) $request->input('to') : null,
+                        perPage: $request->integer('per_page') ?: 10,
+                        page: $request->integer('page') ?: 1,
+                        transaction: $request->filled('transaction') ? (string) $request->input('transaction') : null,
+                        status: $request->filled('status') ? (string) $request->input('status') : null,
+                    )),
+                    'Dispute export',
+                ],
+                default => [
+                    $listDisputes(new ListDisputesInputData(
+                        from: $request->filled('from') ? (string) $request->input('from') : null,
+                        to: $request->filled('to') ? (string) $request->input('to') : null,
+                        perPage: $request->integer('per_page') ?: 10,
+                        page: $request->integer('page') ?: 1,
+                        transaction: $request->filled('transaction') ? (string) $request->input('transaction') : null,
+                        status: $request->filled('status') ? (string) $request->input('status') : null,
+                    )),
+                    'Dispute list',
+                ],
+            };
+        });
+
+        return $this->render('disputes', [
+            'title' => 'Disputes Demo',
+            'heading' => 'Disputes',
+            'description' => 'List, fetch, update, resolve, and export disputes, plus upload and evidence helpers.',
+            'result' => $result,
+            'resultLabel' => $resultLabel,
+            'currentPath' => '/paystack/demo/disputes',
         ]);
     }
 
@@ -442,6 +551,7 @@ class PaystackDemoController extends Controller
         return [
             ['title' => 'Transactions', 'path' => '/paystack/demo/transactions', 'description' => 'Initialize and verify payment flows.'],
             ['title' => 'Customers', 'path' => '/paystack/demo/customers', 'description' => 'Create, update, and list customers.'],
+            ['title' => 'Disputes', 'path' => '/paystack/demo/disputes', 'description' => 'List, fetch, update, and resolve disputes.'],
             ['title' => 'Plans', 'path' => '/paystack/demo/plans', 'description' => 'Create, update, fetch, and list plans.'],
             ['title' => 'Subscriptions', 'path' => '/paystack/demo/subscriptions', 'description' => 'Create, fetch, list, enable, disable, and manage subscription update links.'],
             ['title' => 'Webhooks', 'path' => '/paystack/demo/webhooks', 'description' => 'Inspect webhook intake and stored calls.'],

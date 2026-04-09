@@ -10,6 +10,7 @@ The package currently supports:
 
 - transactions
 - customers
+- disputes
 - an optional local billing layer for stored Paystack customers and subscriptions
 - plans
 - subscriptions
@@ -44,6 +45,7 @@ The new examples area is a cookbook for application integrators. Start there if 
 
 - Transactions: [Transactions](/transactions)
 - Customers: [Customers](/customers)
+- Disputes: [Disputes](/disputes)
 - Optional billing layer: [Billing Layer](/billing-layer)
 - Billing plans: [Plans](/plans)
 - Subscriptions: [Subscriptions](/subscriptions)

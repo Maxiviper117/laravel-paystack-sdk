@@ -13,6 +13,7 @@ The current workbench flow covers:
 - verifying the transaction on the callback route
 - receiving Paystack webhooks through a stored and queued endpoint
 - listing customers through the local package
+- listing disputes through the local package
 - creating plans through the local package
 - creating subscriptions through the local package
 - exercising the optional Billable persistence layer against a local `users` table
@@ -20,6 +21,7 @@ The current workbench flow covers:
 - using the legacy playground compatibility page at `/paystack/demo/playground`
 - opening the dedicated transactions page at `/paystack/demo/transactions`
 - opening the dedicated customers page at `/paystack/demo/customers`
+- opening the dedicated disputes page at `/paystack/demo/disputes`
 - opening the dedicated plans page at `/paystack/demo/plans`
 - opening the dedicated subscriptions page at `/paystack/demo/subscriptions`
 - opening the dedicated webhooks page at `/paystack/demo/webhooks`
@@ -84,6 +86,7 @@ Then open:
 - `/paystack/demo/playground` for the legacy compatibility page
 - `/paystack/demo/transactions` for transaction demos
 - `/paystack/demo/customers` for customer demos
+- `/paystack/demo/disputes` for dispute demos
 - `/paystack/demo/plans` for plan demos
 - `/paystack/demo/subscriptions` for subscription demos
 - `/paystack/demo/webhooks` for webhook inspection
@@ -105,6 +108,7 @@ The workbench uses Laravel controllers for action-based examples so actions are 
 - `InitializeTransactionAction`
 - `VerifyTransactionAction`
 - `ListCustomersAction`
+- `ListDisputesAction`
 
 Outbound Paystack API usage still follows the package's current pattern:
 

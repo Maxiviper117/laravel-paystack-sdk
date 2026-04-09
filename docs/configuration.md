@@ -49,6 +49,7 @@ Choose a feature area:
 
 - [Transactions](/transactions)
 - [Customers](/customers)
+- [Disputes](/disputes)
 - [Billing Layer](/billing-layer)
 - [Plans](/plans)
 - [Subscriptions](/subscriptions)
