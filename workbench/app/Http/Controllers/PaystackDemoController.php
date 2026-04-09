@@ -4,16 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Closure;
-use Illuminate\Http\{RedirectResponse, Request};
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Maxiviper117\Paystack\Actions\Customer\{CreateCustomerAction, ListCustomersAction, UpdateCustomerAction};
-use Maxiviper117\Paystack\Actions\Plan\{CreatePlanAction, FetchPlanAction, ListPlansAction, UpdatePlanAction};
-use Maxiviper117\Paystack\Actions\Subscription\{CreateSubscriptionAction, DisableSubscriptionAction, EnableSubscriptionAction, FetchSubscriptionAction, ListSubscriptionsAction};
-use Maxiviper117\Paystack\Actions\Transaction\{InitializeTransactionAction, VerifyTransactionAction};
-use Maxiviper117\Paystack\Data\Input\Customer\{CreateCustomerInputData, ListCustomersInputData, UpdateCustomerInputData};
-use Maxiviper117\Paystack\Data\Input\Plan\{CreatePlanInputData, FetchPlanInputData, ListPlansInputData, UpdatePlanInputData};
-use Maxiviper117\Paystack\Data\Input\Subscription\{CreateSubscriptionInputData, DisableSubscriptionInputData, EnableSubscriptionInputData, FetchSubscriptionInputData, ListSubscriptionsInputData};
-use Maxiviper117\Paystack\Data\Input\Transaction\{InitializeTransactionInputData, VerifyTransactionInputData};
+use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
+use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
+use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
+use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
+use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
+use Maxiviper117\Paystack\Actions\Plan\UpdatePlanAction;
+use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\DisableSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\EnableSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\FetchSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\ListSubscriptionsAction;
+use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
+use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
+use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
+use Maxiviper117\Paystack\Data\Input\Plan\UpdatePlanInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\FetchSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 use Throwable;
 
@@ -278,7 +299,7 @@ class PaystackDemoController extends Controller
             return [[
                 'user' => $user->only(['id', 'name', 'email']),
                 'paystack_customer' => $user->paystackCustomer?->only(['id', 'customer_code', 'email']),
-                'paystack_subscriptions' => $user->paystackSubscriptions->map(static fn(mixed $subscription): array => $subscription->only([
+                'paystack_subscriptions' => $user->paystackSubscriptions->map(static fn (mixed $subscription): array => $subscription->only([
                     'id',
                     'name',
                     'subscription_code',
