@@ -16,6 +16,7 @@ export default defineConfig({
         items: [
           { text: 'Transactions', link: '/transactions' },
           { text: 'Customers', link: '/customers' },
+          { text: 'Disputes', link: '/disputes' },
           { text: 'Billing Layer', link: '/billing-layer' },
           { text: 'Plans', link: '/plans' },
           { text: 'Subscriptions', link: '/subscriptions' },
@@ -60,6 +61,7 @@ export default defineConfig({
           items: [
             { text: 'Transactions', link: '/transactions' },
             { text: 'Customers', link: '/customers' },
+            { text: 'Disputes', link: '/disputes' },
           ],
         },
         {

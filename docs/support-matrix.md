@@ -23,6 +23,17 @@ This page summarizes the currently implemented Paystack surface in the package.
 - set customer risk action
 - list customers
 
+### Disputes
+
+- list disputes
+- fetch dispute
+- list disputes for a transaction
+- update dispute
+- add dispute evidence
+- get dispute upload URL
+- resolve dispute
+- export disputes
+
 ### Plans
 
 - create plan
@@ -57,7 +68,6 @@ This page summarizes the currently implemented Paystack surface in the package.
 - transfer control
 - transfer recipients
 - dedicated virtual accounts
-- disputes
 - refunds
 - bulk charges
 

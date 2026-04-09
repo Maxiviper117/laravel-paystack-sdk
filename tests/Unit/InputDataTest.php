@@ -1,5 +1,10 @@
 <?php
 
+use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ResolveDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\UpdateDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
@@ -145,6 +150,79 @@ it('serializes update plan input data including existing subscription updates', 
     ]);
 });
 
+it('serializes dispute input data for requests', function () {
+    $list = new ListDisputesInputData(
+        from: '2026-01-01',
+        to: '2026-01-31',
+        perPage: 25,
+        page: 2,
+        transaction: '5991760',
+        status: 'pending',
+        extra: ['source' => 'workbench'],
+    );
+
+    $update = new UpdateDisputeInputData(
+        id: '2867',
+        refundAmount: 1002,
+        uploadedFilename: 'receipt.pdf',
+        extra: ['note' => 'manual review'],
+    );
+
+    $evidence = new AddDisputeEvidenceInputData(
+        id: 2867,
+        customerEmail: 'customer@example.com',
+        customerName: 'Jane Doe',
+        customerPhone: '08023456789',
+        serviceDetails: 'Delivered as agreed',
+        deliveryAddress: '3 Main Street',
+        deliveryDate: '2026-01-05',
+        extra: ['source' => 'workbench'],
+    );
+
+    $resolve = new ResolveDisputeInputData(
+        id: 2867,
+        resolution: 'merchant-accepted',
+        message: 'Merchant accepted',
+        refundAmount: '1002',
+        uploadedFilename: 'receipt.pdf',
+        evidence: 21,
+        extra: ['source' => 'workbench'],
+    );
+
+    $uploadUrl = new GetDisputeUploadUrlInputData(2867, 'receipt.pdf');
+
+    expect($list->toRequestQuery())->toBe([
+        'source' => 'workbench',
+        'from' => '2026-01-01',
+        'to' => '2026-01-31',
+        'perPage' => 25,
+        'page' => 2,
+        'transaction' => '5991760',
+        'status' => 'pending',
+    ])->and($update->toRequestBody())->toBe([
+        'note' => 'manual review',
+        'refund_amount' => 1002,
+        'uploaded_filename' => 'receipt.pdf',
+    ])->and($evidence->toRequestBody())->toBe([
+        'source' => 'workbench',
+        'customer_email' => 'customer@example.com',
+        'customer_name' => 'Jane Doe',
+        'customer_phone' => '08023456789',
+        'service_details' => 'Delivered as agreed',
+        'delivery_address' => '3 Main Street',
+        'delivery_date' => '2026-01-05',
+    ])->and($resolve->toRequestBody())->toBe([
+        'source' => 'workbench',
+        'resolution' => 'merchant-accepted',
+        'message' => 'Merchant accepted',
+        'refund_amount' => 1002,
+        'uploaded_filename' => 'receipt.pdf',
+        'evidence' => 21,
+    ])->and($uploadUrl->toRequestQuery())->toBe([
+        'upload_filename' => 'receipt.pdf',
+    ]);
+});
+
 it('rejects invalid customer dto input at construction time', function () {
     new CreateCustomerInputData(email: 'not-an-email');
 })->throws(InvalidPaystackInputException::class);
@@ -196,4 +274,20 @@ it('rejects invalid fetch transaction identifiers at construction time', functio
 
 it('rejects invalid customer update identifiers at construction time', function () {
     new UpdateCustomerInputData(customerCode: '   ');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid dispute dto input at construction time', function () {
+    new ListDisputesInputData(status: 'archived');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid dispute mutation input at construction time', function () {
+    new UpdateDisputeInputData(id: 2867, refundAmount: -1);
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects invalid dispute resolution and upload inputs at construction time', function () {
+    new ResolveDisputeInputData(id: 2867, resolution: 'invalid');
+})->throws(InvalidPaystackInputException::class);
+
+it('rejects empty dispute upload filenames at construction time', function () {
+    new GetDisputeUploadUrlInputData(2867, '');
 })->throws(InvalidPaystackInputException::class);

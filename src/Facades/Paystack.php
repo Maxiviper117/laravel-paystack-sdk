@@ -3,6 +3,13 @@
 namespace Maxiviper117\Paystack\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\FetchDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListTransactionDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ResolveDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\UpdateDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
@@ -30,6 +37,14 @@ use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\SetCustomerRiskActionResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\ValidateCustomerResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\AddDisputeEvidenceResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ExportDisputesResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\FetchDisputeResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\GetDisputeUploadUrlResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ListDisputesResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ListTransactionDisputesResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ResolveDisputeResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\UpdateDisputeResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\CreatePlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\FetchPlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\ListPlansResponseData;
@@ -52,6 +67,14 @@ use Maxiviper117\Paystack\PaystackManager;
  *
  * @method static InitializeTransactionResponseData initializeTransaction(InitializeTransactionInputData $input)
  * @method static VerifyTransactionResponseData verifyTransaction(VerifyTransactionInputData $input)
+ * @method static ListDisputesResponseData listDisputes(ListDisputesInputData $input)
+ * @method static FetchDisputeResponseData fetchDispute(FetchDisputeInputData $input)
+ * @method static ListTransactionDisputesResponseData listTransactionDisputes(ListTransactionDisputesInputData $input)
+ * @method static UpdateDisputeResponseData updateDispute(UpdateDisputeInputData $input)
+ * @method static AddDisputeEvidenceResponseData addDisputeEvidence(AddDisputeEvidenceInputData $input)
+ * @method static GetDisputeUploadUrlResponseData getDisputeUploadUrl(GetDisputeUploadUrlInputData $input)
+ * @method static ResolveDisputeResponseData resolveDispute(ResolveDisputeInputData $input)
+ * @method static ExportDisputesResponseData exportDisputes(ListDisputesInputData $input)
  * @method static FetchTransactionResponseData fetchTransaction(FetchTransactionInputData $input)
  * @method static ListTransactionsResponseData listTransactions(ListTransactionsInputData $input)
  * @method static CreateCustomerResponseData createCustomer(CreateCustomerInputData $input)

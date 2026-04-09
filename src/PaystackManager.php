@@ -3,6 +3,14 @@
 namespace Maxiviper117\Paystack;
 
 use Illuminate\Contracts\Container\Container;
+use Maxiviper117\Paystack\Actions\Dispute\AddDisputeEvidenceAction;
+use Maxiviper117\Paystack\Actions\Dispute\ExportDisputesAction;
+use Maxiviper117\Paystack\Actions\Dispute\FetchDisputeAction;
+use Maxiviper117\Paystack\Actions\Dispute\GetDisputeUploadUrlAction;
+use Maxiviper117\Paystack\Actions\Dispute\ListDisputesAction;
+use Maxiviper117\Paystack\Actions\Dispute\ListTransactionDisputesAction;
+use Maxiviper117\Paystack\Actions\Dispute\ResolveDisputeAction;
+use Maxiviper117\Paystack\Actions\Dispute\UpdateDisputeAction;
 use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
@@ -30,6 +38,13 @@ use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\AddDisputeEvidenceInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\FetchDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\GetDisputeUploadUrlInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ListTransactionDisputesInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\ResolveDisputeInputData;
+use Maxiviper117\Paystack\Data\Input\Dispute\UpdateDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
@@ -51,6 +66,14 @@ use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\SetCustomerRiskActionResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\ValidateCustomerResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\AddDisputeEvidenceResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ExportDisputesResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\FetchDisputeResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\GetDisputeUploadUrlResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ListDisputesResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ListTransactionDisputesResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\ResolveDisputeResponseData;
+use Maxiviper117\Paystack\Data\Output\Dispute\UpdateDisputeResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\CreatePlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\FetchPlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\ListPlansResponseData;
@@ -81,6 +104,46 @@ class PaystackManager
     public function verifyTransaction(VerifyTransactionInputData $input): VerifyTransactionResponseData
     {
         return $this->container->make(VerifyTransactionAction::class)->execute($input);
+    }
+
+    public function listDisputes(ListDisputesInputData $input): ListDisputesResponseData
+    {
+        return $this->container->make(ListDisputesAction::class)->execute($input);
+    }
+
+    public function fetchDispute(FetchDisputeInputData $input): FetchDisputeResponseData
+    {
+        return $this->container->make(FetchDisputeAction::class)->execute($input);
+    }
+
+    public function listTransactionDisputes(ListTransactionDisputesInputData $input): ListTransactionDisputesResponseData
+    {
+        return $this->container->make(ListTransactionDisputesAction::class)->execute($input);
+    }
+
+    public function updateDispute(UpdateDisputeInputData $input): UpdateDisputeResponseData
+    {
+        return $this->container->make(UpdateDisputeAction::class)->execute($input);
+    }
+
+    public function addDisputeEvidence(AddDisputeEvidenceInputData $input): AddDisputeEvidenceResponseData
+    {
+        return $this->container->make(AddDisputeEvidenceAction::class)->execute($input);
+    }
+
+    public function getDisputeUploadUrl(GetDisputeUploadUrlInputData $input): GetDisputeUploadUrlResponseData
+    {
+        return $this->container->make(GetDisputeUploadUrlAction::class)->execute($input);
+    }
+
+    public function resolveDispute(ResolveDisputeInputData $input): ResolveDisputeResponseData
+    {
+        return $this->container->make(ResolveDisputeAction::class)->execute($input);
+    }
+
+    public function exportDisputes(ListDisputesInputData $input): ExportDisputesResponseData
+    {
+        return $this->container->make(ExportDisputesAction::class)->execute($input);
     }
 
     public function fetchTransaction(FetchTransactionInputData $input): FetchTransactionResponseData

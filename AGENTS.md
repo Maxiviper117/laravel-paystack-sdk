@@ -6,7 +6,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
 - The package provides a Paystack SDK built on Saloon with an Actions-first public API.
-- Current implemented coverage includes transactions, customers, plans, subscriptions, an optional Billable persistence layer, and webhook intake/processing built on `spatie/laravel-webhook-client`.
+- Current implemented coverage includes transactions, customers, disputes, plans, subscriptions, an optional Billable persistence layer, and webhook intake/processing built on `spatie/laravel-webhook-client`.
 
 ## Source layout
 
@@ -33,6 +33,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Keep the workbench app up to date with the current package state. If package APIs, DTOs, response shapes, config, or recommended integration patterns change, update the relevant workbench routes/docs in the same change.
 - `SDK_SUPPORT.md` is the maintainer-facing support matrix for Paystack endpoints and SDK capabilities; keep it aligned with the actual implemented package surface.
 - Customer actions currently cover create, fetch, update, validate, set risk action, and list operations.
+- Dispute actions currently cover list, fetch, transaction-specific lookup, update, evidence creation, upload URL generation, resolve, and export operations.
 - Plan actions currently cover create, update, fetch, and list operations, and `UpdatePlanInputData` includes the documented `update_existing_subscriptions` flag.
 - Subscription actions currently cover create, fetch, list, enable, disable, generate update link, and send update link operations.
 
