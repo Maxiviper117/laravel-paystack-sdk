@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Subscription\CreateSubscriptionResponseDat
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Subscription\CreateSubscriptionRequest;
 
+/**
+ * Create a subscription for a customer and plan.
+ *
+ * @see https://paystack.com/docs/api/subscription/#create-subscription
+ */
 final class CreateSubscriptionAction
 {
     public function __construct(

@@ -2,6 +2,8 @@
 
 Plans currently support create, update, fetch, and list operations.
 
+The update plan action now also supports Paystack's `update_existing_subscriptions` body parameter.
+
 ## Create a plan
 
 ```php

@@ -10,11 +10,17 @@ This page summarizes the currently implemented Paystack surface in the package.
 - verify transaction
 - fetch transaction
 - list transactions
+- initialize transaction input DTO covers the documented body parameters directly and still accepts `extra` for forward-compatible fields
+- fetch transaction input DTO maps to the documented numeric transaction id path parameter
+- list transactions input DTO covers the documented query filters including `terminalid`, `amount`, and `reference`
 
 ### Customers
 
 - create customer
+- fetch customer
 - update customer
+- validate customer
+- set customer risk action
 - list customers
 
 ### Plans
@@ -23,6 +29,7 @@ This page summarizes the currently implemented Paystack surface in the package.
 - update plan
 - fetch plan
 - list plans
+- update plan input DTO covers the documented body parameters directly and now includes `update_existing_subscriptions` for refreshing existing subscriptions
 
 ### Subscriptions
 
@@ -31,6 +38,8 @@ This page summarizes the currently implemented Paystack surface in the package.
 - list subscriptions
 - enable subscription
 - disable subscription
+- generate subscription update link
+- send subscription update link
 
 ### Shared capabilities
 
@@ -44,7 +53,6 @@ This page summarizes the currently implemented Paystack surface in the package.
 ## Not yet implemented
 
 - full typed coverage for every Paystack webhook event
-- subscription update-link helpers
 - transfers
 - transfer control
 - transfer recipients

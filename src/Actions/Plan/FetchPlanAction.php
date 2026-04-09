@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Plan\FetchPlanResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Plan\FetchPlanRequest;
 
+/**
+ * Fetch a plan by ID or plan code.
+ *
+ * @see https://paystack.com/docs/api/plan/#fetch-plan
+ */
 final class FetchPlanAction
 {
     public function __construct(

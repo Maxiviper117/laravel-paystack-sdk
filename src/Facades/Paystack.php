@@ -4,8 +4,11 @@ namespace Maxiviper117\Paystack\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
@@ -14,14 +17,19 @@ use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\FetchSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Data\Output\Customer\CreateCustomerResponseData;
+use Maxiviper117\Paystack\Data\Output\Customer\FetchCustomerResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
+use Maxiviper117\Paystack\Data\Output\Customer\SetCustomerRiskActionResponseData;
 use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
+use Maxiviper117\Paystack\Data\Output\Customer\ValidateCustomerResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\CreatePlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\FetchPlanResponseData;
 use Maxiviper117\Paystack\Data\Output\Plan\ListPlansResponseData;
@@ -30,7 +38,9 @@ use Maxiviper117\Paystack\Data\Output\Subscription\CreateSubscriptionResponseDat
 use Maxiviper117\Paystack\Data\Output\Subscription\DisableSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\EnableSubscriptionResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\FetchSubscriptionResponseData;
+use Maxiviper117\Paystack\Data\Output\Subscription\GenerateSubscriptionUpdateLinkResponseData;
 use Maxiviper117\Paystack\Data\Output\Subscription\ListSubscriptionsResponseData;
+use Maxiviper117\Paystack\Data\Output\Subscription\SendSubscriptionUpdateLinkResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
@@ -45,8 +55,11 @@ use Maxiviper117\Paystack\PaystackManager;
  * @method static FetchTransactionResponseData fetchTransaction(FetchTransactionInputData $input)
  * @method static ListTransactionsResponseData listTransactions(ListTransactionsInputData $input)
  * @method static CreateCustomerResponseData createCustomer(CreateCustomerInputData $input)
+ * @method static FetchCustomerResponseData fetchCustomer(FetchCustomerInputData $input)
  * @method static UpdateCustomerResponseData updateCustomer(UpdateCustomerInputData $input)
  * @method static ListCustomersResponseData listCustomers(ListCustomersInputData $input)
+ * @method static ValidateCustomerResponseData validateCustomer(ValidateCustomerInputData $input)
+ * @method static SetCustomerRiskActionResponseData setCustomerRiskAction(SetCustomerRiskActionInputData $input)
  * @method static CreatePlanResponseData createPlan(CreatePlanInputData $input)
  * @method static UpdatePlanResponseData updatePlan(UpdatePlanInputData $input)
  * @method static FetchPlanResponseData fetchPlan(FetchPlanInputData $input)
@@ -56,6 +69,8 @@ use Maxiviper117\Paystack\PaystackManager;
  * @method static ListSubscriptionsResponseData listSubscriptions(ListSubscriptionsInputData $input)
  * @method static EnableSubscriptionResponseData enableSubscription(EnableSubscriptionInputData $input)
  * @method static DisableSubscriptionResponseData disableSubscription(DisableSubscriptionInputData $input)
+ * @method static GenerateSubscriptionUpdateLinkResponseData generateSubscriptionUpdateLink(GenerateSubscriptionUpdateLinkInputData $input)
+ * @method static SendSubscriptionUpdateLinkResponseData sendSubscriptionUpdateLink(SendSubscriptionUpdateLinkInputData $input)
  */
 class Paystack extends Facade
 {

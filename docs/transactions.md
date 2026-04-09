@@ -14,10 +14,37 @@ $response = $action(
     new InitializeTransactionInputData(
         email: 'customer@example.com',
         amount: 15.50,
+        channels: ['card', 'bank_transfer'],
         callbackUrl: 'https://example.com/payments/callback',
+        reference: 'order_123',
+        plan: 'PLN_123',
+        invoiceLimit: 3,
+        currency: 'NGN',
+        splitCode: 'SPL_123',
+        subaccount: 'ACCT_123',
+        transactionCharge: 250,
+        bearer: 'subaccount',
     )
 );
 ```
+
+`InitializeTransactionInputData` covers the documented initialize body parameters:
+
+- `email`
+- `amount`
+- `channels`
+- `currency`
+- `reference`
+- `callback_url`
+- `plan`
+- `invoice_limit`
+- `metadata`
+- `split_code`
+- `subaccount`
+- `transaction_charge`
+- `bearer`
+
+Additional request fields can still be passed through `extra` when needed.
 
 ## Verify a transaction
 
@@ -69,6 +96,10 @@ Matching response DTOs:
 
 - `FetchTransactionResponseData`
 - `ListTransactionsResponseData`
+
+`FetchTransactionInputData` expects the numeric transaction `id` documented by Paystack.
+
+`ListTransactionsInputData` supports the documented query filters for `customer`, `terminalId`/`terminalid`, `status`, `from`, `to`, `amount`, and `reference`, in addition to the standard `perPage` and `page` pagination inputs.
 
 ## Amount handling
 

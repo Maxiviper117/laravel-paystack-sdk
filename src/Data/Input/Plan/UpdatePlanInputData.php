@@ -22,6 +22,7 @@ class UpdatePlanInputData extends Data
         public ?int $invoiceLimit = null,
         public ?bool $sendInvoices = null,
         public ?bool $sendSms = null,
+        public ?bool $updateExistingSubscriptions = null,
         public array $extra = [],
     ) {
         if (trim($this->planCode) === '') {
@@ -86,6 +87,10 @@ class UpdatePlanInputData extends Data
 
         if ($this->sendSms !== null) {
             $payload['send_sms'] = $this->sendSms;
+        }
+
+        if ($this->updateExistingSubscriptions !== null) {
+            $payload['update_existing_subscriptions'] = $this->updateExistingSubscriptions;
         }
 
         return $payload;

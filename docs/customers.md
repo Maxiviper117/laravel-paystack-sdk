@@ -1,6 +1,6 @@
 # Customers
 
-Customers currently support create, update, and list operations.
+Customers currently support create, fetch, update, validate, set risk action, and list operations.
 
 ## Create a customer
 
@@ -35,6 +35,55 @@ $response = $action(
 );
 ```
 
+## Fetch a customer
+
+```php
+use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
+use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
+
+$action = app(FetchCustomerAction::class);
+
+$response = $action(
+    new FetchCustomerInputData(emailOrCode: 'CUS_123')
+);
+```
+
+## Validate a customer
+
+```php
+use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
+use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
+
+$action = app(ValidateCustomerAction::class);
+
+$response = $action(
+    new ValidateCustomerInputData(
+        customerCode: 'CUS_123',
+        country: 'NG',
+        type: 'bank_account',
+        accountNumber: '0123456789',
+        bvn: '200123456677',
+        bankCode: '007',
+    )
+);
+```
+
+## Set a risk action
+
+```php
+use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
+use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
+
+$action = app(SetCustomerRiskAction::class);
+
+$response = $action(
+    new SetCustomerRiskActionInputData(
+        customer: 'CUS_123',
+        riskAction: 'deny',
+    )
+);
+```
+
 ## List customers
 
 Use `ListCustomersAction` with `ListCustomersInputData` to query the supported customer list filters and pagination inputs exposed by the package.
@@ -44,7 +93,10 @@ Use `ListCustomersAction` with `ListCustomersInputData` to query the supported c
 Customer operations return typed response DTOs:
 
 - `CreateCustomerResponseData`
+- `FetchCustomerResponseData`
 - `UpdateCustomerResponseData`
+- `ValidateCustomerResponseData`
+- `SetCustomerRiskActionResponseData`
 - `ListCustomersResponseData`
 
 ## Need a workflow example?

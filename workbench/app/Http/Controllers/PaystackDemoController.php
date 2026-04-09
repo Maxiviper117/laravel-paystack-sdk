@@ -8,8 +8,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
+use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
 use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
 use Maxiviper117\Paystack\Actions\Plan\CreatePlanAction;
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
 use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
@@ -18,12 +21,17 @@ use Maxiviper117\Paystack\Actions\Subscription\CreateSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\DisableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\EnableSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\FetchSubscriptionAction;
+use Maxiviper117\Paystack\Actions\Subscription\GenerateSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Actions\Subscription\ListSubscriptionsAction;
+use Maxiviper117\Paystack\Actions\Subscription\SendSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
@@ -32,7 +40,9 @@ use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\FetchSubscriptionInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
+use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
@@ -77,11 +87,20 @@ class PaystackDemoController extends Controller
                     $initializeTransaction(new InitializeTransactionInputData(
                         email: (string) $request->input('email', 'customer@example.com'),
                         amount: (float) $request->input('amount', 15.50),
+                        channels: $this->commaSeparatedValues($request->input('channels')),
                         callbackUrl: (string) $request->input('callback_url', url('/paystack/demo/transactions')),
+                        reference: $request->filled('reference') ? (string) $request->input('reference') : null,
+                        plan: $request->filled('plan') ? (string) $request->input('plan') : null,
+                        invoiceLimit: $request->filled('invoice_limit') ? $request->integer('invoice_limit') : null,
                         metadata: [
                             'source' => 'workbench',
                             'page' => 'transactions',
                         ],
+                        currency: $request->filled('currency') ? (string) $request->input('currency') : null,
+                        splitCode: $request->filled('split_code') ? (string) $request->input('split_code') : null,
+                        subaccount: $request->filled('subaccount') ? (string) $request->input('subaccount') : null,
+                        transactionCharge: $request->filled('transaction_charge') ? $request->integer('transaction_charge') : null,
+                        bearer: $request->filled('bearer') ? (string) $request->input('bearer') : null,
                     )),
                     'Transaction initialization',
                 ],
@@ -101,11 +120,18 @@ class PaystackDemoController extends Controller
     public function customers(
         Request $request,
         CreateCustomerAction $createCustomer,
+        FetchCustomerAction $fetchCustomer,
         UpdateCustomerAction $updateCustomer,
         ListCustomersAction $listCustomers,
+        ValidateCustomerAction $validateCustomer,
+        SetCustomerRiskAction $setCustomerRiskAction,
     ): View {
-        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $createCustomer, $updateCustomer, $listCustomers): array {
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $createCustomer, $fetchCustomer, $updateCustomer, $listCustomers, $validateCustomer, $setCustomerRiskAction): array {
             return match ((string) $request->input('action', 'create')) {
+                'fetch' => [
+                    $fetchCustomer(new FetchCustomerInputData((string) $request->input('customer_identifier', ''))),
+                    'Customer fetch',
+                ],
                 'update' => [
                     $updateCustomer(new UpdateCustomerInputData(
                         customerCode: (string) $request->input('customer_code', ''),
@@ -116,6 +142,27 @@ class PaystackDemoController extends Controller
                         metadata: ['source' => 'workbench', 'page' => 'customers'],
                     )),
                     'Customer update',
+                ],
+                'validate' => [
+                    $validateCustomer(new ValidateCustomerInputData(
+                        customerCode: (string) $request->input('customer_code', ''),
+                        country: (string) $request->input('country', 'NG'),
+                        type: (string) $request->input('type', 'bank_account'),
+                        firstName: $request->filled('first_name') ? (string) $request->input('first_name') : null,
+                        lastName: $request->filled('last_name') ? (string) $request->input('last_name') : null,
+                        middleName: $request->filled('middle_name') ? (string) $request->input('middle_name') : null,
+                        bvn: $request->filled('bvn') ? (string) $request->input('bvn') : null,
+                        bankCode: $request->filled('bank_code') ? (string) $request->input('bank_code') : null,
+                        accountNumber: $request->filled('account_number') ? (string) $request->input('account_number') : null,
+                    )),
+                    'Customer validation',
+                ],
+                'risk-action' => [
+                    $setCustomerRiskAction(new SetCustomerRiskActionInputData(
+                        customer: (string) $request->input('customer', ''),
+                        riskAction: $request->filled('risk_action') ? (string) $request->input('risk_action') : null,
+                    )),
+                    'Customer risk action',
                 ],
                 'list' => [
                     $listCustomers(new ListCustomersInputData(
@@ -141,7 +188,7 @@ class PaystackDemoController extends Controller
         return $this->render('customers', [
             'title' => 'Customers Demo',
             'heading' => 'Customers',
-            'description' => 'Create, update, and list customer records.',
+            'description' => 'Create, fetch, update, validate, risk-manage, and list customer records.',
             'result' => $result,
             'resultLabel' => $resultLabel,
             'currentPath' => '/paystack/demo/customers',
@@ -207,8 +254,10 @@ class PaystackDemoController extends Controller
         ListSubscriptionsAction $listSubscriptions,
         EnableSubscriptionAction $enableSubscription,
         DisableSubscriptionAction $disableSubscription,
+        GenerateSubscriptionUpdateLinkAction $generateSubscriptionUpdateLink,
+        SendSubscriptionUpdateLinkAction $sendSubscriptionUpdateLink,
     ): View {
-        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $createSubscription, $fetchSubscription, $listSubscriptions, $enableSubscription, $disableSubscription): array {
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $createSubscription, $fetchSubscription, $listSubscriptions, $enableSubscription, $disableSubscription, $generateSubscriptionUpdateLink, $sendSubscriptionUpdateLink): array {
             return match ((string) $request->input('action', 'create')) {
                 'fetch' => [
                     $fetchSubscription(new FetchSubscriptionInputData((string) $request->input('subscription_identifier', ''))),
@@ -237,6 +286,18 @@ class PaystackDemoController extends Controller
                     )),
                     'Subscription disable',
                 ],
+                'generate-link' => [
+                    $generateSubscriptionUpdateLink(new GenerateSubscriptionUpdateLinkInputData(
+                        code: (string) $request->input('code', ''),
+                    )),
+                    'Subscription update-link generation',
+                ],
+                'send-link' => [
+                    $sendSubscriptionUpdateLink(new SendSubscriptionUpdateLinkInputData(
+                        code: (string) $request->input('code', ''),
+                    )),
+                    'Subscription update-link email',
+                ],
                 default => [
                     $createSubscription(new CreateSubscriptionInputData(
                         customer: (string) $request->input('customer', ''),
@@ -252,7 +313,7 @@ class PaystackDemoController extends Controller
         return $this->render('subscriptions', [
             'title' => 'Subscriptions Demo',
             'heading' => 'Subscriptions',
-            'description' => 'Create, fetch, list, enable, and disable subscriptions.',
+            'description' => 'Create, fetch, list, enable, disable, and manage subscription update links.',
             'result' => $result,
             'resultLabel' => $resultLabel,
             'currentPath' => '/paystack/demo/subscriptions',
@@ -363,9 +424,23 @@ class PaystackDemoController extends Controller
             ['title' => 'Transactions', 'path' => '/paystack/demo/transactions', 'description' => 'Initialize and verify payment flows.'],
             ['title' => 'Customers', 'path' => '/paystack/demo/customers', 'description' => 'Create, update, and list customers.'],
             ['title' => 'Plans', 'path' => '/paystack/demo/plans', 'description' => 'Create, update, fetch, and list plans.'],
-            ['title' => 'Subscriptions', 'path' => '/paystack/demo/subscriptions', 'description' => 'Create, fetch, list, enable, and disable subscriptions.'],
+            ['title' => 'Subscriptions', 'path' => '/paystack/demo/subscriptions', 'description' => 'Create, fetch, list, enable, disable, and manage subscription update links.'],
             ['title' => 'Webhooks', 'path' => '/paystack/demo/webhooks', 'description' => 'Inspect webhook intake and stored calls.'],
             ['title' => 'Billing Layer', 'path' => '/paystack/demo/billing-layer', 'description' => 'Exercise the opt-in Billable layer.'],
         ];
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function commaSeparatedValues(mixed $value): ?array
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $values = array_values(array_filter(array_map('trim', explode(',', $value)), static fn (string $item): bool => $item !== ''));
+
+        return $values === [] ? null : $values;
     }
 }

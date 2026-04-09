@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Customer\ListCustomersResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Customer\ListCustomersRequest;
 
+/**
+ * List customers available on the integration.
+ *
+ * @see https://paystack.com/docs/api/customer/#list-customer
+ */
 final class ListCustomersAction
 {
     public function __construct(

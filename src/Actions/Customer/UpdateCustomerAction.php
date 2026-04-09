@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Customer\UpdateCustomerRequest;
 
+/**
+ * Update an existing customer record.
+ *
+ * @see https://paystack.com/docs/api/customer/#update-customer
+ */
 final class UpdateCustomerAction
 {
     public function __construct(

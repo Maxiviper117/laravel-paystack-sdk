@@ -20,6 +20,7 @@ class ListTransactionsInputData extends Data
         public int|string|null $amount = null,
         public ?string $reference = null,
         public array $extra = [],
+        public ?string $terminalId = null,
     ) {
         if ($this->perPage !== null && $this->perPage < 1) {
             throw new InvalidPaystackInputException('The Paystack per-page filter must be greater than zero.');
@@ -41,6 +42,7 @@ class ListTransactionsInputData extends Data
             'perPage' => $this->perPage,
             'page' => $this->page,
             'customer' => $this->customer,
+            'terminalid' => $this->terminalId,
             'status' => $this->status,
             'from' => $this->from,
             'to' => $this->to,

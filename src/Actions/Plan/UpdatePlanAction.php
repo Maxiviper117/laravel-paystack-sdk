@@ -7,6 +7,11 @@ use Maxiviper117\Paystack\Data\Output\Plan\UpdatePlanResponseData;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Plan\UpdatePlanRequest;
 
+/**
+ * Update an existing plan on the Paystack integration.
+ *
+ * @see https://paystack.com/docs/api/plan/#update-plan
+ */
 final class UpdatePlanAction
 {
     public function __construct(

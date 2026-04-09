@@ -9,7 +9,7 @@
 >
     <section class="rounded-3xl border border-slate-200 bg-white p-6">
         <h2 class="text-2xl font-bold text-slate-900">Customers</h2>
-        <p class="mt-2 text-sm leading-6 text-slate-600">Create, update, and list customer records.</p>
+        <p class="mt-2 text-sm leading-6 text-slate-600">Create, fetch, update, validate, manage risk action, and list customer records.</p>
 
         <div class="mt-4 grid gap-4">
             <form method="post" action="/paystack/demo/customers" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -35,6 +35,15 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <form method="post" action="/paystack/demo/customers" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     @csrf
+                    <input type="hidden" name="action" value="fetch">
+                    <label class="block text-sm font-medium text-slate-700">Customer identifier
+                        <input name="customer_identifier" type="text" placeholder="CUS_123 or email@example.com" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                    </label>
+                    <button class="mt-4 w-full rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Fetch</button>
+                </form>
+
+                <form method="post" action="/paystack/demo/customers" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    @csrf
                     <input type="hidden" name="action" value="update">
                     <label class="block text-sm font-medium text-slate-700">Customer code
                         <input name="customer_code" type="text" placeholder="CUS_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
@@ -51,6 +60,56 @@
                         </label>
                     </div>
                     <button class="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Update</button>
+                </form>
+
+                <form method="post" action="/paystack/demo/customers" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    @csrf
+                    <input type="hidden" name="action" value="validate">
+                    <div class="grid gap-3 md:grid-cols-2">
+                        <label class="block text-sm font-medium text-slate-700 md:col-span-2">Customer code
+                            <input name="customer_code" type="text" placeholder="CUS_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">Country
+                            <input name="country" type="text" value="NG" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">Type
+                            <input name="type" type="text" value="bank_account" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">First name
+                            <input name="first_name" type="text" value="Jane" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">Last name
+                            <input name="last_name" type="text" value="Doe" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">BVN
+                            <input name="bvn" type="text" placeholder="200123456677" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700">Bank code
+                            <input name="bank_code" type="text" placeholder="007" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700 md:col-span-2">Account number
+                            <input name="account_number" type="text" placeholder="0123456789" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                    </div>
+                    <button class="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Validate</button>
+                </form>
+
+                <form method="post" action="/paystack/demo/customers" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    @csrf
+                    <input type="hidden" name="action" value="risk-action">
+                    <div class="grid gap-3 md:grid-cols-2">
+                        <label class="block text-sm font-medium text-slate-700 md:col-span-2">Customer
+                            <input name="customer" type="text" placeholder="CUS_123" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                        </label>
+                        <label class="block text-sm font-medium text-slate-700 md:col-span-2">Risk action
+                            <select name="risk_action" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100">
+                                <option value="allow">allow</option>
+                                <option value="deny">deny</option>
+                                <option value="default" selected>default</option>
+                            </select>
+                        </label>
+                    </div>
+                    <button class="mt-4 w-full rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-200">Set risk action</button>
                 </form>
 
                 <form method="post" action="/paystack/demo/customers" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">

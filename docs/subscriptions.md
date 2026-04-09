@@ -1,6 +1,6 @@
 # Subscriptions
 
-Subscriptions currently support create, fetch, list, enable, and disable operations.
+Subscriptions currently support create, fetch, list, enable, disable, and subscription update-link operations.
 
 ## Create a subscription
 
@@ -22,6 +22,8 @@ $response = Paystack::createSubscription(
 - `ListSubscriptionsAction`
 - `EnableSubscriptionAction`
 - `DisableSubscriptionAction`
+- `GenerateSubscriptionUpdateLinkAction`
+- `SendSubscriptionUpdateLinkAction`
 
 Matching DTOs:
 
@@ -29,10 +31,14 @@ Matching DTOs:
 - `ListSubscriptionsInputData`
 - `EnableSubscriptionInputData`
 - `DisableSubscriptionInputData`
+- `GenerateSubscriptionUpdateLinkInputData`
+- `SendSubscriptionUpdateLinkInputData`
 - `FetchSubscriptionResponseData`
 - `ListSubscriptionsResponseData`
 - `EnableSubscriptionResponseData`
 - `DisableSubscriptionResponseData`
+- `GenerateSubscriptionUpdateLinkResponseData`
+- `SendSubscriptionUpdateLinkResponseData`
 
 ## Relationship to plans
 
@@ -41,6 +47,7 @@ Subscriptions depend on an existing Paystack plan. A common flow is:
 1. Create or fetch a plan.
 2. Use the plan code in `CreateSubscriptionInputData`.
 3. Manage the subscription lifecycle through the subscription actions.
+4. Generate or email a card-update link when the customer needs to refresh their subscription authorization.
 
 ## Need a workflow example?
 

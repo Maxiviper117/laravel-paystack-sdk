@@ -31,7 +31,9 @@ $response = $initializeTransaction(
     new InitializeTransactionInputData(
         email: 'customer@example.com',
         amount: 15.50,
+        channels: ['card', 'bank_transfer'],
         callbackUrl: 'https://example.com/payments/callback',
+        reference: 'order_123',
     )
 );
 ```

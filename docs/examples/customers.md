@@ -1,12 +1,15 @@
 # Manage Customers
 
-Use this flow when your app needs to create Paystack customers ahead of recurring billing or keep remote customer details aligned with your local customer profile.
+Use this flow when your app needs to create, fetch, validate, or risk-manage Paystack customers ahead of recurring billing or keep remote customer details aligned with your local customer profile.
 
 ## Typical application flow
 
 1. Create a Paystack customer when a billable user first enters your billing system.
 2. Store the returned Paystack customer code on your local customer record.
-3. Send targeted updates later when trusted profile fields change.
+3. Fetch the remote customer later when you need to refresh local state.
+4. Validate identification details when your integration requires it.
+5. Set a risk action only from a trusted server-side workflow.
+6. Send targeted updates later when trusted profile fields change.
 
 ## Preferred service-based example
 
@@ -15,15 +18,24 @@ namespace App\Services\Billing;
 
 use App\Models\Account;
 use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
+use Maxiviper117\Paystack\Actions\Customer\SetCustomerRiskAction;
+use Maxiviper117\Paystack\Actions\Customer\ValidateCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\UpdateCustomerAction;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 
 class SyncPaystackCustomer
 {
     public function __construct(
         private CreateCustomerAction $createCustomer,
+        private FetchCustomerAction $fetchCustomer,
         private UpdateCustomerAction $updateCustomer,
+        private ValidateCustomerAction $validateCustomer,
+        private SetCustomerRiskAction $setCustomerRiskAction,
     ) {}
 
     public function create(Account $account): string
@@ -62,6 +74,47 @@ class SyncPaystackCustomer
             )
         );
     }
+
+    public function fetch(Account $account): void
+    {
+        if ($account->paystack_customer_code === null) {
+            return;
+        }
+
+        ($this->fetchCustomer)(new FetchCustomerInputData($account->paystack_customer_code));
+    }
+
+    public function validate(Account $account): void
+    {
+        if ($account->paystack_customer_code === null) {
+            return;
+        }
+
+        ($this->validateCustomer)(
+            new ValidateCustomerInputData(
+                customerCode: $account->paystack_customer_code,
+                country: 'NG',
+                type: 'bank_account',
+                accountNumber: $account->account_number,
+                bvn: $account->bvn,
+                bankCode: $account->bank_code,
+            )
+        );
+    }
+
+    public function deny(Account $account): void
+    {
+        if ($account->paystack_customer_code === null) {
+            return;
+        }
+
+        ($this->setCustomerRiskAction)(
+            new SetCustomerRiskActionInputData(
+                customer: $account->paystack_customer_code,
+                riskAction: 'deny',
+            )
+        );
+    }
 }
 ```
 
@@ -69,6 +122,9 @@ class SyncPaystackCustomer
 
 ```php
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\SetCustomerRiskActionInputData;
+use Maxiviper117\Paystack\Data\Input\Customer\ValidateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
@@ -82,10 +138,32 @@ $created = Paystack::createCustomer(
 
 $customerCode = $created->customer->customerCode;
 
+$fetched = Paystack::fetchCustomer(
+    new FetchCustomerInputData(emailOrCode: $customerCode)
+);
+
 Paystack::updateCustomer(
     new UpdateCustomerInputData(
         customerCode: $customerCode,
         phone: $account->phone,
+    )
+);
+
+Paystack::validateCustomer(
+    new ValidateCustomerInputData(
+        customerCode: $customerCode,
+        country: 'NG',
+        type: 'bank_account',
+        accountNumber: $account->account_number,
+        bvn: $account->bvn,
+        bankCode: $account->bank_code,
+    )
+);
+
+Paystack::setCustomerRiskAction(
+    new SetCustomerRiskActionInputData(
+        customer: $customerCode,
+        riskAction: 'allow',
     )
 );
 ```

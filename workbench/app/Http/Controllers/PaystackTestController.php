@@ -21,7 +21,10 @@ class PaystackTestController extends Controller
             new InitializeTransactionInputData(
                 email: 'customer@example.com',
                 amount: 15.50,
+                channels: ['card', 'bank_transfer'],
                 callbackUrl: url('/paystack/test/callback'),
+                reference: 'workbench_live_test',
+                currency: 'NGN',
                 metadata: [
                     'source' => 'workbench',
                     'purpose' => 'live-test',
