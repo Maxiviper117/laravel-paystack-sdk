@@ -20,7 +20,7 @@ class PaystackWebhookCall extends WebhookCall
 
         return self::create([
             'name' => $config->name,
-            'url' => $request->fullUrl(),
+            'url' => $request->url(),
             'headers' => $headers,
             'payload' => [
                 'raw_body' => $request->getContent(),

@@ -41,7 +41,7 @@ it('stores and processes a valid paystack webhook', function () {
 
     $response = $testCase->withServerVariables([
         'REMOTE_ADDR' => '52.31.139.75',
-    ])->postJson('/paystack/webhook', $payload, [
+    ])->postJson('/paystack/webhook?source=workbench', $payload, [
         'X-Paystack-Signature' => $signature,
         'User-Agent' => 'paystack-test',
         'X-Unexpected-Header' => 'skip-me',
@@ -55,8 +55,9 @@ it('stores and processes a valid paystack webhook', function () {
     $webhookCall = PaystackWebhookCall::query()->sole();
 
     expect($webhookCall->name)->toBe('paystack')
+        ->and(parse_url($webhookCall->url, PHP_URL_QUERY))->toBeNull()
         ->and($webhookCall->rawBody())->toBe($rawPayload)
-        ->and($webhookCall->inputPayload())->toBe($payload)
+        ->and($webhookCall->inputPayload())->toBe($payload + ['source' => 'workbench'])
         ->and($webhookCall->headers()->has('x-paystack-signature'))->toBeTrue()
         ->and($webhookCall->headers()->has('x-unexpected-header'))->toBeFalse();
 
