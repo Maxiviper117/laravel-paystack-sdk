@@ -3,10 +3,18 @@
 namespace Maxiviper117\Paystack\Support\Webhooks;
 
 /**
- * This class provides functionality to normalize and manage the allowlist of IP addresses for Paystack webhooks.
+ * Normalise and manage the configured Paystack webhook IP allowlist.
  *
- * It allows for flexible configuration of the IP allowlist, including using the default Paystack IPs, disabling the allowlist,
- * or providing a custom list of IP addresses. The normalization process ensures that the resulting list of IPs is clean and unique.
+ * Paystack sends webhook requests from a small set of documented IPv4 addresses. This
+ * helper accepts a variety of configuration shapes (null, bool, string, array) and
+ * returns a clean, unique list of IP address strings appropriate for use in an
+ * allowlist check.
+ *
+ * Behaviour summary:
+ * - `null` will return the documented Paystack default IPs.
+ * - `false` will disable the allowlist (returns an empty array); `true` returns the defaults.
+ * - An empty string disables the allowlist. A non-empty CSV string will be split on commas.
+ * - An array will be trimmed, filtered for non-empty strings, and de-duplicated.
  *
  * @method static list<string> fromConfig(mixed $configuredIps) Normalize the configured webhook IP allowlist.
  */
