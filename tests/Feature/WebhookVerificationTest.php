@@ -55,7 +55,7 @@ it('stores and processes a valid paystack webhook', function () {
     $webhookCall = PaystackWebhookCall::query()->sole();
 
     expect($webhookCall->name)->toBe('paystack')
-        ->and(parse_url($webhookCall->url, PHP_URL_QUERY))->toBeNull()
+        ->and(parse_url((string) $webhookCall->url, PHP_URL_QUERY))->toBeNull()
         ->and($webhookCall->rawBody())->toBe($rawPayload)
         ->and($webhookCall->inputPayload())->toBe($payload + ['source' => 'workbench'])
         ->and($webhookCall->headers()->has('x-paystack-signature'))->toBeTrue()
