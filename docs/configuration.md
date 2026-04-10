@@ -31,7 +31,7 @@ PAYSTACK_WEBHOOK_CONNECTION=
 - `PAYSTACK_RETRY_SLEEP_MS`: delay between retries in milliseconds
 - `PAYSTACK_THROW_ON_API_ERROR`: whether API failures are promoted to package exceptions
 - `PAYSTACK_WEBHOOK_DELETE_AFTER_DAYS`: retention period for stored `webhook_calls`
-- `PAYSTACK_WEBHOOK_ALLOWED_IPS`: comma-separated list of accepted Paystack webhook source IP addresses; leave empty to disable the allowlist check
+- `PAYSTACK_WEBHOOK_ALLOWED_IPS`: comma-separated list of accepted Paystack webhook IPs; leave empty to disable the whitelist check
 - `PAYSTACK_WEBHOOK_QUEUE`: optional queue name for webhook processing jobs; if omitted, the package uses Laravel's default queue name
 - `PAYSTACK_WEBHOOK_CONNECTION`: optional queue connection for webhook processing jobs; if omitted, the package uses Laravel's default queue connection
 

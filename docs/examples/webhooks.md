@@ -7,7 +7,7 @@ Use this flow when your app needs to receive Paystack webhooks, validate signatu
 1. Register the webhook endpoint in your Laravel app.
 2. Exclude that endpoint from CSRF validation.
 3. Publish the webhook migration, then run it and start a queue worker.
-4. Keep the documented Paystack webhook IP allowlist enabled unless you explicitly need to replay from another source.
+4. Keep the documented Paystack webhook IP whitelist enabled unless you explicitly need to replay from another source.
 5. Listen for `PaystackWebhookReceived`.
 6. Resolve typed webhook payloads where the package supports them.
 7. Update local state idempotently.

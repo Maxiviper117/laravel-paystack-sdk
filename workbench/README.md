@@ -129,6 +129,6 @@ Webhook handling is now endpoint-first:
 
 - register the endpoint with `Route::post('/paystack/test/webhook', 'Spatie\WebhookClient\Http\Controllers\WebhookController')->name('webhook-client-paystack')`
 - let the package validate the `x-paystack-signature` header
-- let the package filter requests by the documented Paystack webhook source IP allowlist unless you explicitly disable it in `PAYSTACK_WEBHOOK_ALLOWED_IPS`
+- let the package filter requests by the documented Paystack webhook IP whitelist unless you explicitly disable it in `PAYSTACK_WEBHOOK_ALLOWED_IPS`
 - inspect stored calls in `webhook_calls`
 - react to `PaystackWebhookReceived` after the queued job runs

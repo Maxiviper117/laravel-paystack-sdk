@@ -15,7 +15,7 @@ Looking for an end-to-end Laravel integration flow? Start with [Webhook Processi
 ## What is supported
 
 - Paystack signature verification using the configured secret key
-- webhook source IP allowlisting for the documented Paystack webhook origin addresses
+- webhook IP whitelisting for the documented Paystack webhook origin addresses
 - persisted webhook calls in the `webhook_calls` table
 - queued processing through a package-provided webhook job
 - dispatch of a generic parsed Paystack webhook event object
@@ -49,7 +49,7 @@ php artisan queue:work
 
 ## Restrict webhook origins
 
-The package checks the incoming request IP before it stores or processes a webhook. By default it allows the Paystack webhook IP addresses documented by Paystack. You can override the list or disable it in your app config:
+The package checks the incoming request IP before it stores or processes a webhook. By default it whitelists the Paystack webhook IP addresses documented by Paystack. You can override the list or disable it in your app config:
 
 ```php
 return [
@@ -63,7 +63,7 @@ return [
 ];
 ```
 
-If you prefer environment-based configuration, set `PAYSTACK_WEBHOOK_ALLOWED_IPS` to a comma-separated list. Leave it empty to disable the allowlist for local replay or non-Paystack webhook sources.
+If you prefer environment-based configuration, set `PAYSTACK_WEBHOOK_ALLOWED_IPS` to a comma-separated list. Leave it empty to disable the whitelist for local replay or non-Paystack webhook sources.
 
 If your app sits behind a proxy or load balancer, make sure Laravel is resolving the real client IP before the webhook route reaches the profile check.
 
