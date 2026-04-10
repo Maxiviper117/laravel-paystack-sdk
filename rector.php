@@ -7,9 +7,9 @@ use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__.'/src',
-        __DIR__.'/tests',
-        __DIR__.'/config/paystack.php',
+        __DIR__ . '/src',
+        __DIR__ . '/tests',
+        __DIR__ . '/config/paystack.php',
     ])
     ->withPhpVersion(80300)
     ->withPhpSets(php83: true)
@@ -19,7 +19,7 @@ return RectorConfig::configure()
         codingStyle: true,
     )
     ->withSkip([
-        __DIR__.'/tests/ArchTest.php',
+        __DIR__ . '/tests/ArchTest.php',
         // This package uses named arguments in internal wiring; constructor promotion can silently rename parameters.
         ClassPropertyAssignToConstructorPromotionRector::class,
     ])
@@ -34,5 +34,5 @@ return RectorConfig::configure()
         jobSize: 20,
     )
     ->withCache(
-        cacheDirectory: __DIR__.'/build/rector',
+        cacheDirectory: __DIR__ . '/build/rector',
     );
