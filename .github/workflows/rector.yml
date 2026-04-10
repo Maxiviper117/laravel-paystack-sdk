@@ -42,4 +42,4 @@ jobs:
             rector-${{ runner.os }}-
 
       - name: Run Rector (dry-run)
-        run: vendor/bin/rector process --dry-run --no-parallel
+        run: vendor/bin/rector process --dry-run

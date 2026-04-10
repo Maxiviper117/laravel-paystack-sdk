@@ -30,7 +30,7 @@ return RectorConfig::configure()
     )
     ->withParallel(
         timeoutSeconds: 120,
-        maxNumberOfProcess: 4,
+        maxNumberOfProcess: getenv('CI') ? 1 : 4,
         jobSize: 20,
     )
     ->withCache(
