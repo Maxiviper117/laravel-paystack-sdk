@@ -11,10 +11,11 @@ use Maxiviper117\Paystack\Jobs\ProcessPaystackWebhookJob;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 use Spatie\WebhookClient\Exceptions\InvalidWebhookSignature;
 use Spatie\WebhookClient\Http\Controllers\WebhookController;
+
 use function Pest\Laravel\call;
 use function Pest\Laravel\postJson;
-use function Pest\Laravel\withServerVariables;
 use function Pest\Laravel\withoutExceptionHandling;
+use function Pest\Laravel\withServerVariables;
 
 beforeEach(function () {
     Route::post('/paystack/webhook', WebhookController::class)
@@ -61,7 +62,7 @@ it('stores and processes a valid paystack webhook', function () {
         ->and($webhookCall->headers()->has('x-paystack-signature'))->toBeTrue()
         ->and($webhookCall->headers()->has('x-unexpected-header'))->toBeFalse();
 
-    Event::assertDispatched(PaystackWebhookReceived::class, fn(PaystackWebhookReceived $event): bool => $event->webhookCall->is($webhookCall)
+    Event::assertDispatched(PaystackWebhookReceived::class, fn (PaystackWebhookReceived $event): bool => $event->webhookCall->is($webhookCall)
         && $event->event->event === 'charge.success'
         && $event->event->resourceType === 'charge'
         && $event->event->id === 123
@@ -94,7 +95,7 @@ it('queues the paystack webhook processing job', function () {
 
     $response->assertOk();
 
-    Queue::assertPushed(ProcessPaystackWebhookJob::class, fn(ProcessPaystackWebhookJob $job): bool => $job->connection === 'sync' && $job->queue === 'paystack-webhooks');
+    Queue::assertPushed(ProcessPaystackWebhookJob::class, fn (ProcessPaystackWebhookJob $job): bool => $job->connection === 'sync' && $job->queue === 'paystack-webhooks');
 });
 
 it('drops webhook requests from non-paystack ip addresses before storage', function () {
@@ -136,7 +137,7 @@ it('rejects invalid webhook signatures before storage', function () {
 
     withoutExceptionHandling();
 
-    expect(fn() => postJson('/paystack/webhook', $payload, [
+    expect(fn () => postJson('/paystack/webhook', $payload, [
         'X-Paystack-Signature' => 'invalid-signature',
     ]))->toThrow(InvalidWebhookSignature::class);
 
@@ -149,7 +150,7 @@ it('stores malformed signed payloads and records processing exceptions', functio
 
     withoutExceptionHandling();
 
-    expect(fn() => call('POST', '/paystack/webhook', [], [], [], [
+    expect(fn () => call('POST', '/paystack/webhook', [], [], [], [
         'CONTENT_TYPE' => 'application/json',
         'HTTP_X_PAYSTACK_SIGNATURE' => $signature,
         'REMOTE_ADDR' => '52.31.139.75',
