@@ -267,6 +267,7 @@ it('resolves typed data for customer identification success webhooks from extrac
 
     /** @var CustomerIdentificationSuccessWebhookData $typedData */
     expect($typedData->customerCode)->toBe('CUS_xnxdt6s1zg1f4nx')
+        ->and($typedData->customerId)->toBe('9387490384')
         ->and($typedData->identification->type)->toBe('bvn');
 });
 
@@ -279,6 +280,7 @@ it('resolves typed data for customer identification failed webhooks from extract
 
     /** @var CustomerIdentificationFailedWebhookData $typedData */
     expect($typedData->reason)->toBe('Account number or BVN is incorrect')
+        ->and($typedData->customerId)->toBe('82796315')
         ->and($typedData->identification->accountNumber)->toBe('012****345');
 });
 

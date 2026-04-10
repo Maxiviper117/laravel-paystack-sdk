@@ -30,7 +30,7 @@ class CustomerIdentificationWebhookDataMapper
         /** @var array<string, mixed> $identificationPayload */
         $data = [
             'event' => $event->event,
-            'customerId' => Payload::intOrStringOrNull($payload, 'customer_id') ?? Payload::intOrStringOrNull($payload, 'customerId'),
+            'customerId' => self::normalizeCustomerId($payload),
             'customerCode' => Payload::string($payload, 'customer_code'),
             'email' => Payload::string($payload, 'email'),
             'identification' => CustomerIdentificationDetailsData::fromPayload($identificationPayload),
@@ -80,5 +80,17 @@ class CustomerIdentificationWebhookDataMapper
                 $key,
             ));
         }
+    }
+
+    /**
+     * Normalize the customer identifier to a string for consistent webhook handling.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private static function normalizeCustomerId(array $payload): ?string
+    {
+        $customerId = Payload::intOrStringOrNull($payload, 'customer_id') ?? Payload::intOrStringOrNull($payload, 'customerId');
+
+        return $customerId === null ? null : (string) $customerId;
     }
 }

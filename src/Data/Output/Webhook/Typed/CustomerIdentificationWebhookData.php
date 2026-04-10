@@ -11,7 +11,7 @@ class CustomerIdentificationWebhookData extends Data implements PaystackTypedWeb
      */
     public function __construct(
         public string $event,
-        public int|string|null $customerId,
+        public ?string $customerId,
         public string $customerCode,
         public string $email,
         public CustomerIdentificationDetailsData $identification,
