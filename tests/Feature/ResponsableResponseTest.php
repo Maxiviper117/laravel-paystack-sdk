@@ -8,10 +8,11 @@ use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Integrations\Requests\Transaction\VerifyTransactionRequest;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
+
 use function Pest\Laravel\getJson;
 
 it('can return an action response dto directly from a route as json', function () {
-    Route::get('/test/paystack/action-response', fn(VerifyTransactionAction $verifyTransaction) => $verifyTransaction(new VerifyTransactionInputData('ref_action')));
+    Route::get('/test/paystack/action-response', fn (VerifyTransactionAction $verifyTransaction) => $verifyTransaction(new VerifyTransactionInputData('ref_action')));
 
     app(PaystackConnector::class)->withMockClient(new MockClient([
         VerifyTransactionRequest::class => MockResponse::make([
@@ -42,7 +43,7 @@ it('can return an action response dto directly from a route as json', function (
 });
 
 it('can return a facade response dto directly from a route as json', function () {
-    Route::get('/test/paystack/facade-response', fn() => Paystack::verifyTransaction(new VerifyTransactionInputData('ref_facade')));
+    Route::get('/test/paystack/facade-response', fn () => Paystack::verifyTransaction(new VerifyTransactionInputData('ref_facade')));
 
     app(PaystackConnector::class)->withMockClient(new MockClient([
         VerifyTransactionRequest::class => MockResponse::make([
