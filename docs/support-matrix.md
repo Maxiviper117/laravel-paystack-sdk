@@ -70,10 +70,10 @@ This page summarizes the currently implemented Paystack surface in the package.
 - action-specific response DTOs
 - optional package-owned billing tables with a Billable Eloquent trait for stored Paystack customers and subscriptions
 - Paystack webhook endpoints with signature validation, source IP whitelisting, stored webhook calls, queued processing, and typed payload resolution for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events
+- implemented and fully covered typed support for every webhook event sample currently included in `reference/webhook_events`
 
 ## Not yet implemented
 
-- full typed coverage for every Paystack webhook event
 - transfers
 - transfer control
 - transfer recipients
