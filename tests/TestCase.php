@@ -3,15 +3,15 @@
 namespace Maxiviper117\Paystack\Tests;
 
 use Maxiviper117\Paystack\PaystackServiceProvider;
-use Orchestra\Testbench\TestCase as Orchestra;
+use Orchestra\Testbench\TestCase as BaseTestCase;
 use Spatie\WebhookClient\WebhookClientServiceProvider;
 
-class TestCase extends Orchestra
+class TestCase extends BaseTestCase
 {
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 
     protected function getPackageProviders($app): array
