@@ -436,7 +436,7 @@ class PaystackWebhookHandler
 
     private function invokeCallback(?Closure $callback, mixed ...$arguments): void
     {
-        if (!$callback instanceof Closure) {
+        if (! $callback instanceof Closure) {
             return;
         }
 
