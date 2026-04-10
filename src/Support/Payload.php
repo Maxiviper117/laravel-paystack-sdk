@@ -11,7 +11,7 @@ class Payload
     {
         $value = $payload[$key] ?? $default;
 
-        return is_scalar($value) ? (string) $value : $default;
+        return \is_scalar($value) ? (string) $value : $default;
     }
 
     /**
@@ -21,7 +21,7 @@ class Payload
     {
         $value = $payload[$key] ?? null;
 
-        return is_scalar($value) ? (string) $value : null;
+        return \is_scalar($value) ? (string) $value : null;
     }
 
     /**
@@ -31,7 +31,7 @@ class Payload
     {
         $value = $payload[$key] ?? $default;
 
-        return is_int($value) ? $value : (is_numeric($value) ? (int) $value : $default);
+        return \is_int($value) ? $value : (\is_numeric($value) ? (int) $value : $default);
     }
 
     /**
@@ -45,11 +45,11 @@ class Payload
             return $value;
         }
 
-        if (is_int($value)) {
+        if (\is_int($value)) {
             return $value !== 0;
         }
 
-        if (\is_string($value) && is_numeric($value)) {
+        if (\is_string($value) && \is_numeric($value)) {
             return (int) $value !== 0;
         }
 
@@ -64,7 +64,7 @@ class Payload
     {
         $value = $payload[$key] ?? null;
 
-        return is_array($value) ? $value : null;
+        return \is_array($value) ? $value : null;
     }
 
     /**
@@ -74,11 +74,11 @@ class Payload
     {
         $value = $payload[$key] ?? null;
 
-        if (is_int($value) || is_string($value)) {
+        if (\is_int($value) || \is_string($value)) {
             return $value;
         }
 
-        if (is_float($value)) {
+        if (\is_float($value)) {
             return (int) $value;
         }
 

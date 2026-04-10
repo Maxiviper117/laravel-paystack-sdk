@@ -38,7 +38,7 @@ class CreateSubscriptionRequest extends Request implements HasBody
         $data = $response->json('data');
 
         /** @var array<string, mixed> $payload */
-        $payload = is_array($data) ? $data : [];
+        $payload = \is_array($data) ? $data : [];
 
         return CreateSubscriptionResponseData::fromPayload($payload);
     }

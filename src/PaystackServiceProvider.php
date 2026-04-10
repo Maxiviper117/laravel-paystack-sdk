@@ -34,7 +34,7 @@ class PaystackServiceProvider extends PackageServiceProvider
             $configRepository = $app->make('config');
             $rawConfig = $configRepository->get('paystack', []);
 
-            if (! is_array($rawConfig)) {
+            if (! \is_array($rawConfig)) {
                 $rawConfig = [];
             }
 
@@ -60,7 +60,7 @@ class PaystackServiceProvider extends PackageServiceProvider
 
         $rawWebhookConfig = $config->get('paystack.webhooks', []);
 
-        if (! is_array($rawWebhookConfig)) {
+        if (! \is_array($rawWebhookConfig)) {
             $rawWebhookConfig = [];
         }
 

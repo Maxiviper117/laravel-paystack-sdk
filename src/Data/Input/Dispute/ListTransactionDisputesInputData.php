@@ -10,7 +10,7 @@ class ListTransactionDisputesInputData extends Data
     public function __construct(
         public int|string $id,
     ) {
-        if (is_int($this->id) && $this->id < 1) {
+        if (\is_int($this->id) && $this->id < 1) {
             throw new InvalidPaystackInputException('The Paystack transaction dispute identifier must be greater than zero.');
         }
 

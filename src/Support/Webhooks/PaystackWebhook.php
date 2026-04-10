@@ -18,7 +18,7 @@ class PaystackWebhook
             throw new MalformedWebhookPayloadException('The Paystack webhook payload is not valid JSON.', 0, $jsonException);
         }
 
-        if (! is_array($decoded) || array_is_list($decoded)) {
+        if (! \is_array($decoded) || array_is_list($decoded)) {
             throw new MalformedWebhookPayloadException('The Paystack webhook payload must decode to an object.');
         }
 

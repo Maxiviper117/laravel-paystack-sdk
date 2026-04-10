@@ -11,7 +11,7 @@ class RetryRefundInputData extends Data
         public int|string $id,
         public RefundAccountDetailsInputData $refundAccountDetails,
     ) {
-        if (is_int($this->id) && $this->id < 1) {
+        if (\is_int($this->id) && $this->id < 1) {
             throw new InvalidPaystackInputException('The Paystack refund identifier must be greater than zero.');
         }
 

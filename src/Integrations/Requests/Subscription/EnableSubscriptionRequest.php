@@ -38,7 +38,7 @@ class EnableSubscriptionRequest extends Request implements HasBody
         /** @var mixed $payload */
         $payload = $response->json();
         /** @var array<string, mixed> $data */
-        $data = is_array($payload) ? $payload : [];
+        $data = \is_array($payload) ? $payload : [];
 
         return EnableSubscriptionResponseData::fromPayload($data);
     }

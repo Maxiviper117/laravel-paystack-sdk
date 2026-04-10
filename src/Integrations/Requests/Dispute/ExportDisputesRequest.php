@@ -34,7 +34,7 @@ class ExportDisputesRequest extends Request
         $data = $response->json('data');
 
         /** @var array<string, mixed> $payload */
-        $payload = is_array($data) ? $data : [];
+        $payload = \is_array($data) ? $data : [];
 
         return ExportDisputesResponseData::fromPayload($payload);
     }

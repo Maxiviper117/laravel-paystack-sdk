@@ -23,7 +23,7 @@ class ListRefundsInputData extends Data
             throw new InvalidPaystackInputException('The Paystack refund transaction filter cannot be empty.');
         }
 
-        if ($this->transaction !== null && is_int($this->transaction) && $this->transaction < 1) {
+        if ($this->transaction !== null && \is_int($this->transaction) && $this->transaction < 1) {
             throw new InvalidPaystackInputException('The Paystack refund transaction filter must be greater than zero.');
         }
 

@@ -38,7 +38,7 @@ class UpdateDisputeRequest extends Request implements HasBody
         $data = $response->json('data');
 
         /** @var array<int, array<string, mixed>> $payload */
-        $payload = is_array($data) ? array_values(array_filter($data, is_array(...))) : [];
+        $payload = \is_array($data) ? array_values(array_filter($data, \is_array(...))) : [];
 
         return UpdateDisputeResponseData::fromPayload($payload);
     }

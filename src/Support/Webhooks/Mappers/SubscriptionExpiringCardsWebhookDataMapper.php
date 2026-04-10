@@ -24,7 +24,7 @@ class SubscriptionExpiringCardsWebhookDataMapper
         $cards = [];
 
         foreach ($event->data as $item) {
-            if (! is_array($item) || array_is_list($item)) {
+            if (! \is_array($item) || array_is_list($item)) {
                 throw new MalformedWebhookPayloadException(sprintf(
                     'The Paystack webhook payload for [%s] contains an invalid expiring card entry.',
                     $event->event,

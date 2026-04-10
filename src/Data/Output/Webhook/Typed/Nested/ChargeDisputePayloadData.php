@@ -67,14 +67,14 @@ class ChargeDisputePayloadData extends Data
         $customer = null;
 
         foreach ($historyPayload as $item) {
-            if (is_array($item) && ! array_is_list($item)) {
+            if (\is_array($item) && ! array_is_list($item)) {
                 /** @var array<string, mixed> $item */
                 $history[] = ChargeDisputeHistoryPayloadData::fromPayload($item);
             }
         }
 
         foreach ($messagesPayload as $item) {
-            if (is_array($item) && ! array_is_list($item)) {
+            if (\is_array($item) && ! array_is_list($item)) {
                 /** @var array<string, mixed> $item */
                 $messages[] = ChargeDisputeMessagePayloadData::fromPayload($item);
             }

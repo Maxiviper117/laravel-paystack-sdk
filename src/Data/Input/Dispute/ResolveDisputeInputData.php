@@ -19,7 +19,7 @@ class ResolveDisputeInputData extends Data
         public ?int $evidence = null,
         public array $extra = [],
     ) {
-        if (is_int($this->id) && $this->id < 1) {
+        if (\is_int($this->id) && $this->id < 1) {
             throw new InvalidPaystackInputException('The Paystack dispute identifier must be greater than zero.');
         }
 
@@ -68,7 +68,7 @@ class ResolveDisputeInputData extends Data
         }
 
         if ($this->refundAmount !== null) {
-            $payload['refund_amount'] = is_int($this->refundAmount) ? $this->refundAmount : (int) $this->refundAmount;
+            $payload['refund_amount'] = \is_int($this->refundAmount) ? $this->refundAmount : (int) $this->refundAmount;
         }
 
         if ($this->uploadedFilename !== null) {

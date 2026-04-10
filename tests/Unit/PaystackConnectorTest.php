@@ -22,8 +22,8 @@ it('exposes default headers and config through the connector', function () {
             $timeout = $config['timeout'] ?? null;
             $connectTimeout = $config['connect_timeout'] ?? null;
 
-            assert(is_int($timeout));
-            assert(is_int($connectTimeout));
+            assert(\is_int($timeout));
+            assert(\is_int($connectTimeout));
 
             return [
                 'timeout' => $timeout,

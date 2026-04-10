@@ -46,7 +46,7 @@ class PaystackWebhookCall extends WebhookCall
         $payload = $this->payload ?? [];
         $inputPayload = $payload['input'] ?? [];
 
-        if (! is_array($inputPayload) || array_is_list($inputPayload)) {
+        if (! \is_array($inputPayload) || array_is_list($inputPayload)) {
             return [];
         }
 

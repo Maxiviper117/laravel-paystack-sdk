@@ -26,7 +26,7 @@ class FetchRefundRequest extends Request
         $data = $response->json('data');
 
         /** @var array<string, mixed> $payload */
-        $payload = is_array($data) ? $data : [];
+        $payload = \is_array($data) ? $data : [];
 
         return FetchRefundResponseData::fromPayload($payload);
     }

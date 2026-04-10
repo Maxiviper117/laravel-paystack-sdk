@@ -35,9 +35,9 @@ class ListRefundsRequest extends Request
         $metaData = $response->json('meta');
 
         /** @var array<int, array<string, mixed>> $payload */
-        $payload = is_array($data) ? array_values(array_filter($data, is_array(...))) : [];
+        $payload = \is_array($data) ? array_values(array_filter($data, \is_array(...))) : [];
         /** @var array<string, mixed> $meta */
-        $meta = is_array($metaData) ? $metaData : [];
+        $meta = \is_array($metaData) ? $metaData : [];
 
         return ListRefundsResponseData::fromPayload(
             payload: $payload,
