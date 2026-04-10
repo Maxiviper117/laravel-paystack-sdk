@@ -16,14 +16,15 @@ class SubscriptionWebhookDataMapper
 {
     public static function map(PaystackWebhookEventData $event): SubscriptionWebhookData
     {
-        self::requireNonEmptyString($event->data, 'subscription_code', $event->event);
-        self::requireNonEmptyString($event->data, 'status', $event->event);
+        $payload = self::requireObjectData($event);
+        self::requireNonEmptyString($payload, 'subscription_code', $event->event);
+        self::requireNonEmptyString($payload, 'status', $event->event);
 
-        $subscription = SubscriptionData::fromPayload($event->data);
+        $subscription = SubscriptionData::fromPayload($payload);
 
-        $status = self::subscriptionStatus($event->data, $event->event);
-        $domain = Payload::nullableString($event->data, 'domain');
-        $amount = self::nullableIntLike($event->data, 'amount') ?? $subscription->plan?->amount;
+        $status = self::subscriptionStatus($payload, $event->event);
+        $domain = Payload::nullableString($payload, 'domain');
+        $amount = self::nullableIntLike($payload, 'amount') ?? $subscription->plan?->amount;
 
         return match ($event->event) {
             'subscription.create' => new SubscriptionCreatedWebhookData(
@@ -38,7 +39,7 @@ class SubscriptionWebhookDataMapper
                 customer: $subscription->customer,
                 plan: $subscription->plan,
                 subscription: $subscription,
-                rawData: $event->data,
+                rawData: $payload,
             ),
             'subscription.not_renew' => new SubscriptionNotRenewingWebhookData(
                 event: $event->event,
@@ -52,7 +53,7 @@ class SubscriptionWebhookDataMapper
                 customer: $subscription->customer,
                 plan: $subscription->plan,
                 subscription: $subscription,
-                rawData: $event->data,
+                rawData: $payload,
             ),
             'subscription.disable' => new SubscriptionDisabledWebhookData(
                 event: $event->event,
@@ -66,13 +67,31 @@ class SubscriptionWebhookDataMapper
                 customer: $subscription->customer,
                 plan: $subscription->plan,
                 subscription: $subscription,
-                rawData: $event->data,
+                rawData: $payload,
             ),
             default => throw new MalformedWebhookPayloadException(sprintf(
                 'Unsupported subscription webhook event [%s] requested for typed mapping.',
                 $event->event,
             )),
         };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function requireObjectData(PaystackWebhookEventData $event): array
+    {
+        $data = $event->data;
+
+        if (array_is_list($data)) {
+            throw new MalformedWebhookPayloadException(sprintf(
+                'The Paystack webhook payload for [%s] is missing an object data payload.',
+                $event->event,
+            ));
+        }
+
+        /** @var array<string, mixed> $data */
+        return $data;
     }
 
     /**

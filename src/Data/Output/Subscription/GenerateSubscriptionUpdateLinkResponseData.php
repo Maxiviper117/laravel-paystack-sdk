@@ -25,7 +25,7 @@ class GenerateSubscriptionUpdateLinkResponseData extends PaystackResponseData
         $linkPayload = [];
 
         foreach ($data as $key => $value) {
-            if (is_string($key)) {
+            if (\is_string($key)) {
                 $linkPayload[$key] = $value;
             }
         }

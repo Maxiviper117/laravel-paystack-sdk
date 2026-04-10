@@ -2,6 +2,14 @@
 
 namespace Maxiviper117\Paystack\Support\Webhooks;
 
+/**
+ * This class provides functionality to normalize and manage the allowlist of IP addresses for Paystack webhooks.
+ *
+ * It allows for flexible configuration of the IP allowlist, including using the default Paystack IPs, disabling the allowlist,
+ * or providing a custom list of IP addresses. The normalization process ensures that the resulting list of IPs is clean and unique.
+ *
+ * @method static list<string> fromConfig(mixed $configuredIps) Normalize the configured webhook IP allowlist.
+ */
 final class PaystackWebhookIpAllowlist
 {
     /**
@@ -19,7 +27,6 @@ final class PaystackWebhookIpAllowlist
      * Passing `null` uses the documented Paystack webhook IP addresses.
      * Passing an empty string or `false` disables the allowlist check.
      *
-     * @param  mixed  $configuredIps
      * @return list<string>
      */
     public static function fromConfig(mixed $configuredIps): array
@@ -28,15 +35,15 @@ final class PaystackWebhookIpAllowlist
             return self::DEFAULT_IPS;
         }
 
-        if (is_bool($configuredIps)) {
+        if (\is_bool($configuredIps)) {
             return $configuredIps ? self::DEFAULT_IPS : [];
         }
 
-        if (! is_array($configuredIps) && ! is_string($configuredIps)) {
+        if (! \is_array($configuredIps) && ! \is_string($configuredIps)) {
             return self::DEFAULT_IPS;
         }
 
-        if (is_string($configuredIps)) {
+        if (\is_string($configuredIps)) {
             $configuredIps = trim($configuredIps);
 
             if ($configuredIps === '') {
@@ -49,7 +56,7 @@ final class PaystackWebhookIpAllowlist
         $ips = [];
 
         foreach ($configuredIps as $configuredIp) {
-            if (! is_string($configuredIp)) {
+            if (! \is_string($configuredIp)) {
                 continue;
             }
 

@@ -18,40 +18,41 @@ class InvoiceWebhookDataMapper
 {
     public static function map(PaystackWebhookEventData $event): InvoiceWebhookData
     {
-        self::requireNonEmptyString($event->data, 'invoice_code', $event->event);
-        self::requireNonEmptyString($event->data, 'status', $event->event);
-        self::requireIntLike($event->data, 'amount', $event->event);
-        $paid = self::requireBoolLike($event->data, 'paid', $event->event);
+        $payload = self::requireObjectData($event);
+        self::requireNonEmptyString($payload, 'invoice_code', $event->event);
+        self::requireNonEmptyString($payload, 'status', $event->event);
+        self::requireIntLike($payload, 'amount', $event->event);
+        $paid = self::requireBoolLike($payload, 'paid', $event->event);
 
-        $subscription = self::subscription($event->data);
-        $customer = self::customer($event->data);
-        $transaction = self::transaction($event->data);
+        $subscription = self::subscription($payload);
+        $customer = self::customer($payload);
+        $transaction = self::transaction($payload);
         $paidAt = $transaction instanceof TransactionData
             ? $transaction->paidAt
-            : PaystackDate::nullable(Payload::nullableString($event->data, 'paid_at'));
+            : PaystackDate::nullable(Payload::nullableString($payload, 'paid_at'));
         $nextPaymentDate = $subscription instanceof SubscriptionData
             ? $subscription->nextPaymentDate
-            : PaystackDate::nullable(Payload::nullableString($event->data, 'next_payment_date'));
+            : PaystackDate::nullable(Payload::nullableString($payload, 'next_payment_date'));
 
         $invoiceData = [
             'event' => $event->event,
-            'invoiceCode' => Payload::string($event->data, 'invoice_code'),
-            'status' => Payload::string($event->data, 'status'),
+            'invoiceCode' => Payload::string($payload, 'invoice_code'),
+            'status' => Payload::string($payload, 'status'),
             'paid' => $paid,
-            'amount' => Payload::int($event->data, 'amount'),
-            'domain' => Payload::nullableString($event->data, 'domain'),
-            'periodStart' => Payload::nullableString($event->data, 'period_start'),
-            'periodEnd' => Payload::nullableString($event->data, 'period_end'),
+            'amount' => Payload::int($payload, 'amount'),
+            'domain' => Payload::nullableString($payload, 'domain'),
+            'periodStart' => Payload::nullableString($payload, 'period_start'),
+            'periodEnd' => Payload::nullableString($payload, 'period_end'),
             'paidAt' => $paidAt,
             'nextPaymentDate' => $nextPaymentDate,
-            'description' => Payload::nullableString($event->data, 'description'),
+            'description' => Payload::nullableString($payload, 'description'),
             'subscriptionCode' => $subscription?->subscriptionCode,
             'customerCode' => $customer?->customerCode,
-            'authorizationCode' => self::authorizationCode($event->data),
+            'authorizationCode' => self::authorizationCode($payload),
             'customer' => $customer,
             'subscription' => $subscription,
             'transaction' => $transaction,
-            'rawData' => $event->data,
+            'rawData' => $payload,
         ];
 
         return match ($event->event) {
@@ -63,6 +64,24 @@ class InvoiceWebhookDataMapper
                 $event->event,
             )),
         };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function requireObjectData(PaystackWebhookEventData $event): array
+    {
+        $data = $event->data;
+
+        if (array_is_list($data)) {
+            throw new MalformedWebhookPayloadException(sprintf(
+                'The Paystack webhook payload for [%s] is missing an object data payload.',
+                $event->event,
+            ));
+        }
+
+        /** @var array<string, mixed> $data */
+        return $data;
     }
 
     /**
@@ -170,7 +189,7 @@ class InvoiceWebhookDataMapper
 
         $value = $payload[$key];
 
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return $value;
         }
 

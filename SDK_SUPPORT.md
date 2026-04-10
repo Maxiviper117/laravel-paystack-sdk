@@ -79,7 +79,7 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Optional billing layer | Supported | `Maxiviper117\Paystack\Concerns\Billable` plus `PaystackCustomer` and `PaystackSubscription` provide package-owned local persistence for apps that choose to publish the billing migrations. |
 | Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. `InitializeTransactionInputData` covers the documented initialize transaction body parameters directly and still accepts `extra` for forward-compatible request fields. `FetchTransactionInputData` maps to the documented numeric transaction id path parameter. `FetchCustomerInputData` maps to the documented email-or-code path parameter, and the validation/risk-action DTOs cover the documented customer identification and risk-action payloads. |
 | Action-specific response DTOs | Supported | Response DTOs live under `src/Data/Output`. |
-| Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, source IP whitelisting, stored webhook calls, queued event dispatch, and typed payload resolution for selected events. |
+| Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, source IP whitelisting, stored webhook calls, queued event dispatch, and typed payload resolution for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events. |
 | Live test workbench | Supported | `workbench/` tracks the current package integration style for manual Paystack test-mode checks. |
 
 ## Not yet implemented
@@ -90,7 +90,7 @@ These areas are planned or likely future work, but they are not currently suppor
 
 | Paystack area | Endpoint / capability | Status | Notes |
 | --- | --- | --- | --- |
-| Webhooks | Typed event-specific DTO mapping | Partially supported | `PaystackWebhookEventData` now exposes typed DTO resolution for `charge.success`, `invoice.create`, `invoice.update`, `invoice.payment_failed`, `subscription.create`, `subscription.not_renew`, and `subscription.disable`. Unsupported events still use the generic envelope. |
+| Webhooks | Typed event-specific DTO mapping | Partially supported | `PaystackWebhookEventData` now exposes typed DTO resolution for `charge.success`, `charge.dispute.create`, `charge.dispute.remind`, `charge.dispute.resolve`, `customeridentification.success`, `customeridentification.failed`, `dedicatedaccount.assign.success`, `dedicatedaccount.assign.failed`, `invoice.create`, `invoice.update`, `invoice.payment_failed`, `paymentrequest.pending`, `paymentrequest.success`, `refund.pending`, `refund.processing`, `refund.processed`, `refund.failed`, `subscription.create`, `subscription.not_renew`, `subscription.disable`, `subscription.expiring_cards`, `transfer.success`, `transfer.failed`, and `transfer.reversed`. Unsupported events still use the generic envelope. |
 | Transfers | Initiate / finalize / verify / list / fetch / bulk transfer | Not started | No actions, DTOs, or requests yet. |
 | Transfer control | Check balance / resend OTP / disable OTP / finalize disable OTP / enable OTP | Not started | No actions, DTOs, or requests yet. |
 | Transfer recipients | Create / bulk create / update / delete / list / fetch | Not started | No actions, DTOs, or requests yet. |

@@ -25,16 +25,18 @@ class AddDisputeEvidenceInputData extends Data
             throw new InvalidPaystackInputException('The Paystack dispute identifier must be greater than zero.');
         }
 
-        if (is_string($this->id) && trim($this->id) === '') {
+        if (\is_string($this->id) && trim($this->id) === '') {
             throw new InvalidPaystackInputException('The Paystack dispute identifier cannot be empty.');
         }
 
-        foreach ([
-            'customerEmail' => $this->customerEmail,
-            'customerName' => $this->customerName,
-            'customerPhone' => $this->customerPhone,
-            'serviceDetails' => $this->serviceDetails,
-        ] as $label => $value) {
+        foreach (
+            [
+                'customerEmail' => $this->customerEmail,
+                'customerName' => $this->customerName,
+                'customerPhone' => $this->customerPhone,
+                'serviceDetails' => $this->serviceDetails,
+            ] as $label => $value
+        ) {
             if (trim($value) === '') {
                 throw new InvalidPaystackInputException(sprintf('The Paystack dispute %s cannot be empty.', $label));
             }

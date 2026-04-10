@@ -41,7 +41,7 @@ class Payload
     {
         $value = $payload[$key] ?? $default;
 
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return $value;
         }
 
@@ -49,7 +49,7 @@ class Payload
             return $value !== 0;
         }
 
-        if (is_string($value) && is_numeric($value)) {
+        if (\is_string($value) && is_numeric($value)) {
             return (int) $value !== 0;
         }
 

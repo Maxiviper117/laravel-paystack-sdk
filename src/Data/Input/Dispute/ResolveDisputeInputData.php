@@ -23,7 +23,7 @@ class ResolveDisputeInputData extends Data
             throw new InvalidPaystackInputException('The Paystack dispute identifier must be greater than zero.');
         }
 
-        if (is_string($this->id) && trim($this->id) === '') {
+        if (\is_string($this->id) && trim($this->id) === '') {
             throw new InvalidPaystackInputException('The Paystack dispute identifier cannot be empty.');
         }
 

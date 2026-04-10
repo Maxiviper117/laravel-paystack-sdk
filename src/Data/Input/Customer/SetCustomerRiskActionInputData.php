@@ -19,10 +19,7 @@ class SetCustomerRiskActionInputData extends Data
             throw new InvalidPaystackInputException('The Paystack customer identifier cannot be empty.');
         }
 
-        if ($this->riskAction !== null && ! (
-            $this->riskAction instanceof CustomerRiskAction
-            || in_array($this->riskAction, CustomerRiskAction::values(), true)
-        )) {
+        if ($this->riskAction !== null && (!$this->riskAction instanceof CustomerRiskAction && !in_array($this->riskAction, CustomerRiskAction::values(), true))) {
             throw new InvalidPaystackInputException('The Paystack customer risk action must be allow, deny, or default.');
         }
     }

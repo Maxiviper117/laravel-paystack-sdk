@@ -40,10 +40,7 @@ class ListDisputesInputData extends Data
             throw new InvalidPaystackInputException('The Paystack dispute transaction filter cannot be empty.');
         }
 
-        if ($this->status !== null && ! (
-            $this->status instanceof DisputeStatus
-            || in_array($this->status, self::allowedStatuses(), true)
-        )) {
+        if ($this->status !== null && (!$this->status instanceof DisputeStatus && !in_array($this->status, self::allowedStatuses(), true))) {
             throw new InvalidPaystackInputException('The Paystack dispute status filter is invalid.');
         }
     }

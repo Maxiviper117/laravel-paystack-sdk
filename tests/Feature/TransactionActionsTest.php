@@ -248,10 +248,10 @@ it('sends terminal amount and enum status list filters when present', function (
     app(ListTransactionsAction::class)->execute(new ListTransactionsInputData(
         perPage: 50,
         customer: 'CUS_123',
+        status: TransactionStatus::Abandoned,
         amount: 5000,
         reference: 'ref_123',
         terminalId: 'TAL_123',
-        status: TransactionStatus::Abandoned,
     ));
 
     $mockClient->assertSent(fn (Request $request) => $request instanceof ListTransactionsRequest

@@ -22,7 +22,7 @@ class CreateRefundInputData extends Data
             throw new InvalidPaystackInputException('The Paystack refund transaction identifier must be greater than zero.');
         }
 
-        if (is_string($this->transaction) && trim($this->transaction) === '') {
+        if (\is_string($this->transaction) && trim($this->transaction) === '') {
             throw new InvalidPaystackInputException('The Paystack refund transaction identifier cannot be empty.');
         }
 

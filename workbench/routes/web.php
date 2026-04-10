@@ -4,12 +4,10 @@ use App\Http\Controllers\PaystackDemoController;
 use App\Http\Controllers\PaystackTestController;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
-use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 
 Route::get('/', function () {
     return redirect('/paystack/demo');
@@ -30,32 +28,6 @@ Route::match(['GET', 'POST'], '/paystack/demo/billing-layer', [PaystackDemoContr
 Route::get('/paystack/test/start', [PaystackTestController::class, 'start']);
 
 Route::get('/paystack/test/callback', [PaystackTestController::class, 'callback']);
-
-Route::get('/paystack/test/webhook', function () {
-    return response()->json([
-        'message' => 'POST a signed Paystack payload to this route. Valid calls are stored in webhook_calls and processed asynchronously.',
-        'endpoint' => url('/paystack/test/webhook'),
-        'latest_event_endpoint' => url('/paystack/test/webhook/latest-event'),
-        'latest_call_endpoint' => url('/paystack/test/webhook/latest-call'),
-    ]);
-});
-
-Route::post('/paystack/test/webhook', 'Spatie\WebhookClient\Http\Controllers\WebhookController')
-    ->name('webhook-client-paystack');
-
-Route::get('/paystack/test/webhook/latest-event', function () {
-    return response()->json([
-        'event' => Cache::get('paystack:last-webhook-event'),
-    ]);
-});
-
-Route::get('/paystack/test/webhook/latest-call', function () {
-    $webhookCall = PaystackWebhookCall::query()->latest()->first();
-
-    return response()->json([
-        'webhook_call' => $webhookCall?->only(['id', 'name', 'url', 'headers', 'payload', 'exception', 'created_at']),
-    ]);
-});
 
 Route::get('/paystack/test/customers', [PaystackTestController::class, 'customers']);
 

@@ -705,7 +705,7 @@ class PaystackDemoController extends Controller
 
         $error = data_get($result, 'error');
 
-        if (is_string($error) && trim($error) !== '') {
+        if (\is_string($error) && trim($error) !== '') {
             return [
                 'title' => 'Verification failed',
                 'message' => $error,

@@ -15,7 +15,7 @@ class RetryRefundInputData extends Data
             throw new InvalidPaystackInputException('The Paystack refund identifier must be greater than zero.');
         }
 
-        if (is_string($this->id) && trim($this->id) === '') {
+        if (\is_string($this->id) && trim($this->id) === '') {
             throw new InvalidPaystackInputException('The Paystack refund identifier cannot be empty.');
         }
     }
