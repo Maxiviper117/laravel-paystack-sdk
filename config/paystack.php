@@ -1,5 +1,7 @@
 <?php
 
+use Maxiviper117\Paystack\Support\Webhooks\PaystackWebhookIpAllowlist;
+
 return [
     'secret_key' => env('PAYSTACK_SECRET_KEY'),
     'public_key' => env('PAYSTACK_PUBLIC_KEY'),
@@ -13,6 +15,7 @@ return [
         'config_name' => 'paystack',
         'signing_secret' => env('PAYSTACK_SECRET_KEY'),
         'signature_header_name' => 'x-paystack-signature',
+        'allowed_ips' => PaystackWebhookIpAllowlist::fromConfig(env('PAYSTACK_WEBHOOK_ALLOWED_IPS')),
         'store_headers' => ['x-paystack-signature', 'content-type', 'user-agent'],
         'delete_after_days' => (int) env('PAYSTACK_WEBHOOK_DELETE_AFTER_DAYS', 30),
         'queue' => env('PAYSTACK_WEBHOOK_QUEUE'),
