@@ -79,7 +79,7 @@ Keep this file aligned with the actual code in `src/`, tests, and package docs.
 | Optional billing layer | Supported | `Maxiviper117\Paystack\Concerns\Billable` plus `PaystackCustomer` and `PaystackSubscription` provide package-owned local persistence for apps that choose to publish the billing migrations. |
 | Typed input DTOs | Supported | Input DTOs live under `src/Data/Input`. `InitializeTransactionInputData` covers the documented initialize transaction body parameters directly and still accepts `extra` for forward-compatible request fields. `FetchTransactionInputData` maps to the documented numeric transaction id path parameter. `FetchCustomerInputData` maps to the documented email-or-code path parameter, and the validation/risk-action DTOs cover the documented customer identification and risk-action payloads. |
 | Action-specific response DTOs | Supported | Response DTOs live under `src/Data/Output`. |
-| Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, stored webhook calls, queued event dispatch, and typed payload resolution for selected events. |
+| Webhook intake and processing | Supported | Uses `spatie/laravel-webhook-client` with Paystack-specific signature validation, source IP whitelisting, stored webhook calls, queued event dispatch, and typed payload resolution for selected events. |
 | Live test workbench | Supported | `workbench/` tracks the current package integration style for manual Paystack test-mode checks. |
 
 ## Not yet implemented

@@ -15,6 +15,7 @@ Looking for an end-to-end Laravel integration flow? Start with [Webhook Processi
 ## What is supported
 
 - Paystack signature verification using the configured secret key
+- webhook IP whitelisting for the documented Paystack webhook origin addresses
 - persisted webhook calls in the `webhook_calls` table
 - queued processing through a package-provided webhook job
 - dispatch of a generic parsed Paystack webhook event object
@@ -45,6 +46,26 @@ php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientService
 php artisan migrate
 php artisan queue:work
 ```
+
+## Restrict webhook origins
+
+The package checks the incoming request IP before it stores or processes a webhook. By default it whitelists the Paystack webhook IP addresses documented by Paystack. You can override the list or disable it in your app config:
+
+```php
+return [
+    'webhooks' => [
+        'allowed_ips' => [
+            '52.31.139.75',
+            '52.49.173.169',
+            '52.214.14.220',
+        ],
+    ],
+];
+```
+
+If you prefer environment-based configuration, set `PAYSTACK_WEBHOOK_ALLOWED_IPS` to a comma-separated list. Leave it empty to disable the whitelist for local replay or non-Paystack webhook sources.
+
+If your app sits behind a proxy or load balancer, make sure Laravel is resolving the real client IP before the webhook route reaches the profile check.
 
 ## Listen for processed Paystack webhooks
 
@@ -102,49 +123,54 @@ Event::listen(PaystackWebhookReceived::class, function (PaystackWebhookReceived 
 });
 ```
 
-### Dedicated listener class
+### Fluent callback handler
 
 ```php
-namespace App\Listeners;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+use Maxiviper117\Paystack\Data\Output\Webhook\PaystackWebhookEventData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeSuccessWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionCreatedWebhookData;
+use Maxiviper117\Paystack\Enums\Webhook\PaystackWebhookEvent;
+use Maxiviper117\Paystack\Listeners\PaystackWebhookHandler;
 
-use Maxiviper117\Paystack\Events\PaystackWebhookReceived;
+$handler = (new PaystackWebhookHandler)
+    ->onChargeSuccess(function (ChargeSuccessWebhookData $webhook): void {
+        Log::info('Charge succeeded', [
+            'reference' => $webhook->reference,
+            'amount' => $webhook->amount,
+        ]);
+    })
+    ->onSubscriptionCreated(function (SubscriptionCreatedWebhookData $webhook): void {
+        Log::info('Subscription created', [
+            'subscription_code' => $webhook->subscriptionCode,
+        ]);
+    })
+    ->onUnhandled(function (PaystackWebhookEventData $webhook): void {
+        Log::info('Unhandled webhook received', [
+            'event' => $webhook->event,
+        ]);
+    });
 
-class HandlePaystackWebhook
-{
-    public function handle(PaystackWebhookReceived $event): void
-    {
-        $webhook = $event->event;
-
-        match (true) {
-            $webhook->is('charge.success') => $this->handleSuccessfulCharge($webhook),
-            $webhook->is('subscription.create') => $this->handleSubscriptionCreated($webhook),
-            default => null,
-        };
-    }
-
-    protected function handleSuccessfulCharge($webhook): void
-    {
-        $typed = $webhook->typedData();
-
-        if (! $typed instanceof \Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeSuccessWebhookData) {
-            return;
-        }
-
-        // Your application logic here.
-    }
-
-    protected function handleSubscriptionCreated($webhook): void
-    {
-        $typed = $webhook->typedData();
-
-        if (! $typed instanceof \Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionCreatedWebhookData) {
-            return;
-        }
-
-        // Your application logic here.
-    }
-}
+Event::listen(\Maxiviper117\Paystack\Events\PaystackWebhookReceived::class, [$handler, 'handle']);
 ```
+
+The package ships the reusable fluent helper at `Maxiviper117\Paystack\Listeners\PaystackWebhookHandler`. Configure only the callbacks you care about, then pass the handler to Laravel's event system.
+
+Available callback setters:
+
+- `onChargeSuccess(callable $callback)`
+- `onInvoiceCreated(callable $callback)`
+- `onInvoiceUpdated(callable $callback)`
+- `onInvoicePaymentFailed(callable $callback)`
+- `onSubscriptionCreated(callable $callback)`
+- `onSubscriptionNotRenewing(callable $callback)`
+- `onSubscriptionDisabled(callable $callback)`
+- `onUnhandled(callable $callback)`
+
+If you prefer a dedicated Laravel listener class, instantiate and configure the same helper inside your listener's `handle()` method and delegate to `$handler->handle($event)`.
+
+The supported event enum lives at `Maxiviper117\Paystack\Enums\Webhook\PaystackWebhookEvent`, and `PaystackWebhookEventData::is()` accepts either the enum or a raw string.
 
 ### Queue the listener itself
 
@@ -192,6 +218,10 @@ Example:
 
 ```php
 Event::listen(PaystackWebhookReceived::class, function (PaystackWebhookReceived $event) {
+    if ($event->event->is(PaystackWebhookEvent::InvoiceCreate)) {
+        // Handle the invoice create event.
+    }
+
     logger()->info('Paystack webhook received', [
         'event' => $event->event->event,
         'resource_type' => $event->event->resourceType,

@@ -74,7 +74,7 @@ composer dev-built
 
 That mode removes `public/hot`, clears stale Laravel caches, primes the config and view caches, runs Vite in build-watch mode, and serves the compiled assets directly.
 
-The workbench intentionally does **not** route-cache or event-cache by default because the demo app still uses closure routes and a closure webhook listener.
+The workbench intentionally does **not** route-cache or event-cache by default because the demo app still uses closure routes and a configured fluent webhook handler.
 
 For webhook processing, also run a queue worker:
 
@@ -129,5 +129,6 @@ Webhook handling is now endpoint-first:
 
 - register the endpoint with `Route::post('/paystack/test/webhook', 'Spatie\WebhookClient\Http\Controllers\WebhookController')->name('webhook-client-paystack')`
 - let the package validate the `x-paystack-signature` header
+- let the package filter requests by the documented Paystack webhook IP whitelist unless you explicitly disable it in `PAYSTACK_WEBHOOK_ALLOWED_IPS`
 - inspect stored calls in `webhook_calls`
 - react to `PaystackWebhookReceived` after the queued job runs

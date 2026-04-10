@@ -7,11 +7,14 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
 - The package provides a Paystack SDK built on Saloon with an Actions-first public API.
 - Current implemented coverage includes transactions, customers, disputes, refunds, plans, subscriptions, an optional Billable persistence layer, and webhook intake/processing built on `spatie/laravel-webhook-client`.
+- Webhook intake/processing also enforces the documented Paystack webhook source IP allowlist in addition to signature validation.
 
 ## Source layout
 
 - `src/Actions`: high-level action classes intended for consumer-facing package usage.
 - `src/Concerns`: opt-in Laravel traits such as the optional Billable Eloquent integration.
+- `src/Enums`: backed enums for closed Paystack value sets such as webhook event names.
+- `src/Listeners`: reusable listener helpers, including the fluent webhook handler for app-side Paystack event handling.
 - `src/Integrations`: Saloon connector and request classes for Paystack HTTP integration.
 - `src/Data`: DTOs and response-shaping classes.
 - `src/Models`: package Eloquent models for webhook calls and optional billing-layer persistence.

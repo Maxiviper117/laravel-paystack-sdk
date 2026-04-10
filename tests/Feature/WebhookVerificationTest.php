@@ -39,7 +39,9 @@ it('stores and processes a valid paystack webhook', function () {
 
     $signature = hash_hmac('sha512', $rawPayload, 'sk_test_123');
 
-    $response = $testCase->postJson('/paystack/webhook', $payload, [
+    $response = $testCase->withServerVariables([
+        'REMOTE_ADDR' => '52.31.139.75',
+    ])->postJson('/paystack/webhook', $payload, [
         'X-Paystack-Signature' => $signature,
         'User-Agent' => 'paystack-test',
         'X-Unexpected-Header' => 'skip-me',
@@ -86,13 +88,47 @@ it('queues the paystack webhook processing job', function () {
 
     $signature = hash_hmac('sha512', $rawPayload, 'sk_test_123');
 
-    $response = $testCase->postJson('/paystack/webhook', $payload, [
+    $response = $testCase->withServerVariables([
+        'REMOTE_ADDR' => '52.31.139.75',
+    ])->postJson('/paystack/webhook', $payload, [
         'X-Paystack-Signature' => $signature,
     ]);
 
     $response->assertOk();
 
     Queue::assertPushed(ProcessPaystackWebhookJob::class, fn (ProcessPaystackWebhookJob $job): bool => $job->connection === 'sync' && $job->queue === 'paystack-webhooks');
+});
+
+it('drops webhook requests from non-paystack ip addresses before storage', function () {
+    /** @var TestCase $testCase */
+    $testCase = $this;
+
+    Event::fake([PaystackWebhookReceived::class]);
+
+    $payload = [
+        'event' => 'charge.success',
+        'data' => [
+            'id' => 123,
+            'reference' => 'txn_feature_123',
+        ],
+    ];
+    $rawPayload = json_encode($payload, JSON_THROW_ON_ERROR);
+    $signature = hash_hmac('sha512', $rawPayload, 'sk_test_123');
+
+    $response = $testCase->withServerVariables([
+        'REMOTE_ADDR' => '127.0.0.1',
+    ])->postJson('/paystack/webhook', $payload, [
+        'X-Paystack-Signature' => $signature,
+    ]);
+
+    $response->assertOk()
+        ->assertJson([
+            'received' => true,
+        ]);
+
+    expect(PaystackWebhookCall::count())->toBe(0);
+
+    Event::assertNotDispatched(PaystackWebhookReceived::class);
 });
 
 it('rejects invalid webhook signatures before storage', function () {
@@ -129,6 +165,7 @@ it('stores malformed signed payloads and records processing exceptions', functio
     expect(fn () => $testCase->call('POST', '/paystack/webhook', [], [], [], [
         'CONTENT_TYPE' => 'application/json',
         'HTTP_X_PAYSTACK_SIGNATURE' => $signature,
+        'REMOTE_ADDR' => '52.31.139.75',
     ], $payload))->toThrow(MalformedWebhookPayloadException::class);
 
     $webhookCall = PaystackWebhookCall::query()->sole();
