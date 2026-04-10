@@ -25,8 +25,9 @@ class Amount
      *   Amount::toSubunit(10.50);   // 1050
      *   Amount::toSubunit('10.50'); // 1050
      *
-     * @param int|float|string $amount The amount in major currency units.
+     * @param  int|float|string  $amount  The amount in major currency units.
      * @return int The amount in subunits.
+     *
      * @throws InvalidArgumentException If the amount is non-numeric or negative.
      */
     public static function toSubunit(int|float|string $amount): int
