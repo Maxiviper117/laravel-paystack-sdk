@@ -2,6 +2,7 @@
 
 namespace Maxiviper117\Paystack\Tests;
 
+use Illuminate\Foundation\Application;
 use Maxiviper117\Paystack\PaystackServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Spatie\WebhookClient\WebhookClientServiceProvider;
@@ -10,10 +11,14 @@ class TestCase extends BaseTestCase
 {
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 
+    /**
+     * @param  Application  $app
+     * @return array<int, class-string>
+     */
     protected function getPackageProviders($app): array
     {
         return [
@@ -22,6 +27,9 @@ class TestCase extends BaseTestCase
         ];
     }
 
+    /**
+     * @param  Application  $app
+     */
     protected function getEnvironmentSetUp($app): void
     {
         $app['config']->set('database.default', 'testing');
