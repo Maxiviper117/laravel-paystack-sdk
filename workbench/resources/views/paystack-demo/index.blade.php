@@ -42,6 +42,8 @@
                     Eloquent trait</li>
                 <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 bg-slate-400"></span> Local customer &amp;
                     subscription persistence</li>
+                <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 bg-slate-400"></span> Dedicated billing
+                    sync page for mirror upserts</li>
             </ul>
         </div>
     </section>

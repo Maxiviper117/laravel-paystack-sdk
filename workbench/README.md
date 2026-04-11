@@ -17,7 +17,9 @@ The current workbench flow covers:
 - creating and listing refunds through the local package
 - creating plans through the local package
 - creating subscriptions through the local package
-- exercising the optional Billable persistence layer against a local `users` table
+- exercising the optional billing persistence layer against a local `users` table and mirrored billing tables
+- using the dedicated search-first billing sync page to search Paystack records and sync selected customers, plans, subscriptions, transactions, refunds, and disputes into the local mirror
+- opening the dedicated billing sync page at `/paystack/demo/billing-sync`
 - browsing the Tailwind demo hub at `/paystack/demo`
 - using the legacy playground compatibility page at `/paystack/demo/playground`
 - opening the dedicated transactions page at `/paystack/demo/transactions`
@@ -27,7 +29,7 @@ The current workbench flow covers:
 - opening the dedicated plans page at `/paystack/demo/plans`
 - opening the dedicated subscriptions page at `/paystack/demo/subscriptions`
 - opening the dedicated webhooks page at `/paystack/demo/webhooks`
-- opening the dedicated billing layer page at `/paystack/demo/billing-layer`
+- opening the dedicated billing layer page at `/paystack/demo/billing-layer` for lifecycle customer/subscription flows
 
 ## Setup
 
@@ -50,7 +52,7 @@ PAYSTACK_SECRET_KEY=sk_test_xxx
 PAYSTACK_PUBLIC_KEY=pk_test_xxx
 ```
 
-Publish the webhook client migration, then run the workbench migrations so inbound webhook calls can be stored:
+Publish the webhook client and package billing migrations, then run the workbench migrations so inbound webhook calls and local billing mirrors can be stored:
 
 ```bash
 php artisan vendor:publish --provider="Spatie\WebhookClient\WebhookClientServiceProvider" --tag="webhook-client-migrations"
@@ -92,7 +94,8 @@ Then open:
 - `/paystack/demo/plans` for plan demos
 - `/paystack/demo/subscriptions` for subscription demos
 - `/paystack/demo/webhooks` for webhook inspection
-- `/paystack/demo/billing-layer` for the optional Billable trait flow
+- `/paystack/demo/billing-layer` for the optional billing lifecycle flow
+- `/paystack/demo/billing-sync` for the search-first billing mirror sync flow
 - `/paystack/test/start` to begin a real Paystack test transaction
 - `/paystack/test/callback` as the callback route used by the live test flow
 - `/paystack/test/webhook` for the webhook endpoint instructions
@@ -101,7 +104,7 @@ Then open:
 - `/paystack/test/customers` to list customers with optional `per_page`, `page`, `email`, `from`, and `to` query filters
 - `/paystack/test/plan` for the plan creation example route
 - `/paystack/test/subscription` for the subscription creation example route
-- `/paystack/test/billing-layer` for the optional Billable trait flow that stores Paystack customer and subscription identifiers locally
+- `/paystack/test/billing-layer` for the optional billing lifecycle flow that stores Paystack customer, plan, subscription, transaction, refund, and dispute records locally
 
 ## Current integration shape
 
@@ -118,12 +121,16 @@ The workbench uses Laravel controllers for action-based examples so actions are 
 
 Outbound Paystack API usage still follows the package's current pattern:
 
-- action classes are container-resolved services
+- the `Paystack` facade and `PaystackManager` are the primary Laravel convenience layer
+- action classes are container-resolved services for custom composition
 - actions expose `execute(...)` and `__invoke(...)`
 - actions accept typed input DTOs and return action-specific response DTOs
 - response DTOs can be returned directly from Laravel routes and controllers as JSON responses
-- convenience access for application code also exists through the package manager and facade
-- the optional Billable layer stores Paystack customers and subscriptions in local package tables when you publish and migrate them
+- the manager and facade use the same DTO-first methods as the underlying actions
+- the optional billing layer stores Paystack customers, plans, subscriptions, transactions, refunds, and disputes in local package tables when you publish and migrate them
+- billable lifecycle orchestration now goes through `PaystackManager` / `Paystack` pass-through methods, not trait remote methods
+- the billing mirror treats customers as one row per billable model, but treats subscriptions as many rows per billable model keyed by `subscription_code`
+- the dedicated billing sync page searches Paystack first, then uses typed DTOs to upsert the mirrored tables without going through the customer/subscription orchestration page
 
 Webhook handling is now endpoint-first:
 

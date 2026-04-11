@@ -4,8 +4,11 @@ namespace Maxiviper117\Paystack;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
+use Maxiviper117\Paystack\Events\PaystackWebhookReceived;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 use Maxiviper117\Paystack\Jobs\ProcessPaystackWebhookJob;
+use Maxiviper117\Paystack\Listeners\SyncPaystackBillingLayer;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
 use Maxiviper117\Paystack\Support\Payload;
 use Maxiviper117\Paystack\Webhooks\PaystackSignatureValidator;
@@ -23,7 +26,11 @@ class PaystackServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasMigrations([
                 'create_paystack_customers_table',
+                'create_paystack_plans_table',
                 'create_paystack_subscriptions_table',
+                'create_paystack_transactions_table',
+                'create_paystack_refunds_table',
+                'create_paystack_disputes_table',
             ]);
     }
 
@@ -54,6 +61,10 @@ class PaystackServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(PaystackManager::class, fn (Container $app) => new PaystackManager($app));
         $this->app->singleton('paystack', fn (Container $app) => $app->make(PaystackManager::class));
+
+        /** @var Dispatcher $events */
+        $events = $this->app->make(Dispatcher::class);
+        $events->listen(PaystackWebhookReceived::class, SyncPaystackBillingLayer::class);
 
         /** @var ConfigRepository $config */
         $config = $this->app->make('config');

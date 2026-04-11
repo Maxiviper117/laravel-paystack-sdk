@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Maxiviper117\Paystack\Support\Webhooks\PaystackWebhookIpAllowlist;
 
 return [

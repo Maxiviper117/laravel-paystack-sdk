@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "ast-grep": {
+      "source": "ast-grep/agent-skill",
+      "sourceType": "github",
+      "computedHash": "74e1f29217c771ff5321e10e89fd64db144a4116f15df7af6c01a994ef062458"
+    }
+  }
+}

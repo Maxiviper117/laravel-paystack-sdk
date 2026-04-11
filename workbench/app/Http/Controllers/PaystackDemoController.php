@@ -36,9 +36,12 @@ use Maxiviper117\Paystack\Actions\Subscription\FetchSubscriptionAction;
 use Maxiviper117\Paystack\Actions\Subscription\GenerateSubscriptionUpdateLinkAction;
 use Maxiviper117\Paystack\Actions\Subscription\ListSubscriptionsAction;
 use Maxiviper117\Paystack\Actions\Subscription\SendSubscriptionUpdateLinkAction;
+use Maxiviper117\Paystack\Actions\Transaction\FetchTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Customer\CustomerData;
+use Maxiviper117\Paystack\Data\Dispute\DisputeData;
 use Maxiviper117\Paystack\Data\Dispute\DisputeStatus;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\CustomerRiskAction;
@@ -70,12 +73,24 @@ use Maxiviper117\Paystack\Data\Input\Subscription\FetchSubscriptionInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLinkInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\ListSubscriptionsInputData;
 use Maxiviper117\Paystack\Data\Input\Subscription\SendSubscriptionUpdateLinkInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\FetchTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\ListTransactionsInputData;
 use Maxiviper117\Paystack\Data\Input\Transaction\TransactionStatus;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+use Maxiviper117\Paystack\Data\Plan\PlanData;
+use Maxiviper117\Paystack\Data\Refund\RefundData;
+use Maxiviper117\Paystack\Data\Subscription\SubscriptionData;
+use Maxiviper117\Paystack\Data\Transaction\TransactionData;
 use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
+use Maxiviper117\Paystack\Models\PaystackCustomer;
+use Maxiviper117\Paystack\Models\PaystackDispute;
+use Maxiviper117\Paystack\Models\PaystackPlan;
+use Maxiviper117\Paystack\Models\PaystackRefund;
+use Maxiviper117\Paystack\Models\PaystackSubscription;
+use Maxiviper117\Paystack\Models\PaystackTransaction;
 use Maxiviper117\Paystack\Models\PaystackWebhookCall;
+use Maxiviper117\Paystack\PaystackManager;
 use Throwable;
 
 class PaystackDemoController extends Controller
@@ -85,7 +100,7 @@ class PaystackDemoController extends Controller
         return $this->render('index', [
             'title' => 'Paystack Workbench Demo',
             'heading' => 'Interactive demo pages for every Paystack feature in this package.',
-            'description' => 'Use the feature pages to initialize and verify transactions, manage customers and plans, create subscriptions, inspect webhook intake, and exercise the optional billing layer.',
+            'description' => 'Use the feature pages to initialize and verify transactions, manage customers and plans, create subscriptions, inspect webhook intake, and exercise the optional billing mirror.',
         ]);
     }
 
@@ -551,54 +566,90 @@ class PaystackDemoController extends Controller
         ]);
     }
 
-    public function billingLayer(Request $request): View
+    public function billingLayer(Request $request, PaystackManager $paystack): View
     {
-        [$result, $resultLabel] = $this->capturePost($request, function () use ($request): array {
-            $user = User::query()->firstOrCreate(
-                ['email' => (string) $request->input('email', 'billable@example.com')],
-                [
-                    'name' => (string) $request->input('name', 'Billable Demo User'),
-                    'password' => 'password',
-                ],
-            );
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $paystack): array {
+            $user = $this->resolveBillingUser($request);
 
             $result = match ((string) $request->input('action', 'sync')) {
-                'create-subscription' => $user->createPaystackSubscription(
+                'create-subscription' => $paystack->createBillableSubscription(
+                    billable: $user,
                     planCode: (string) $request->input('plan', ''),
                     name: (string) $request->input('subscription_name', 'default'),
                     authorization: $request->filled('authorization') ? (string) $request->input('authorization') : null,
                     startDate: $request->filled('start_date') ? (string) $request->input('start_date') : null,
                 ),
-                'enable' => $user->enablePaystackSubscription((string) $request->input('subscription_name', 'default')),
-                'disable' => $user->disablePaystackSubscription((string) $request->input('subscription_name', 'default')),
-                default => $user->syncAsPaystackCustomer(),
+                'enable' => $paystack->enableBillableSubscription($user, (string) $request->input('subscription_name', 'default')),
+                'disable' => $paystack->disableBillableSubscription($user, (string) $request->input('subscription_name', 'default')),
+                default => $paystack->syncBillableCustomer($user),
             };
 
-            $user->load(['paystackCustomer', 'paystackSubscriptions']);
-
-            return [[
-                'user' => $user->only(['id', 'name', 'email']),
-                'paystack_customer' => $user->paystackCustomer?->only(['id', 'customer_code', 'email']),
-                'paystack_subscriptions' => $user->paystackSubscriptions->map(static fn (mixed $subscription): array => $subscription->only([
-                    'id',
-                    'name',
-                    'subscription_code',
-                    'status',
-                    'plan_code',
-                    'email_token',
-                    'next_payment_date',
-                ]))->values(),
-                'result' => $result,
-            ], 'Billing layer'];
+            return [$this->billingLayerSnapshot($user, $result), 'Billing layer'];
         });
 
         return $this->render('billing-layer', [
             'title' => 'Billing Layer Demo',
             'heading' => 'Billing layer',
-            'description' => 'Test the optional Billable trait and the local customer/subscription tables.',
+            'description' => 'Test the optional billing lifecycle and customer/subscription orchestration flow.',
             'result' => $result,
             'resultLabel' => $resultLabel,
             'currentPath' => '/paystack/demo/billing-layer',
+        ]);
+    }
+
+    public function billingSync(
+        Request $request,
+        ListCustomersAction $listCustomers,
+        ListPlansAction $listPlans,
+        ListSubscriptionsAction $listSubscriptions,
+        ListTransactionsAction $listTransactions,
+        ListRefundsAction $listRefunds,
+        ListDisputesAction $listDisputes,
+        FetchCustomerAction $fetchCustomer,
+        FetchPlanAction $fetchPlan,
+        FetchSubscriptionAction $fetchSubscription,
+        FetchTransactionAction $fetchTransaction,
+        FetchRefundAction $fetchRefund,
+        FetchDisputeAction $fetchDispute,
+    ): View {
+        $user = $this->resolveBillingUser($request);
+        $resource = $this->billingSyncResource($request);
+        $search = $this->billingSyncSearch(
+            $request,
+            $resource,
+            $listCustomers,
+            $listPlans,
+            $fetchPlan,
+            $listSubscriptions,
+            $listTransactions,
+            $listRefunds,
+            $listDisputes,
+        );
+
+        [$result, $resultLabel] = $this->capturePost($request, function () use ($request, $user, $fetchCustomer, $fetchPlan, $fetchSubscription, $fetchTransaction, $fetchRefund, $fetchDispute): array {
+            return $this->billingSyncExecute(
+                $request,
+                $user,
+                $fetchCustomer,
+                $fetchPlan,
+                $fetchSubscription,
+                $fetchTransaction,
+                $fetchRefund,
+                $fetchDispute,
+            );
+        });
+
+        return $this->render('billing-sync', [
+            'title' => 'Billing Sync Demo',
+            'heading' => 'Billing sync',
+            'description' => 'Search Paystack records first, then sync a chosen record into the local mirror tables.',
+            'resource' => $resource,
+            'resourceOptions' => $this->billingSyncResourceOptions(),
+            'search' => $search,
+            'result' => $result,
+            'resultLabel' => $resultLabel,
+            'snapshot' => $this->billingSyncSnapshot($user, $result),
+            'currentPath' => '/paystack/demo/billing-sync',
         ]);
     }
 
@@ -647,7 +698,8 @@ class PaystackDemoController extends Controller
             ['title' => 'Plans', 'path' => '/paystack/demo/plans', 'description' => 'Create, update, fetch, and list plans.'],
             ['title' => 'Subscriptions', 'path' => '/paystack/demo/subscriptions', 'description' => 'Create, fetch, list, enable, disable, and manage subscription update links.'],
             ['title' => 'Webhooks', 'path' => '/paystack/demo/webhooks', 'description' => 'Inspect webhook intake and stored calls.'],
-            ['title' => 'Billing Layer', 'path' => '/paystack/demo/billing-layer', 'description' => 'Exercise the opt-in Billable layer.'],
+            ['title' => 'Billing Layer', 'path' => '/paystack/demo/billing-layer', 'description' => 'Exercise the opt-in billing lifecycle and local mirror tables.'],
+            ['title' => 'Billing Sync', 'path' => '/paystack/demo/billing-sync', 'description' => 'Sync mirrored billing records into local tables.'],
         ];
     }
 
@@ -670,6 +722,979 @@ class PaystackDemoController extends Controller
         $reference = (string) ($request->query('reference') ?? $request->query('trxref') ?? '');
 
         return trim($reference) === '' ? null : $reference;
+    }
+
+    private function resolveBillingUser(Request $request): User
+    {
+        return User::query()->firstOrCreate(
+            ['email' => (string) $request->input('email', 'billable@example.com')],
+            [
+                'name' => (string) $request->input('name', 'Billable Demo User'),
+                'password' => 'password',
+            ],
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function billingLayerSnapshot(User $user, mixed $result): array
+    {
+        $user->load(['paystackCustomer', 'paystackSubscriptions']);
+
+        return [
+            'user' => $user->only(['id', 'name', 'email']),
+            'paystack_customer' => $user->paystackCustomer?->only(['id', 'customer_code', 'email']),
+            'paystack_subscriptions' => $user->paystackSubscriptions->map(static fn (mixed $subscription): array => $subscription->only([
+                'id',
+                'name',
+                'subscription_code',
+                'status',
+                'plan_code',
+                'email_token',
+                'next_payment_date',
+            ]))->values(),
+            'result' => $result,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function billingSyncSnapshot(User $user, mixed $result): array
+    {
+        $user->load(['paystackCustomer', 'paystackSubscriptions', 'paystackTransactions', 'paystackRefunds', 'paystackDisputes']);
+
+        return [
+            'user' => $user->only(['id', 'name', 'email']),
+            'paystack_customer' => $user->paystackCustomer?->only(['id', 'customer_code', 'email']),
+            'paystack_plans' => $this->latestPaystackPlans(),
+            'paystack_subscriptions' => $this->serializePaystackSubscriptions($user),
+            'paystack_transactions' => $this->serializePaystackTransactions($user),
+            'paystack_refunds' => $this->serializePaystackRefunds($user),
+            'paystack_disputes' => $this->serializePaystackDisputes($user),
+            'result' => $result,
+        ];
+    }
+
+    /**
+     * @return array<int, array{value: string, label: string, description: string}>
+     */
+    private function billingSyncResourceOptions(): array
+    {
+        return [
+            ['value' => 'customers', 'label' => 'Customers', 'description' => 'Search and sync customer records.'],
+            ['value' => 'plans', 'label' => 'Plans', 'description' => 'Search and sync plan records.'],
+            ['value' => 'subscriptions', 'label' => 'Subscriptions', 'description' => 'Search and sync subscription records.'],
+            ['value' => 'transactions', 'label' => 'Transactions', 'description' => 'Search and sync transaction records.'],
+            ['value' => 'refunds', 'label' => 'Refunds', 'description' => 'Search and sync refund records.'],
+            ['value' => 'disputes', 'label' => 'Disputes', 'description' => 'Search and sync dispute records.'],
+        ];
+    }
+
+    private function billingSyncResource(Request $request): string
+    {
+        $resource = (string) $request->input('resource', 'customers');
+
+        return in_array($resource, ['customers', 'plans', 'subscriptions', 'transactions', 'refunds', 'disputes'], true)
+            ? $resource
+            : 'customers';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function billingSyncSearch(
+        Request $request,
+        string $resource,
+        ListCustomersAction $listCustomers,
+        ListPlansAction $listPlans,
+        FetchPlanAction $fetchPlan,
+        ListSubscriptionsAction $listSubscriptions,
+        ListTransactionsAction $listTransactions,
+        ListRefundsAction $listRefunds,
+        ListDisputesAction $listDisputes,
+    ): array {
+        return match ($resource) {
+            'plans' => $this->billingSyncPlanSearch($request, $listPlans, $fetchPlan),
+            'subscriptions' => $this->billingSyncSubscriptionSearch($request, $listSubscriptions),
+            'transactions' => $this->billingSyncTransactionSearch($request, $listTransactions),
+            'refunds' => $this->billingSyncRefundSearch($request, $listRefunds),
+            'disputes' => $this->billingSyncDisputeSearch($request, $listDisputes),
+            default => $this->billingSyncCustomerSearch($request, $listCustomers),
+        };
+    }
+
+    /**
+     * @return array{resource: string, title: string, description: string, fields: array<int, array<string, mixed>>, items: array<int, array<string, mixed>>, meta: array<string, mixed>|null, searched: bool}
+     */
+    private function billingSyncCustomerSearch(Request $request, ListCustomersAction $listCustomers): array
+    {
+        $fields = [
+            ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => 'customer@example.com', 'value' => (string) $request->input('email', '')],
+            ['name' => 'from', 'label' => 'From', 'type' => 'text', 'placeholder' => '2026-01-01T00:00:00Z', 'value' => (string) $request->input('from', '')],
+            ['name' => 'to', 'label' => 'To', 'type' => 'text', 'placeholder' => '2026-12-31T23:59:59Z', 'value' => (string) $request->input('to', '')],
+            ['name' => 'per_page', 'label' => 'Per page', 'type' => 'number', 'placeholder' => '10', 'value' => (string) ($request->integer('per_page') ?: 10)],
+            ['name' => 'page', 'label' => 'Page', 'type' => 'number', 'placeholder' => '1', 'value' => (string) ($request->integer('page') ?: 1)],
+        ];
+
+        if (! $request->boolean('search')) {
+            return [
+                'resource' => 'customers',
+                'title' => 'Customers',
+                'description' => 'Search remote customers and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [],
+                'meta' => null,
+                'searched' => false,
+            ];
+        }
+
+        $response = $listCustomers(new ListCustomersInputData(
+            perPage: $request->integer('per_page') ?: 10,
+            page: $request->integer('page') ?: 1,
+            email: $request->filled('email') ? (string) $request->input('email') : null,
+            from: $request->filled('from') ? (string) $request->input('from') : null,
+            to: $request->filled('to') ? (string) $request->input('to') : null,
+        ));
+
+        return [
+            'resource' => 'customers',
+            'title' => 'Customers',
+            'description' => 'Search remote customers and sync the one you want locally.',
+            'fields' => $fields,
+            'items' => array_map(fn (CustomerData $customer): array => [
+                'label' => $customer->email,
+                'identifier' => $customer->customerCode ?? $customer->email,
+                'sync_action' => 'sync-customer',
+                'summary' => [
+                    'Code' => $customer->customerCode,
+                    'First name' => $customer->firstName,
+                    'Last name' => $customer->lastName,
+                    'Phone' => $customer->phone,
+                ],
+                'payload' => $customer->raw,
+            ], $response->customers),
+            'meta' => $response->meta?->toArray(),
+            'searched' => true,
+        ];
+    }
+
+    /**
+     * @return array{resource: string, title: string, description: string, fields: array<int, array<string, mixed>>, items: array<int, array<string, mixed>>, meta: array<string, mixed>|null, searched: bool}
+     */
+    private function billingSyncPlanSearch(Request $request, ListPlansAction $listPlans, FetchPlanAction $fetchPlan): array
+    {
+        $fields = [
+            ['name' => 'plan_identifier', 'label' => 'Plan ID or code', 'type' => 'text', 'placeholder' => 'PLN_123 or 123', 'value' => (string) $request->input('plan_identifier', '')],
+            ['name' => 'status', 'label' => 'Status', 'type' => 'text', 'placeholder' => 'active', 'value' => (string) $request->input('status', '')],
+            ['name' => 'interval', 'label' => 'Interval', 'type' => 'text', 'placeholder' => 'monthly', 'value' => (string) $request->input('interval', '')],
+            ['name' => 'amount', 'label' => 'Amount', 'type' => 'number', 'placeholder' => '5000', 'value' => (string) ($request->input('amount') ?? '')],
+            ['name' => 'per_page', 'label' => 'Per page', 'type' => 'number', 'placeholder' => '10', 'value' => (string) ($request->integer('per_page') ?: 10)],
+            ['name' => 'page', 'label' => 'Page', 'type' => 'number', 'placeholder' => '1', 'value' => (string) ($request->integer('page') ?: 1)],
+        ];
+
+        if (! $request->boolean('search')) {
+            return [
+                'resource' => 'plans',
+                'title' => 'Plans',
+                'description' => 'Search remote plans and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [],
+                'meta' => null,
+                'searched' => false,
+            ];
+        }
+
+        // If a specific plan identifier is provided, fetch that plan directly instead of listing. This allows for more precise syncing when the identifier is known, and also demonstrates both the fetch and list flows.
+        if ($request->filled('plan_identifier')) {
+            $response = $fetchPlan(new FetchPlanInputData((string) $request->input('plan_identifier')));
+
+            return [
+                'resource' => 'plans',
+                'title' => 'Plans',
+                'description' => 'Search remote plans and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [[
+                    'label' => $response->plan->name ?? $response->plan->planCode,
+                    'identifier' => $response->plan->planCode,
+                    'sync_action' => 'sync-plan',
+                    'summary' => [
+                        'Plan code' => $response->plan->planCode,
+                        'Amount' => $response->plan->amount,
+                        'Interval' => $response->plan->interval,
+                        'Currency' => $response->plan->currency,
+                    ],
+                    'payload' => $response->plan->raw,
+                ]],
+                'meta' => null,
+                'searched' => true,
+            ];
+        }
+
+        $response = $listPlans(new ListPlansInputData(
+            perPage: $request->integer('per_page') ?: 10,
+            page: $request->integer('page') ?: 1,
+            status: $request->filled('status') ? (string) $request->input('status') : null,
+            interval: $request->filled('interval') ? (string) $request->input('interval') : null,
+            amount: $request->filled('amount') ? $request->input('amount') : null,
+        ));
+
+        return [
+            'resource' => 'plans',
+            'title' => 'Plans',
+            'description' => 'Search remote plans and sync the one you want locally.',
+            'fields' => $fields,
+            'items' => array_map(fn (PlanData $plan): array => [
+                'label' => $plan->name ?? $plan->planCode,
+                'identifier' => $plan->planCode,
+                'sync_action' => 'sync-plan',
+                'summary' => [
+                    'Plan code' => $plan->planCode,
+                    'Amount' => $plan->amount,
+                    'Interval' => $plan->interval,
+                    'Currency' => $plan->currency,
+                ],
+                'payload' => $plan->raw,
+            ], $response->plans),
+            'meta' => $response->meta?->toArray(),
+            'searched' => true,
+        ];
+    }
+
+    /**
+     * @return array{resource: string, title: string, description: string, fields: array<int, array<string, mixed>>, items: array<int, array<string, mixed>>, meta: array<string, mixed>|null, searched: bool}
+     */
+    private function billingSyncSubscriptionSearch(Request $request, ListSubscriptionsAction $listSubscriptions): array
+    {
+        $fields = [
+            ['name' => 'customer', 'label' => 'Customer', 'type' => 'text', 'placeholder' => 'CUS_123', 'value' => (string) $request->input('customer', '')],
+            ['name' => 'plan', 'label' => 'Plan', 'type' => 'text', 'placeholder' => 'PLN_123', 'value' => (string) $request->input('plan', '')],
+            ['name' => 'per_page', 'label' => 'Per page', 'type' => 'number', 'placeholder' => '10', 'value' => (string) ($request->integer('per_page') ?: 10)],
+            ['name' => 'page', 'label' => 'Page', 'type' => 'number', 'placeholder' => '1', 'value' => (string) ($request->integer('page') ?: 1)],
+        ];
+
+        if (! $request->boolean('search')) {
+            return [
+                'resource' => 'subscriptions',
+                'title' => 'Subscriptions',
+                'description' => 'Search remote subscriptions and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [],
+                'meta' => null,
+                'searched' => false,
+            ];
+        }
+
+        $response = $listSubscriptions(new ListSubscriptionsInputData(
+            perPage: $request->integer('per_page') ?: 10,
+            page: $request->integer('page') ?: 1,
+            customer: $request->filled('customer') ? (string) $request->input('customer') : null,
+            plan: $request->filled('plan') ? (string) $request->input('plan') : null,
+        ));
+
+        return [
+            'resource' => 'subscriptions',
+            'title' => 'Subscriptions',
+            'description' => 'Search remote subscriptions and sync the one you want locally.',
+            'fields' => $fields,
+            'items' => array_map(fn (SubscriptionData $subscription): array => [
+                'label' => $subscription->subscriptionCode,
+                'identifier' => $subscription->subscriptionCode,
+                'sync_action' => 'sync-subscription',
+                'summary' => [
+                    'Status' => $subscription->status?->value,
+                    'Plan' => $subscription->plan?->planCode ?? data_get($subscription->raw, 'plan.plan_code'),
+                    'Customer' => $subscription->customer?->customerCode ?? data_get($subscription->raw, 'customer.customer_code'),
+                    'Next payment' => $subscription->nextPaymentDate?->toAtomString(),
+                ],
+                'payload' => $subscription->raw,
+            ], $response->subscriptions),
+            'meta' => $response->meta?->toArray(),
+            'searched' => true,
+        ];
+    }
+
+    /**
+     * @return array{resource: string, title: string, description: string, fields: array<int, array<string, mixed>>, items: array<int, array<string, mixed>>, meta: array<string, mixed>|null, searched: bool}
+     */
+    private function billingSyncTransactionSearch(Request $request, ListTransactionsAction $listTransactions): array
+    {
+        $fields = [
+            ['name' => 'customer', 'label' => 'Customer', 'type' => 'text', 'placeholder' => 'CUS_123', 'value' => (string) $request->input('customer', '')],
+            ['name' => 'status', 'label' => 'Status', 'type' => 'text', 'placeholder' => 'success', 'value' => (string) $request->input('status', '')],
+            ['name' => 'from', 'label' => 'From', 'type' => 'text', 'placeholder' => '2026-01-01T00:00:00Z', 'value' => (string) $request->input('from', '')],
+            ['name' => 'to', 'label' => 'To', 'type' => 'text', 'placeholder' => '2026-12-31T23:59:59Z', 'value' => (string) $request->input('to', '')],
+            ['name' => 'amount', 'label' => 'Amount', 'type' => 'number', 'placeholder' => '7500', 'value' => (string) ($request->input('amount') ?? '')],
+            ['name' => 'reference', 'label' => 'Reference', 'type' => 'text', 'placeholder' => 'TRX_123', 'value' => (string) $request->input('reference', '')],
+            ['name' => 'terminal_id', 'label' => 'Terminal ID', 'type' => 'text', 'placeholder' => 'TERM_123', 'value' => (string) $request->input('terminal_id', '')],
+            ['name' => 'per_page', 'label' => 'Per page', 'type' => 'number', 'placeholder' => '10', 'value' => (string) ($request->integer('per_page') ?: 10)],
+            ['name' => 'page', 'label' => 'Page', 'type' => 'number', 'placeholder' => '1', 'value' => (string) ($request->integer('page') ?: 1)],
+        ];
+
+        if (! $request->boolean('search')) {
+            return [
+                'resource' => 'transactions',
+                'title' => 'Transactions',
+                'description' => 'Search remote transactions and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [],
+                'meta' => null,
+                'searched' => false,
+            ];
+        }
+
+        $response = $listTransactions(new ListTransactionsInputData(
+            perPage: $request->integer('per_page') ?: 10,
+            page: $request->integer('page') ?: 1,
+            customer: $request->filled('customer') ? (string) $request->input('customer') : null,
+            status: $request->filled('status') ? $this->transactionStatus($request->input('status')) : null,
+            from: $request->filled('from') ? (string) $request->input('from') : null,
+            to: $request->filled('to') ? (string) $request->input('to') : null,
+            amount: $request->filled('amount') ? $request->input('amount') : null,
+            reference: $request->filled('reference') ? (string) $request->input('reference') : null,
+            terminalId: $request->filled('terminal_id') ? (string) $request->input('terminal_id') : null,
+        ));
+
+        return [
+            'resource' => 'transactions',
+            'title' => 'Transactions',
+            'description' => 'Search remote transactions and sync the one you want locally.',
+            'fields' => $fields,
+            'items' => array_map(fn (TransactionData $transaction): array => [
+                'label' => $transaction->reference,
+                'identifier' => (string) $transaction->id,
+                'sync_action' => 'sync-transaction',
+                'summary' => [
+                    'ID' => $transaction->id,
+                    'Status' => $transaction->status?->value,
+                    'Amount' => $transaction->amount,
+                    'Currency' => $transaction->currency,
+                    'Channel' => $transaction->channel,
+                    'Paid at' => $transaction->paidAt?->toAtomString(),
+                ],
+                'payload' => $transaction->raw,
+            ], $response->transactions),
+            'meta' => $response->meta?->toArray(),
+            'searched' => true,
+        ];
+    }
+
+    /**
+     * @return array{resource: string, title: string, description: string, fields: array<int, array<string, mixed>>, items: array<int, array<string, mixed>>, meta: array<string, mixed>|null, searched: bool}
+     */
+    private function billingSyncRefundSearch(Request $request, ListRefundsAction $listRefunds): array
+    {
+        $fields = [
+            ['name' => 'transaction', 'label' => 'Transaction', 'type' => 'text', 'placeholder' => 'TRX_123', 'value' => (string) $request->input('transaction', '')],
+            ['name' => 'currency', 'label' => 'Currency', 'type' => 'text', 'placeholder' => 'NGN', 'value' => (string) $request->input('currency', '')],
+            ['name' => 'from', 'label' => 'From', 'type' => 'text', 'placeholder' => '2026-01-01T00:00:00Z', 'value' => (string) $request->input('from', '')],
+            ['name' => 'to', 'label' => 'To', 'type' => 'text', 'placeholder' => '2026-12-31T23:59:59Z', 'value' => (string) $request->input('to', '')],
+            ['name' => 'per_page', 'label' => 'Per page', 'type' => 'number', 'placeholder' => '10', 'value' => (string) ($request->integer('per_page') ?: 10)],
+            ['name' => 'page', 'label' => 'Page', 'type' => 'number', 'placeholder' => '1', 'value' => (string) ($request->integer('page') ?: 1)],
+        ];
+
+        if (! $request->boolean('search')) {
+            return [
+                'resource' => 'refunds',
+                'title' => 'Refunds',
+                'description' => 'Search remote refunds and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [],
+                'meta' => null,
+                'searched' => false,
+            ];
+        }
+
+        $response = $listRefunds(new ListRefundsInputData(
+            transaction: $request->filled('transaction') ? $request->input('transaction') : null,
+            currency: $request->filled('currency') ? (string) $request->input('currency') : null,
+            from: $request->filled('from') ? (string) $request->input('from') : null,
+            to: $request->filled('to') ? (string) $request->input('to') : null,
+            perPage: $request->integer('per_page') ?: 10,
+            page: $request->integer('page') ?: 1,
+        ));
+
+        return [
+            'resource' => 'refunds',
+            'title' => 'Refunds',
+            'description' => 'Search remote refunds and sync the one you want locally.',
+            'fields' => $fields,
+            'items' => array_map(fn (RefundData $refund): array => [
+                'label' => $refund->bankReference ?? (string) $refund->id,
+                'identifier' => (string) ($refund->id ?? $refund->bankReference ?? $refund->transaction),
+                'sync_action' => 'sync-refund',
+                'summary' => [
+                    'ID' => $refund->id,
+                    'Transaction' => is_int($refund->transaction) || is_string($refund->transaction)
+                        ? $refund->transaction
+                        : $refund->transaction?->reference,
+                    'Status' => $refund->status?->value,
+                    'Amount' => $refund->amount,
+                    'Currency' => $refund->currency,
+                ],
+                'payload' => $refund->raw,
+            ], $response->refunds),
+            'meta' => $response->meta?->toArray(),
+            'searched' => true,
+        ];
+    }
+
+    /**
+     * @return array{resource: string, title: string, description: string, fields: array<int, array<string, mixed>>, items: array<int, array<string, mixed>>, meta: array<string, mixed>|null, searched: bool}
+     */
+    private function billingSyncDisputeSearch(Request $request, ListDisputesAction $listDisputes): array
+    {
+        $fields = [
+            ['name' => 'transaction', 'label' => 'Transaction', 'type' => 'text', 'placeholder' => 'TRX_123', 'value' => (string) $request->input('transaction', '')],
+            ['name' => 'status', 'label' => 'Status', 'type' => 'text', 'placeholder' => 'pending', 'value' => (string) $request->input('status', '')],
+            ['name' => 'from', 'label' => 'From', 'type' => 'text', 'placeholder' => '2026-01-01T00:00:00Z', 'value' => (string) $request->input('from', '')],
+            ['name' => 'to', 'label' => 'To', 'type' => 'text', 'placeholder' => '2026-12-31T23:59:59Z', 'value' => (string) $request->input('to', '')],
+            ['name' => 'per_page', 'label' => 'Per page', 'type' => 'number', 'placeholder' => '10', 'value' => (string) ($request->integer('per_page') ?: 10)],
+            ['name' => 'page', 'label' => 'Page', 'type' => 'number', 'placeholder' => '1', 'value' => (string) ($request->integer('page') ?: 1)],
+        ];
+
+        if (! $request->boolean('search')) {
+            return [
+                'resource' => 'disputes',
+                'title' => 'Disputes',
+                'description' => 'Search remote disputes and sync the one you want locally.',
+                'fields' => $fields,
+                'items' => [],
+                'meta' => null,
+                'searched' => false,
+            ];
+        }
+
+        $response = $listDisputes(new ListDisputesInputData(
+            from: $request->filled('from') ? (string) $request->input('from') : null,
+            to: $request->filled('to') ? (string) $request->input('to') : null,
+            perPage: $request->integer('per_page') ?: 10,
+            page: $request->integer('page') ?: 1,
+            transaction: $request->filled('transaction') ? (string) $request->input('transaction') : null,
+            status: $request->filled('status') ? (string) $request->input('status') : null,
+        ));
+
+        return [
+            'resource' => 'disputes',
+            'title' => 'Disputes',
+            'description' => 'Search remote disputes and sync the one you want locally.',
+            'fields' => $fields,
+            'items' => array_map(fn (DisputeData $dispute): array => [
+                'label' => (string) ($dispute->id ?? $dispute->transactionReference),
+                'identifier' => (string) ($dispute->id ?? $dispute->transactionReference),
+                'sync_action' => 'sync-dispute',
+                'summary' => [
+                    'ID' => $dispute->id,
+                    'Transaction' => $dispute->transactionReference,
+                    'Status' => $dispute->status?->value,
+                    'Refund amount' => $dispute->refundAmount,
+                    'Resolution' => $dispute->resolution,
+                ],
+                'payload' => $dispute->raw,
+            ], $response->disputes),
+            'meta' => $response->meta?->toArray(),
+            'searched' => true,
+        ];
+    }
+
+    /**
+     * @return array{0: array<string, mixed>|object|null, 1: string|null}
+     */
+    private function billingSyncExecute(
+        Request $request,
+        User $user,
+        FetchCustomerAction $fetchCustomer,
+        FetchPlanAction $fetchPlan,
+        FetchSubscriptionAction $fetchSubscription,
+        FetchTransactionAction $fetchTransaction,
+        FetchRefundAction $fetchRefund,
+        FetchDisputeAction $fetchDispute,
+    ): array {
+        return match ((string) $request->input('action', '')) {
+            'sync-customer' => [
+                $this->billingSyncCustomerFromPaystack(
+                    $user,
+                    $fetchCustomer,
+                    (string) $request->input('identifier', ''),
+                ),
+                'Customer sync',
+            ],
+            'sync-plan' => [
+                $this->billingSyncPlanFromPaystack(
+                    $fetchPlan,
+                    $user,
+                    (string) $request->input('identifier', ''),
+                ),
+                'Plan sync',
+            ],
+            'sync-subscription' => [
+                $this->billingSyncSubscriptionFromPaystack(
+                    $user,
+                    $fetchSubscription,
+                    (string) $request->input('identifier', ''),
+                    (string) $request->input('subscription_name', 'default'),
+                ),
+                'Subscription sync',
+            ],
+            'sync-transaction' => [
+                $this->billingSyncTransactionFromPaystack(
+                    $user,
+                    $fetchTransaction,
+                    (int) $request->input('identifier', 0),
+                ),
+                'Transaction sync',
+            ],
+            'sync-refund' => [
+                $this->billingSyncRefundFromPaystack(
+                    $user,
+                    $fetchRefund,
+                    $request->input('identifier', ''),
+                ),
+                'Refund sync',
+            ],
+            'sync-dispute' => [
+                $this->billingSyncDisputeFromPaystack(
+                    $user,
+                    $fetchDispute,
+                    $request->input('identifier', ''),
+                ),
+                'Dispute sync',
+            ],
+            default => [
+                ['error' => 'Unknown billing sync action.'],
+                'Error',
+            ],
+        };
+    }
+
+    private function billingSyncCustomerFromPaystack(User $user, FetchCustomerAction $fetchCustomer, string $identifier): array
+    {
+        $response = $fetchCustomer(new FetchCustomerInputData($identifier));
+        $record = PaystackCustomer::syncFromCustomerData($response->customer, $user);
+
+        return [
+            'resource' => 'customer',
+            'identifier' => $identifier,
+            'remote' => $this->customerSummary($response->customer),
+            'local' => $record->only(['id', 'customer_code', 'email', 'first_name', 'last_name', 'phone']),
+        ];
+    }
+
+    private function billingSyncPlanFromPaystack(FetchPlanAction $fetchPlan, ?User $user, string $identifier): array
+    {
+        $response = $fetchPlan(new FetchPlanInputData($identifier));
+        $record = PaystackPlan::syncFromPlanData($response->plan);
+
+        if ($user !== null) {
+            $record->billable()->associate($user);
+            $record->save();
+        }
+
+        return [
+            'resource' => 'plan',
+            'identifier' => $identifier,
+            'remote' => $this->planSummary($response->plan),
+            'local' => $record->only(['id', 'plan_code', 'name', 'amount', 'interval', 'currency']),
+        ];
+    }
+
+    private function billingSyncSubscriptionFromPaystack(User $user, FetchSubscriptionAction $fetchSubscription, string $identifier, string $name): array
+    {
+        $response = $fetchSubscription(new FetchSubscriptionInputData($identifier));
+        $record = PaystackSubscription::syncFromSubscriptionData($response->subscription, $name, $user);
+
+        return [
+            'resource' => 'subscription',
+            'identifier' => $identifier,
+            'remote' => $this->subscriptionSummary($response->subscription),
+            'local' => $record->only(['id', 'name', 'subscription_code', 'status', 'plan_code', 'email_token', 'next_payment_date']),
+        ];
+    }
+
+    private function billingSyncTransactionFromPaystack(User $user, FetchTransactionAction $fetchTransaction, int $identifier): array
+    {
+        $response = $fetchTransaction(new FetchTransactionInputData($identifier));
+        $record = PaystackTransaction::syncFromTransactionData($response->transaction);
+        $record->billable()->associate($user);
+        $record->save();
+
+        return [
+            'resource' => 'transaction',
+            'identifier' => $identifier,
+            'remote' => $this->transactionSummary($response->transaction),
+            'local' => $record->only(['id', 'reference', 'status', 'amount', 'currency', 'channel', 'paid_at']),
+        ];
+    }
+
+    private function billingSyncRefundFromPaystack(User $user, FetchRefundAction $fetchRefund, int|string $identifier): array
+    {
+        $response = $fetchRefund(new FetchRefundInputData($identifier));
+        $record = PaystackRefund::syncFromRefundData($response->refund);
+        $record->billable()->associate($user);
+        $record->save();
+
+        return [
+            'resource' => 'refund',
+            'identifier' => $identifier,
+            'remote' => $this->refundSummary($response->refund),
+            'local' => $record->only(['id', 'refund_reference', 'transaction_reference', 'status', 'amount', 'currency']),
+        ];
+    }
+
+    private function billingSyncDisputeFromPaystack(User $user, FetchDisputeAction $fetchDispute, int|string $identifier): array
+    {
+        $response = $fetchDispute(new FetchDisputeInputData($identifier));
+        $record = PaystackDispute::syncFromDisputeData($response->dispute);
+        $record->billable()->associate($user);
+        $record->save();
+
+        return [
+            'resource' => 'dispute',
+            'identifier' => $identifier,
+            'remote' => $this->disputeSummary($response->dispute),
+            'local' => $record->only(['id', 'paystack_id', 'transaction_reference', 'status', 'refund_amount', 'currency']),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function customerSummary(CustomerData $customer): array
+    {
+        return [
+            'email' => $customer->email,
+            'customer_code' => $customer->customerCode,
+            'first_name' => $customer->firstName,
+            'last_name' => $customer->lastName,
+            'phone' => $customer->phone,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function planSummary(PlanData $plan): array
+    {
+        return [
+            'id' => $plan->id,
+            'plan_code' => $plan->planCode,
+            'name' => $plan->name,
+            'amount' => $plan->amount,
+            'interval' => $plan->interval,
+            'currency' => $plan->currency,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function subscriptionSummary(SubscriptionData $subscription): array
+    {
+        return [
+            'id' => $subscription->id,
+            'subscription_code' => $subscription->subscriptionCode,
+            'status' => $subscription->status?->value,
+            'email_token' => $subscription->emailToken,
+            'plan_code' => $subscription->plan?->planCode,
+            'customer_code' => $subscription->customer?->customerCode,
+            'next_payment_date' => $subscription->nextPaymentDate?->toAtomString(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function transactionSummary(TransactionData $transaction): array
+    {
+        return [
+            'id' => $transaction->id,
+            'reference' => $transaction->reference,
+            'status' => $transaction->status?->value,
+            'amount' => $transaction->amount,
+            'currency' => $transaction->currency,
+            'channel' => $transaction->channel,
+            'paid_at' => $transaction->paidAt?->toAtomString(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function refundSummary(RefundData $refund): array
+    {
+        return [
+            'id' => $refund->id,
+            'bank_reference' => $refund->bankReference,
+            'transaction_reference' => is_int($refund->transaction) || is_string($refund->transaction)
+                ? $refund->transaction
+                : $refund->transaction?->reference,
+            'status' => $refund->status?->value,
+            'amount' => $refund->amount,
+            'currency' => $refund->currency,
+            'refunded_at' => $refund->refundedAt?->toAtomString(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function disputeSummary(DisputeData $dispute): array
+    {
+        return [
+            'id' => $dispute->id,
+            'transaction_reference' => $dispute->transactionReference,
+            'status' => $dispute->status?->value,
+            'refund_amount' => $dispute->refundAmount,
+            'resolution' => $dispute->resolution,
+            'due_at' => $dispute->dueAt?->toAtomString(),
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function latestPaystackPlans(): array
+    {
+        return PaystackPlan::query()
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(static fn (mixed $plan): array => $plan->only([
+                'id',
+                'plan_code',
+                'name',
+                'amount',
+                'interval',
+                'currency',
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function serializePaystackSubscriptions(User $user): array
+    {
+        return $user->paystackSubscriptions
+            ->map(static fn (mixed $subscription): array => $subscription->only([
+                'id',
+                'name',
+                'subscription_code',
+                'status',
+                'plan_code',
+                'email_token',
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function serializePaystackTransactions(User $user): array
+    {
+        return $user->paystackTransactions
+            ->map(static fn (mixed $transaction): array => $transaction->only([
+                'id',
+                'reference',
+                'status',
+                'amount',
+                'currency',
+                'channel',
+                'paid_at',
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function serializePaystackRefunds(User $user): array
+    {
+        return $user->paystackRefunds
+            ->map(static fn (mixed $refund): array => $refund->only([
+                'id',
+                'refund_reference',
+                'transaction_reference',
+                'status',
+                'amount',
+                'currency',
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function serializePaystackDisputes(User $user): array
+    {
+        return $user->paystackDisputes
+            ->map(static fn (mixed $dispute): array => $dispute->only([
+                'id',
+                'dispute_id',
+                'transaction_reference',
+                'status',
+                'refund_amount',
+            ]))
+            ->values()
+            ->all();
+    }
+
+    private function billingSyncPlanData(Request $request): PlanData
+    {
+        return PlanData::fromPayload([
+            'id' => $request->filled('plan_id') ? $request->input('plan_id') : null,
+            'plan_code' => (string) $request->input('plan_code', 'PLN_sync'),
+            'name' => (string) $request->input('plan_name', 'Sync Plan'),
+            'amount' => $request->integer('plan_amount') ?: 5000,
+            'interval' => (string) $request->input('plan_interval', 'monthly'),
+            'description' => $request->filled('plan_description') ? (string) $request->input('plan_description') : 'Workbench sync trigger',
+            'currency' => $request->filled('plan_currency') ? (string) $request->input('plan_currency') : 'NGN',
+            'invoice_limit' => $request->filled('plan_invoice_limit') ? $request->integer('plan_invoice_limit') : null,
+            'send_invoices' => $request->filled('plan_send_invoices') ? $request->boolean('plan_send_invoices') : null,
+            'send_sms' => $request->filled('plan_send_sms') ? $request->boolean('plan_send_sms') : null,
+        ]);
+    }
+
+    private function billingSyncSubscriptionData(Request $request): SubscriptionData
+    {
+        return SubscriptionData::fromPayload([
+            'id' => $request->filled('subscription_id') ? $request->input('subscription_id') : null,
+            'subscription_code' => (string) $request->input('subscription_code', 'SUB_sync'),
+            'status' => (string) $request->input('subscription_status', 'active'),
+            'email_token' => $request->filled('subscription_email_token') ? (string) $request->input('subscription_email_token') : 'token_sync',
+            'next_payment_date' => (string) $request->input('subscription_next_payment_date', now()->addMonth()->toAtomString()),
+            'open_invoice' => $request->filled('subscription_open_invoice') ? $request->input('subscription_open_invoice') : null,
+            'plan' => [
+                'plan_code' => (string) $request->input('plan_code', 'PLN_sync'),
+                'name' => (string) $request->input('plan_name', 'Sync Plan'),
+                'amount' => $request->integer('plan_amount') ?: 5000,
+                'interval' => (string) $request->input('plan_interval', 'monthly'),
+                'description' => $request->filled('plan_description') ? (string) $request->input('plan_description') : 'Workbench sync trigger',
+                'currency' => $request->filled('plan_currency') ? (string) $request->input('plan_currency') : 'NGN',
+            ],
+            'customer' => [
+                'email' => (string) $request->input('email', 'billable@example.com'),
+                'customer_code' => $request->filled('customer_code') ? (string) $request->input('customer_code') : 'CUS_sync',
+                'first_name' => $request->filled('first_name') ? (string) $request->input('first_name') : 'Billable',
+                'last_name' => $request->filled('last_name') ? (string) $request->input('last_name') : 'User',
+                'phone' => $request->filled('phone') ? (string) $request->input('phone') : '+27110000000',
+            ],
+        ]);
+    }
+
+    private function billingSyncTransactionData(Request $request): TransactionData
+    {
+        return TransactionData::fromPayload([
+            'id' => $request->filled('transaction_id') ? $request->input('transaction_id') : null,
+            'reference' => (string) $request->input('transaction_reference', 'TRX_sync'),
+            'status' => (string) $request->input('transaction_status', 'success'),
+            'amount' => $request->integer('transaction_amount') ?: 7500,
+            'currency' => (string) $request->input('transaction_currency', 'NGN'),
+            'channel' => (string) $request->input('transaction_channel', 'card'),
+            'paid_at' => (string) $request->input('transaction_paid_at', now()->toAtomString()),
+            'customer' => [
+                'email' => (string) $request->input('email', 'billable@example.com'),
+                'customer_code' => $request->filled('customer_code') ? (string) $request->input('customer_code') : 'CUS_sync',
+                'first_name' => $request->filled('first_name') ? (string) $request->input('first_name') : 'Billable',
+                'last_name' => $request->filled('last_name') ? (string) $request->input('last_name') : 'User',
+                'phone' => $request->filled('phone') ? (string) $request->input('phone') : '+27110000000',
+            ],
+        ]);
+    }
+
+    private function billingSyncRefundData(Request $request): RefundData
+    {
+        return RefundData::fromPayload([
+            'id' => $request->filled('refund_id') ? $request->input('refund_id') : null,
+            'transaction' => $request->filled('refund_transaction_reference')
+                ? (string) $request->input('refund_transaction_reference')
+                : (string) $request->input('transaction_reference', 'TRX_sync'),
+            'integration' => $request->filled('refund_integration') ? $request->input('refund_integration') : null,
+            'dispute' => $request->filled('refund_dispute') ? $request->input('refund_dispute') : null,
+            'settlement' => $request->filled('refund_settlement') ? $request->input('refund_settlement') : null,
+            'domain' => (string) $request->input('refund_domain', 'test'),
+            'amount' => $request->integer('refund_amount') ?: 2500,
+            'deducted_amount' => $request->filled('refund_deducted_amount') ? $request->integer('refund_deducted_amount') : 2500,
+            'currency' => (string) $request->input('refund_currency', 'NGN'),
+            'channel' => (string) $request->input('refund_channel', 'card'),
+            'fully_deducted' => $request->filled('refund_fully_deducted') ? $request->boolean('refund_fully_deducted') : true,
+            'refunded_by' => $request->filled('refund_refunded_by') ? (string) $request->input('refund_refunded_by') : 'merchant',
+            'refunded_at' => (string) $request->input('refund_refunded_at', now()->toAtomString()),
+            'expected_at' => (string) $request->input('refund_expected_at', now()->addDay()->toAtomString()),
+            'customer_note' => $request->filled('refund_customer_note') ? (string) $request->input('refund_customer_note') : 'Workbench refund sync',
+            'merchant_note' => $request->filled('refund_merchant_note') ? (string) $request->input('refund_merchant_note') : 'Workbench refund sync',
+            'status' => (string) $request->input('refund_status', 'pending'),
+            'created_at' => (string) $request->input('refund_created_at', now()->toAtomString()),
+            'updated_at' => (string) $request->input('refund_updated_at', now()->toAtomString()),
+            'bank_reference' => $request->filled('refund_bank_reference') ? (string) $request->input('refund_bank_reference') : 'BANK_sync',
+            'reason' => $request->filled('refund_reason') ? (string) $request->input('refund_reason') : 'Test refund',
+            'customer' => [
+                'email' => (string) $request->input('email', 'billable@example.com'),
+                'customer_code' => $request->filled('customer_code') ? (string) $request->input('customer_code') : 'CUS_sync',
+                'first_name' => $request->filled('first_name') ? (string) $request->input('first_name') : 'Billable',
+                'last_name' => $request->filled('last_name') ? (string) $request->input('last_name') : 'User',
+                'phone' => $request->filled('phone') ? (string) $request->input('phone') : '+27110000000',
+            ],
+            'initiated_by' => $request->filled('refund_initiated_by') ? (string) $request->input('refund_initiated_by') : 'merchant',
+            'reversed_at' => $request->filled('refund_reversed_at') ? (string) $request->input('refund_reversed_at') : null,
+            'session_id' => $request->filled('refund_session_id') ? (string) $request->input('refund_session_id') : null,
+        ]);
+    }
+
+    private function billingSyncDisputeData(Request $request): DisputeData
+    {
+        return DisputeData::fromPayload([
+            'id' => $request->filled('dispute_id') ? $request->input('dispute_id') : null,
+            'refund_amount' => $request->integer('dispute_refund_amount') ?: 5000,
+            'currency' => (string) $request->input('dispute_currency', 'NGN'),
+            'status' => (string) $request->input('dispute_status', 'pending'),
+            'resolution' => $request->filled('dispute_resolution') ? (string) $request->input('dispute_resolution') : 'merchant-accepted',
+            'domain' => (string) $request->input('dispute_domain', 'test'),
+            'category' => $request->filled('dispute_category') ? (string) $request->input('dispute_category') : 'chargeback',
+            'note' => $request->filled('dispute_note') ? (string) $request->input('dispute_note') : 'Workbench dispute sync',
+            'attachments' => $request->filled('dispute_attachments') ? (string) $request->input('dispute_attachments') : null,
+            'last4' => $request->filled('dispute_last4') ? (string) $request->input('dispute_last4') : '4242',
+            'bin' => $request->filled('dispute_bin') ? (string) $request->input('dispute_bin') : '408408',
+            'transaction_reference' => (string) $request->input('transaction_reference', 'TRX_sync'),
+            'merchant_transaction_reference' => $request->filled('dispute_merchant_transaction_reference') ? (string) $request->input('dispute_merchant_transaction_reference') : 'MERCHANT_sync',
+            'source' => $request->filled('dispute_source') ? (string) $request->input('dispute_source') : 'merchant',
+            'created_by' => $request->filled('dispute_created_by') ? $request->input('dispute_created_by') : null,
+            'organization' => $request->filled('dispute_organization') ? $request->input('dispute_organization') : null,
+            'integration' => $request->filled('dispute_integration') ? $request->input('dispute_integration') : null,
+            'evidence' => null,
+            'resolved_at' => $request->filled('dispute_resolved_at') ? (string) $request->input('dispute_resolved_at') : null,
+            'due_at' => $request->filled('dispute_due_at') ? (string) $request->input('dispute_due_at') : null,
+            'created_at' => (string) $request->input('dispute_created_at', now()->toAtomString()),
+            'updated_at' => (string) $request->input('dispute_updated_at', now()->toAtomString()),
+            'transaction' => [
+                'reference' => (string) $request->input('transaction_reference', 'TRX_sync'),
+                'amount' => $request->integer('transaction_amount') ?: 7500,
+                'status' => (string) $request->input('transaction_status', 'success'),
+                'currency' => (string) $request->input('transaction_currency', 'NGN'),
+                'channel' => (string) $request->input('transaction_channel', 'card'),
+                'customer' => [
+                    'email' => (string) $request->input('email', 'billable@example.com'),
+                    'customer_code' => $request->filled('customer_code') ? (string) $request->input('customer_code') : 'CUS_sync',
+                    'first_name' => $request->filled('first_name') ? (string) $request->input('first_name') : 'Billable',
+                    'last_name' => $request->filled('last_name') ? (string) $request->input('last_name') : 'User',
+                    'phone' => $request->filled('phone') ? (string) $request->input('phone') : '+27110000000',
+                ],
+            ],
+            'customer' => [
+                'email' => (string) $request->input('email', 'billable@example.com'),
+                'customer_code' => $request->filled('customer_code') ? (string) $request->input('customer_code') : 'CUS_sync',
+                'first_name' => $request->filled('first_name') ? (string) $request->input('first_name') : 'Billable',
+                'last_name' => $request->filled('last_name') ? (string) $request->input('last_name') : 'User',
+                'phone' => $request->filled('phone') ? (string) $request->input('phone') : '+27110000000',
+            ],
+            'history' => [],
+            'messages' => [],
+        ]);
     }
 
     private function transactionStatus(mixed $value): ?TransactionStatus

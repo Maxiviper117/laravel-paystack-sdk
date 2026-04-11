@@ -41,15 +41,15 @@ class SyncPaystackCustomer
     public function create(Account $account): string
     {
         $response = ($this->createCustomer)(
-            new CreateCustomerInputData(
-                email: $account->email,
-                firstName: $account->first_name,
-                lastName: $account->last_name,
-                phone: $account->phone,
-                metadata: [
+            CreateCustomerInputData::from([
+                'email' => $account->email,
+                'firstName' => $account->first_name,
+                'lastName' => $account->last_name,
+                'phone' => $account->phone,
+                'metadata' => [
                     'account_id' => $account->getKey(),
                 ],
-            )
+            ])
         );
 
         $account->paystack_customer_code = $response->customer->customerCode;
@@ -65,13 +65,13 @@ class SyncPaystackCustomer
         }
 
         ($this->updateCustomer)(
-            new UpdateCustomerInputData(
-                customerCode: $account->paystack_customer_code,
-                email: $account->email,
-                firstName: $account->first_name,
-                lastName: $account->last_name,
-                phone: $account->phone,
-            )
+            UpdateCustomerInputData::from([
+                'customerCode' => $account->paystack_customer_code,
+                'email' => $account->email,
+                'firstName' => $account->first_name,
+                'lastName' => $account->last_name,
+                'phone' => $account->phone,
+            ])
         );
     }
 
@@ -81,7 +81,7 @@ class SyncPaystackCustomer
             return;
         }
 
-        ($this->fetchCustomer)(new FetchCustomerInputData($account->paystack_customer_code));
+        ($this->fetchCustomer)(FetchCustomerInputData::from(['emailOrCode' => $account->paystack_customer_code]));
     }
 
     public function validate(Account $account): void
@@ -91,14 +91,14 @@ class SyncPaystackCustomer
         }
 
         ($this->validateCustomer)(
-            new ValidateCustomerInputData(
-                customerCode: $account->paystack_customer_code,
-                country: 'NG',
-                type: 'bank_account',
-                accountNumber: $account->account_number,
-                bvn: $account->bvn,
-                bankCode: $account->bank_code,
-            )
+            ValidateCustomerInputData::from([
+                'customerCode' => $account->paystack_customer_code,
+                'country' => 'NG',
+                'type' => 'bank_account',
+                'accountNumber' => $account->account_number,
+                'bvn' => $account->bvn,
+                'bankCode' => $account->bank_code,
+            ])
         );
     }
 
@@ -109,10 +109,10 @@ class SyncPaystackCustomer
         }
 
         ($this->setCustomerRiskAction)(
-            new SetCustomerRiskActionInputData(
-                customer: $account->paystack_customer_code,
-                riskAction: 'deny',
-            )
+            SetCustomerRiskActionInputData::from([
+                'customer' => $account->paystack_customer_code,
+                'riskAction' => 'deny',
+            ])
         );
     }
 }
@@ -129,42 +129,42 @@ use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $created = Paystack::createCustomer(
-    new CreateCustomerInputData(
-        email: $account->email,
-        firstName: $account->first_name,
-        lastName: $account->last_name,
-    )
+    CreateCustomerInputData::from([
+        'email' => $account->email,
+        'firstName' => $account->first_name,
+        'lastName' => $account->last_name,
+    ])
 );
 
 $customerCode = $created->customer->customerCode;
 
 $fetched = Paystack::fetchCustomer(
-    new FetchCustomerInputData(emailOrCode: $customerCode)
+    FetchCustomerInputData::from(['emailOrCode' => $customerCode])
 );
 
 Paystack::updateCustomer(
-    new UpdateCustomerInputData(
-        customerCode: $customerCode,
-        phone: $account->phone,
-    )
+    UpdateCustomerInputData::from([
+        'customerCode' => $customerCode,
+        'phone' => $account->phone,
+    ])
 );
 
 Paystack::validateCustomer(
-    new ValidateCustomerInputData(
-        customerCode: $customerCode,
-        country: 'NG',
-        type: 'bank_account',
-        accountNumber: $account->account_number,
-        bvn: $account->bvn,
-        bankCode: $account->bank_code,
-    )
+    ValidateCustomerInputData::from([
+        'customerCode' => $customerCode,
+        'country' => 'NG',
+        'type' => 'bank_account',
+        'accountNumber' => $account->account_number,
+        'bvn' => $account->bvn,
+        'bankCode' => $account->bank_code,
+    ])
 );
 
 Paystack::setCustomerRiskAction(
-    new SetCustomerRiskActionInputData(
-        customer: $customerCode,
-        riskAction: 'allow',
-    )
+    SetCustomerRiskActionInputData::from([
+        'customer' => $customerCode,
+        'riskAction' => 'allow',
+    ])
 );
 ```
 

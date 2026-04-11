@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maxiviper117\Paystack\Facades;
 
 use Illuminate\Support\Facades\Facade;
@@ -68,6 +70,7 @@ use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
+use Maxiviper117\Paystack\Models\PaystackCustomer;
 use Maxiviper117\Paystack\PaystackManager;
 
 /**
@@ -99,6 +102,13 @@ use Maxiviper117\Paystack\PaystackManager;
  * @method static UpdatePlanResponseData updatePlan(UpdatePlanInputData $input)
  * @method static FetchPlanResponseData fetchPlan(FetchPlanInputData $input)
  * @method static ListPlansResponseData listPlans(ListPlansInputData $input)
+ * @method static CreateCustomerResponseData createBillableCustomer(\Illuminate\Database\Eloquent\Model $billable, ?CreateCustomerInputData $input = null)
+ * @method static UpdateCustomerResponseData updateBillableCustomer(\Illuminate\Database\Eloquent\Model $billable, ?UpdateCustomerInputData $input = null)
+ * @method static PaystackCustomer syncBillableCustomer(\Illuminate\Database\Eloquent\Model $billable)
+ * @method static CreateSubscriptionResponseData createBillableSubscription(\Illuminate\Database\Eloquent\Model $billable, string $planCode, string $name = 'default', ?string $authorization = null, ?string $startDate = null, array<string, mixed> $extra = [])
+ * @method static FetchSubscriptionResponseData fetchBillableSubscription(\Illuminate\Database\Eloquent\Model $billable, string|int $idOrCode, string $name = 'default')
+ * @method static EnableSubscriptionResponseData enableBillableSubscription(\Illuminate\Database\Eloquent\Model $billable, string $name = 'default')
+ * @method static DisableSubscriptionResponseData disableBillableSubscription(\Illuminate\Database\Eloquent\Model $billable, string $name = 'default')
  * @method static CreateSubscriptionResponseData createSubscription(CreateSubscriptionInputData $input)
  * @method static FetchSubscriptionResponseData fetchSubscription(FetchSubscriptionInputData $input)
  * @method static ListSubscriptionsResponseData listSubscriptions(ListSubscriptionsInputData $input)

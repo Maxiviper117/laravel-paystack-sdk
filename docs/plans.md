@@ -11,11 +11,11 @@ use Maxiviper117\Paystack\Data\Input\Plan\CreatePlanInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $response = Paystack::createPlan(
-    new CreatePlanInputData(
-        name: 'Starter',
-        amount: 5000,
-        interval: 'monthly',
-    )
+    CreatePlanInputData::from([
+        'name' => 'Starter',
+        'amount' => 5000,
+        'interval' => 'monthly',
+    ])
 );
 ```
 

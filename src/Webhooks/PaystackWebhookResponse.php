@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maxiviper117\Paystack\Webhooks;
 
 use Illuminate\Http\JsonResponse;

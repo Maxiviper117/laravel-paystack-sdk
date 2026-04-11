@@ -2,26 +2,21 @@
 
 namespace Maxiviper117\Paystack\Concerns;
 
-use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
-use Maxiviper117\Paystack\Data\Input\Customer\UpdateCustomerInputData;
-use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
-use Maxiviper117\Paystack\Data\Input\Subscription\DisableSubscriptionInputData;
-use Maxiviper117\Paystack\Data\Input\Subscription\EnableSubscriptionInputData;
-use Maxiviper117\Paystack\Data\Input\Subscription\FetchSubscriptionInputData;
-use Maxiviper117\Paystack\Data\Output\Customer\CreateCustomerResponseData;
-use Maxiviper117\Paystack\Data\Output\Customer\UpdateCustomerResponseData;
-use Maxiviper117\Paystack\Data\Output\Subscription\CreateSubscriptionResponseData;
-use Maxiviper117\Paystack\Data\Output\Subscription\DisableSubscriptionResponseData;
-use Maxiviper117\Paystack\Data\Output\Subscription\EnableSubscriptionResponseData;
-use Maxiviper117\Paystack\Data\Output\Subscription\FetchSubscriptionResponseData;
-use Maxiviper117\Paystack\Exceptions\InvalidPaystackInputException;
+use Maxiviper117\Paystack\Billing\BillableCustomerLifecycleService;
+use Maxiviper117\Paystack\Data\Dispute\DisputeData;
+use Maxiviper117\Paystack\Data\Plan\PlanData;
+use Maxiviper117\Paystack\Data\Refund\RefundData;
+use Maxiviper117\Paystack\Data\Subscription\SubscriptionData;
+use Maxiviper117\Paystack\Data\Transaction\TransactionData;
 use Maxiviper117\Paystack\Models\PaystackCustomer;
+use Maxiviper117\Paystack\Models\PaystackDispute;
+use Maxiviper117\Paystack\Models\PaystackPlan;
+use Maxiviper117\Paystack\Models\PaystackRefund;
 use Maxiviper117\Paystack\Models\PaystackSubscription;
-use Maxiviper117\Paystack\PaystackManager;
+use Maxiviper117\Paystack\Models\PaystackTransaction;
 
 /**
  * @mixin Model
@@ -42,6 +37,30 @@ trait Billable
     public function paystackSubscriptions(): MorphMany
     {
         return $this->morphMany(PaystackSubscription::class, 'billable');
+    }
+
+    /**
+     * @return MorphMany<PaystackTransaction, $this>
+     */
+    public function paystackTransactions(): MorphMany
+    {
+        return $this->morphMany(PaystackTransaction::class, 'billable');
+    }
+
+    /**
+     * @return MorphMany<PaystackRefund, $this>
+     */
+    public function paystackRefunds(): MorphMany
+    {
+        return $this->morphMany(PaystackRefund::class, 'billable');
+    }
+
+    /**
+     * @return MorphMany<PaystackDispute, $this>
+     */
+    public function paystackDisputes(): MorphMany
+    {
+        return $this->morphMany(PaystackDispute::class, 'billable');
     }
 
     public function hasPaystackCustomer(): bool
@@ -69,173 +88,90 @@ trait Billable
         return $subscription;
     }
 
-    public function createAsPaystackCustomer(?CreateCustomerInputData $input = null): CreateCustomerResponseData
+    public function paystackPlan(string $planCode): ?PaystackPlan
     {
-        $response = $this->paystackManager()->createCustomer($input ?? $this->newPaystackCustomerInput());
-
-        PaystackCustomer::syncForBillable($this, $response->customer);
-
-        return $response;
+        return PaystackPlan::query()->where('plan_code', $planCode)->first();
     }
 
-    public function updateAsPaystackCustomer(?UpdateCustomerInputData $input = null): UpdateCustomerResponseData
+    public function paystackTransaction(string|int $referenceOrId): ?PaystackTransaction
     {
-        $customerCode = $this->paystackCustomerCode();
+        /** @var PaystackTransaction|null $transaction */
+        $transaction = $this->paystackTransactions()
+            ->where(function ($query) use ($referenceOrId): void {
+                $query->where('reference', (string) $referenceOrId)
+                    ->orWhere('paystack_id', (string) $referenceOrId);
+            })
+            ->first();
 
-        if ($customerCode === null) {
-            throw new InvalidPaystackInputException('The billable model does not have a stored Paystack customer code.');
-        }
-
-        $response = $this->paystackManager()->updateCustomer($input ?? $this->newPaystackCustomerUpdateInput($customerCode));
-
-        PaystackCustomer::syncForBillable($this, $response->customer);
-
-        return $response;
+        return $transaction;
     }
 
-    public function syncAsPaystackCustomer(): PaystackCustomer
+    public function paystackRefund(string|int $referenceOrId): ?PaystackRefund
     {
-        if ($this->hasPaystackCustomer()) {
-            $this->updateAsPaystackCustomer();
-        } else {
-            $this->createAsPaystackCustomer();
-        }
+        /** @var PaystackRefund|null $refund */
+        $refund = $this->paystackRefunds()
+            ->where(function ($query) use ($referenceOrId): void {
+                $query->where('refund_reference', (string) $referenceOrId)
+                    ->orWhere('paystack_id', (string) $referenceOrId);
+            })
+            ->first();
 
-        /** @var PaystackCustomer */
-        return $this->paystackCustomer()->firstOrFail();
+        return $refund;
     }
 
-    /**
-     * @param  array<string, mixed>  $extra
-     */
-    public function createPaystackSubscription(
-        string $planCode,
-        string $name = 'default',
-        ?string $authorization = null,
-        ?string $startDate = null,
-        array $extra = [],
-    ): CreateSubscriptionResponseData {
-        $customer = $this->syncAsPaystackCustomer();
-        $customerCode = $customer->customer_code;
+    public function paystackDispute(string|int $referenceOrId): ?PaystackDispute
+    {
+        /** @var PaystackDispute|null $dispute */
+        $dispute = $this->paystackDisputes()
+            ->where(function ($query) use ($referenceOrId): void {
+                $query->where('paystack_id', (string) $referenceOrId)
+                    ->orWhere('transaction_reference', (string) $referenceOrId);
+            })
+            ->first();
 
-        if ($customerCode === null || trim($customerCode) === '') {
-            throw new InvalidPaystackInputException('The billable model does not have a usable Paystack customer code.');
-        }
-
-        $response = $this->paystackManager()->createSubscription(new CreateSubscriptionInputData(
-            customer: $customerCode,
-            plan: $planCode,
-            authorization: $authorization,
-            startDate: $startDate,
-            extra: $extra,
-        ));
-
-        PaystackSubscription::syncForBillable($this, $response->subscription, $name, $customer);
-
-        return $response;
+        return $dispute;
     }
 
-    public function fetchPaystackSubscription(string|int $idOrCode, string $name = 'default'): FetchSubscriptionResponseData
+    public function syncPaystackCustomer(): PaystackCustomer
     {
-        $response = $this->paystackManager()->fetchSubscription(new FetchSubscriptionInputData($idOrCode));
-
-        PaystackSubscription::syncForBillable($this, $response->subscription, $name, $this->storedPaystackCustomer());
-
-        return $response;
+        return app(BillableCustomerLifecycleService::class)->sync($this);
     }
 
-    public function enablePaystackSubscription(string $name = 'default'): EnableSubscriptionResponseData
+    public function syncPaystackPlan(PlanData $plan): PaystackPlan
     {
-        $subscription = $this->requirePaystackSubscription($name);
-
-        return $this->paystackManager()->enableSubscription(new EnableSubscriptionInputData(
-            code: $subscription->subscription_code,
-            token: $subscription->email_token ?? $this->requireSubscriptionEmailToken($subscription),
-        ));
+        return PaystackPlan::syncFromPlanData($plan);
     }
 
-    public function disablePaystackSubscription(string $name = 'default'): DisableSubscriptionResponseData
+    public function syncPaystackSubscription(SubscriptionData $subscription, string $name = 'default'): PaystackSubscription
     {
-        $subscription = $this->requirePaystackSubscription($name);
-
-        return $this->paystackManager()->disableSubscription(new DisableSubscriptionInputData(
-            code: $subscription->subscription_code,
-            token: $subscription->email_token ?? $this->requireSubscriptionEmailToken($subscription),
-        ));
+        return PaystackSubscription::syncFromSubscriptionData($subscription, $name, $this);
     }
 
-    protected function newPaystackCustomerInput(): CreateCustomerInputData
+    public function syncPaystackTransaction(TransactionData $transaction): PaystackTransaction
     {
-        return new CreateCustomerInputData(
-            email: $this->paystackBillableEmail(),
-            firstName: $this->paystackBillableFirstName(),
-            lastName: $this->paystackBillableLastName(),
-            phone: $this->paystackBillablePhone(),
-            metadata: $this->paystackBillableMetadata(),
-        );
+        $record = PaystackTransaction::syncFromTransactionData($transaction);
+        $record->billable()->associate($this);
+        $record->save();
+
+        return $record;
     }
 
-    protected function newPaystackCustomerUpdateInput(string $customerCode): UpdateCustomerInputData
+    public function syncPaystackRefund(RefundData $refund): PaystackRefund
     {
-        return new UpdateCustomerInputData(
-            customerCode: $customerCode,
-            email: $this->paystackBillableEmail(),
-            firstName: $this->paystackBillableFirstName(),
-            lastName: $this->paystackBillableLastName(),
-            phone: $this->paystackBillablePhone(),
-            metadata: $this->paystackBillableMetadata(),
-        );
+        $record = PaystackRefund::syncFromRefundData($refund);
+        $record->billable()->associate($this);
+        $record->save();
+
+        return $record;
     }
 
-    protected function paystackBillableEmail(): string
+    public function syncPaystackDispute(DisputeData $dispute): PaystackDispute
     {
-        $email = $this->getAttribute('email');
+        $record = PaystackDispute::syncFromDisputeData($dispute);
+        $record->billable()->associate($this);
+        $record->save();
 
-        if (! is_string($email) || trim($email) === '') {
-            throw new InvalidPaystackInputException('The billable model must expose a non-empty email attribute or override paystackBillableEmail().');
-        }
-
-        return $email;
-    }
-
-    protected function paystackBillableFirstName(): ?string
-    {
-        $firstName = $this->getAttribute('first_name');
-
-        return is_string($firstName) && trim($firstName) !== '' ? $firstName : null;
-    }
-
-    protected function paystackBillableLastName(): ?string
-    {
-        $lastName = $this->getAttribute('last_name');
-
-        return is_string($lastName) && trim($lastName) !== '' ? $lastName : null;
-    }
-
-    protected function paystackBillablePhone(): ?string
-    {
-        $phone = $this->getAttribute('phone');
-
-        return is_string($phone) && trim($phone) !== '' ? $phone : null;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function paystackBillableMetadata(): array
-    {
-        return [
-            'billable_type' => $this->getMorphClass(),
-            'billable_id' => $this->getKey(),
-        ];
-    }
-
-    protected function paystackManager(): PaystackManager
-    {
-        $container = Container::getInstance();
-
-        /** @var PaystackManager */
-        return $container->make(PaystackManager::class);
+        return $record;
     }
 
     protected function storedPaystackCustomer(): ?PaystackCustomer
@@ -244,27 +180,5 @@ trait Billable
         $customer = $this->paystackCustomer()->first();
 
         return $customer;
-    }
-
-    protected function requirePaystackSubscription(string $name): PaystackSubscription
-    {
-        $subscription = $this->paystackSubscription($name);
-
-        if ($subscription === null) {
-            throw new InvalidPaystackInputException(sprintf(
-                'No stored Paystack subscription named [%s] exists for this billable model.',
-                $name
-            ));
-        }
-
-        return $subscription;
-    }
-
-    protected function requireSubscriptionEmailToken(PaystackSubscription $subscription): string
-    {
-        throw new InvalidPaystackInputException(sprintf(
-            'The stored Paystack subscription [%s] does not have an email token. Fetch or recreate the subscription before enabling or disabling it.',
-            $subscription->subscription_code
-        ));
     }
 }

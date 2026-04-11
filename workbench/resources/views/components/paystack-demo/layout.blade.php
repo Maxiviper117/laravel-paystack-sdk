@@ -28,6 +28,7 @@
         'Platform' => [
             ['title' => 'Webhooks', 'path' => '/paystack/demo/webhooks'],
             ['title' => 'Billing Layer', 'path' => '/paystack/demo/billing-layer'],
+            ['title' => 'Billing Sync', 'path' => '/paystack/demo/billing-sync'],
         ],
         'Legacy' => [
             ['title' => 'Playground', 'path' => '/paystack/demo/playground'],

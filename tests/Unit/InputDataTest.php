@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Maxiviper117\Paystack\Data\Dispute\DisputeStatus;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\CustomerRiskAction;

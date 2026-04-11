@@ -10,35 +10,35 @@ Use this flow when your app needs to initialize a Paystack payment and send the 
 4. Your app stores the Paystack reference on the local payment record.
 5. Your controller redirects the customer to the returned authorization URL.
 
-## Preferred service-based example
+## Preferred Laravel example
 
 ```php
 namespace App\Services\Billing;
 
 use App\Models\Order;
-use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
+use Maxiviper117\Paystack\PaystackManager;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 
 class StartCheckout
 {
     public function __construct(
-        private InitializeTransactionAction $initializeTransaction,
+        private PaystackManager $paystack,
     ) {}
 
     public function handle(Order $order): string
     {
-        $response = ($this->initializeTransaction)(
-            new InitializeTransactionInputData(
-                email: $order->customer_email,
-                amount: $order->total_amount,
-                channels: ['card', 'bank_transfer'],
-                callbackUrl: route('billing.paystack.callback'),
-                reference: 'order_'.$order->getKey(),
-                currency: 'NGN',
-                metadata: [
+        $response = $this->paystack->initializeTransaction(
+            InitializeTransactionInputData::from([
+                'email' => $order->customer_email,
+                'amount' => $order->total_amount,
+                'channels' => ['card', 'bank_transfer'],
+                'callbackUrl' => route('billing.paystack.callback'),
+                'reference' => 'order_'.$order->getKey(),
+                'currency' => 'NGN',
+                'metadata' => [
                     'order_id' => $order->getKey(),
                 ],
-            )
+            ])
         );
 
         $order->payment_reference = $response->reference;
@@ -54,12 +54,13 @@ Controller entrypoint:
 ```php
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use App\Models\Order;
 use App\Services\Billing\StartCheckout;
 
 class CheckoutController
 {
-    public function store(Order $order, StartCheckout $startCheckout)
+    public function store(Order $order, StartCheckout $startCheckout): RedirectResponse
     {
         return redirect()->away($startCheckout->handle($order));
     }
@@ -73,21 +74,57 @@ use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $response = Paystack::initializeTransaction(
-    new InitializeTransactionInputData(
-        email: $order->customer_email,
-        amount: $order->total_amount,
-        channels: ['card', 'bank_transfer'],
-        callbackUrl: route('billing.paystack.callback'),
-        reference: 'order_'.$order->getKey(),
-        currency: 'NGN',
-        metadata: [
+    InitializeTransactionInputData::from([
+        'email' => $order->customer_email,
+        'amount' => $order->total_amount,
+        'channels' => ['card', 'bank_transfer'],
+        'callbackUrl' => route('billing.paystack.callback'),
+        'reference' => 'order_'.$order->getKey(),
+        'currency' => 'NGN',
+        'metadata' => [
             'order_id' => $order->getKey(),
         ],
-    )
+    ])
 );
 
 $authorizationUrl = $response->authorizationUrl;
 $reference = $response->reference;
+```
+
+## Action alternative
+
+```php
+namespace App\Services\Billing;
+
+use App\Models\Order;
+use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+
+class StartCheckoutWithAction
+{
+    public function __construct(
+        private InitializeTransactionAction $initializeTransaction,
+    ) {}
+
+    public function handle(Order $order): string
+    {
+        $response = ($this->initializeTransaction)(
+            InitializeTransactionInputData::from([
+                'email' => $order->customer_email,
+                'amount' => $order->total_amount,
+                'channels' => ['card', 'bank_transfer'],
+                'callbackUrl' => route('billing.paystack.callback'),
+                'reference' => 'order_'.$order->getKey(),
+                'currency' => 'NGN',
+                'metadata' => [
+                    'order_id' => $order->getKey(),
+                ],
+            ])
+        );
+
+        return $response->authorizationUrl;
+    }
+}
 ```
 
 ## What to persist locally

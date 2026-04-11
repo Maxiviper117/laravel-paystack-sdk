@@ -5,13 +5,14 @@ This file provides repository-scoped instructions for Codex and other agents. It
 ## Repository purpose
 
 - This repository contains a Laravel package: `maxiviper117/laravel-paystack-sdk`.
-- The package provides a Paystack SDK built on Saloon with an Actions-first public API.
-- Current implemented coverage includes transactions, customers, disputes, refunds, plans, subscriptions, an optional Billable persistence layer, and webhook intake/processing built on `spatie/laravel-webhook-client`.
+- The package provides a Paystack SDK built on Saloon with a Laravel-first public API.
+- Current implemented coverage includes transactions, customers, disputes, refunds, plans, subscriptions, an optional Billable persistence layer with local mirrors for those resource domains, and webhook intake/processing built on `spatie/laravel-webhook-client`.
 - Webhook intake/processing also enforces the documented Paystack webhook source IP allowlist in addition to signature validation.
 
 ## Source layout
 
-- `src/Actions`: high-level action classes intended for consumer-facing package usage.
+- `src/Actions`: high-level action classes intended for custom or advanced package usage.
+- `src/Billing`: billable lifecycle orchestration services that compose manager/actions and mirror persistence.
 - `src/Concerns`: opt-in Laravel traits such as the optional Billable Eloquent integration.
 - `src/Enums`: backed enums for closed Paystack value sets such as webhook event names.
 - `src/Listeners`: reusable listener helpers, including the fluent webhook handler for app-side Paystack event handling.
@@ -35,6 +36,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `workbench` now supports two front-end run modes: `composer dev` for the Vite dev server and `composer dev-built` for serving compiled assets, clearing stale caches, and priming config/view caches without `public/hot`.
 - `workbench/routes/web.php` and `workbench/README.md` should reflect the current recommended package integration style when live-test examples change.
 - Keep the workbench app up to date with the current package state. If package APIs, DTOs, response shapes, config, or recommended integration patterns change, update the relevant workbench routes/docs in the same change.
+- The dedicated workbench billing sync page at `/paystack/demo/billing-sync` is search-first: it searches remote Paystack customers, plans, subscriptions, transactions, refunds, and disputes, then syncs the selected record into the local mirror tables.
 - `SDK_SUPPORT.md` is the maintainer-facing support matrix for Paystack endpoints and SDK capabilities; keep it aligned with the actual implemented package surface.
 - Customer actions currently cover create, fetch, update, validate, set risk action, and list operations.
 - Dispute actions currently cover list, fetch, transaction-specific lookup, update, evidence creation, upload URL generation, resolve, and export operations.
@@ -44,10 +46,12 @@ This file provides repository-scoped instructions for Codex and other agents. It
 
 ## Working rules
 
-- Keep the package Laravel-native and Actions-first.
+- Keep the package Laravel-native and facade/manager-first.
 - Treat action classes as injectable services; do not add static self-resolving helpers that call `app()` internally.
-- Use DTO-first action contracts. Public action, manager, and facade APIs should accept typed input DTOs and return typed action-specific response DTOs.
+- Use DTO-first contracts. Public action, manager, and facade APIs should accept typed input DTOs and return typed action-specific response DTOs.
 - Keep the optional Billable layer as a convenience wrapper over the existing actions and DTOs; do not let it become a second, conflicting SDK surface.
+- Keep `Billable` model-centric: relations, local lookups, and local mirror sync helpers only.
+- Keep remote billable lifecycle orchestration in `src/Billing` services and manager/facade pass-throughs.
 - Prefer small, typed DTOs over passing raw arrays through public APIs.
 - For richer resource domains, compose shared resource DTOs inside action-specific response DTOs instead of flattening everything into duplicated response shapes.
 - When Paystack documents a closed set of status or action values, model them as backed enums and reuse those enums in DTOs, docs, and workbench controls.
@@ -56,8 +60,9 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Preserve compatibility with Laravel `11.x` and `12.x` and PHP `8.3` and `8.4`.
 - CI coverage is Linux-only. Do not add or restore Windows test jobs unless the package scope changes materially.
 - Do not reintroduce Spatie skeleton placeholders or `Skeleton*` classes/files.
-- Package convenience access belongs in `PaystackManager` and the facade. Action classes may expose `execute(...)` and `__invoke(...)`.
+- Package convenience access belongs in `PaystackManager` and the facade. Action classes remain available for custom integration paths and may expose `execute(...)` and `__invoke(...)`.
 - If the optional Billable layer changes, keep its trait methods delegating to the existing manager/actions rather than bypassing package transport, validation, or response mapping.
+- Billable subscription mirrors must be keyed by Paystack `subscription_code`; local `name` is an alias only and must not be treated as a uniqueness boundary for mirrored rows.
 - Input DTOs live under `src/Data/Input` and action response DTOs live under `src/Data/Output`.
 - Webhook handling is local package logic, not an outbound Saloon request. Keep signature validation, stored webhook handling, and payload parsing outside the HTTP connector layer.
 
@@ -116,3 +121,13 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - Build docs: `pnpm run docs:build`
 - Workbench install: `cd workbench && composer install`
 - Workbench dev server: `cd workbench && php artisan serve`
+
+
+## Response style
+
+Terse like caveman. Technical substance exact. Only fluff die.
+Drop: articles, filler (just/really/basically), pleasantries, hedging.
+Fragments OK. Short synonyms. Code unchanged.
+Pattern: [thing] [action] [reason]. [next step].
+ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift.
+Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
