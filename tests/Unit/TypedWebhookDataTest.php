@@ -2,15 +2,45 @@
 
 use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Output\Webhook\PaystackWebhookEventData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeDisputeCreatedWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\ChargeSuccessWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\CustomerIdentificationFailedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\CustomerIdentificationSuccessWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\DedicatedAccountAssignFailedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\DedicatedAccountAssignSuccessWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\InvoiceCreatedWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\InvoicePaymentFailedWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\InvoiceUpdatedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\PaymentRequestPendingWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\PaymentRequestSuccessWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\RefundFailedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\RefundProcessedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\RefundProcessingWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionCreatedWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionDisabledWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionExpiringCardsWebhookData;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\SubscriptionNotRenewingWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\TransferFailedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\TransferReversedWebhookData;
+use Maxiviper117\Paystack\Data\Output\Webhook\Typed\TransferSuccessWebhookData;
 use Maxiviper117\Paystack\Data\Subscription\SubscriptionStatus;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
+
+/**
+ * @return array<string, mixed>
+ */
+function webhookFixture(string $name): array
+{
+    $path = __DIR__.'/../../reference/webhook_events/'.$name.'.json';
+    $contents = file_get_contents($path);
+
+    expect($contents)->not->toBeFalse();
+
+    /** @var array<string, mixed> $decoded */
+    $decoded = json_decode((string) $contents, true, 512, JSON_THROW_ON_ERROR);
+
+    return $decoded;
+}
 
 it('resolves typed data for charge success webhooks', function () {
     $event = PaystackWebhookEventData::fromPayload([
@@ -215,9 +245,136 @@ it('resolves typed data for subscription disable webhooks', function () {
     expect($typedData->subscriptionCode)->toBe('SUB_202');
 });
 
+it('resolves typed data for charge dispute create webhooks from extracted samples', function () {
+    $event = PaystackWebhookEventData::fromPayload(webhookFixture('charge_dispute_create'));
+
+    $typedData = $event->typedData();
+
+    expect($typedData)->toBeInstanceOf(ChargeDisputeCreatedWebhookData::class);
+
+    /** @var ChargeDisputeCreatedWebhookData $typedData */
+    expect($typedData->disputeId)->toBe(358950)
+        ->and($typedData->status)->toBe('awaiting-merchant-feedback')
+        ->and($typedData->dispute->transaction?->reference)->toBe('v3mjfgbnc19v97x');
+});
+
+it('resolves typed data for customer identification success webhooks from extracted samples', function () {
+    $event = PaystackWebhookEventData::fromPayload(webhookFixture('customeridentification_success'));
+
+    $typedData = $event->typedData();
+
+    expect($typedData)->toBeInstanceOf(CustomerIdentificationSuccessWebhookData::class);
+
+    /** @var CustomerIdentificationSuccessWebhookData $typedData */
+    expect($typedData->customerCode)->toBe('CUS_xnxdt6s1zg1f4nx')
+        ->and($typedData->customerId)->toBe('9387490384')
+        ->and($typedData->identification->type)->toBe('bvn');
+});
+
+it('resolves typed data for customer identification failed webhooks from extracted samples', function () {
+    $event = PaystackWebhookEventData::fromPayload(webhookFixture('customeridentification_failed'));
+
+    $typedData = $event->typedData();
+
+    expect($typedData)->toBeInstanceOf(CustomerIdentificationFailedWebhookData::class);
+
+    /** @var CustomerIdentificationFailedWebhookData $typedData */
+    expect($typedData->reason)->toBe('Account number or BVN is incorrect')
+        ->and($typedData->customerId)->toBe('82796315')
+        ->and($typedData->identification->accountNumber)->toBe('012****345');
+});
+
+it('resolves typed data for dedicated account assignment webhooks from extracted samples', function () {
+    $successEvent = PaystackWebhookEventData::fromPayload(webhookFixture('dedicatedaccount_assign_success'));
+    $failedEvent = PaystackWebhookEventData::fromPayload(webhookFixture('dedicatedaccount_assign_failed'));
+
+    $successTyped = $successEvent->typedData();
+    $failedTyped = $failedEvent->typedData();
+
+    expect($successTyped)->toBeInstanceOf(DedicatedAccountAssignSuccessWebhookData::class)
+        ->and($failedTyped)->toBeInstanceOf(DedicatedAccountAssignFailedWebhookData::class);
+
+    /** @var DedicatedAccountAssignSuccessWebhookData $successTyped */
+    /** @var DedicatedAccountAssignFailedWebhookData $failedTyped */
+    expect($successTyped->dedicatedAccount?->accountNumber)->toBe('1234567890')
+        ->and($failedTyped->dedicatedAccount)->toBeNull();
+});
+
+it('resolves typed data for payment request webhooks from extracted samples', function () {
+    $pendingEvent = PaystackWebhookEventData::fromPayload(webhookFixture('paymentrequest_pending'));
+    $successEvent = PaystackWebhookEventData::fromPayload(webhookFixture('paymentrequest_success'));
+
+    $pendingTyped = $pendingEvent->typedData();
+    $successTyped = $successEvent->typedData();
+
+    expect($pendingTyped)->toBeInstanceOf(PaymentRequestPendingWebhookData::class)
+        ->and($successTyped)->toBeInstanceOf(PaymentRequestSuccessWebhookData::class);
+
+    /** @var PaymentRequestPendingWebhookData $pendingTyped */
+    /** @var PaymentRequestSuccessWebhookData $successTyped */
+    expect($pendingTyped->paid)->toBeFalse()
+        ->and($successTyped->paid)->toBeTrue()
+        ->and($successTyped->requestCode)->toBe('PRQ_y0paeo93jh99mho');
+});
+
+it('resolves typed data for refund webhooks from extracted samples', function () {
+    $processingEvent = PaystackWebhookEventData::fromPayload(webhookFixture('refund_processing'));
+    $processedEvent = PaystackWebhookEventData::fromPayload(webhookFixture('refund_processed'));
+    $failedEvent = PaystackWebhookEventData::fromPayload(webhookFixture('refund_failed'));
+
+    $processingTyped = $processingEvent->typedData();
+    $processedTyped = $processedEvent->typedData();
+    $failedTyped = $failedEvent->typedData();
+
+    expect($processingTyped)->toBeInstanceOf(RefundProcessingWebhookData::class)
+        ->and($processedTyped)->toBeInstanceOf(RefundProcessedWebhookData::class)
+        ->and($failedTyped)->toBeInstanceOf(RefundFailedWebhookData::class);
+
+    /** @var RefundProcessingWebhookData $processingTyped */
+    /** @var RefundProcessedWebhookData $processedTyped */
+    /** @var RefundFailedWebhookData $failedTyped */
+    expect($processingTyped->status)->toBe('processing')
+        ->and($processedTyped->status)->toBe('processed')
+        ->and($failedTyped->status)->toBe('failed');
+});
+
+it('resolves typed data for subscription expiring cards webhooks from extracted samples', function () {
+    $event = PaystackWebhookEventData::fromPayload(webhookFixture('subscription_expiring_cards'));
+
+    $typedData = $event->typedData();
+
+    expect($typedData)->toBeInstanceOf(SubscriptionExpiringCardsWebhookData::class);
+
+    /** @var SubscriptionExpiringCardsWebhookData $typedData */
+    expect($typedData->cards)->toHaveCount(1)
+        ->and($typedData->cards[0]->subscription->subscriptionCode)->toBe('SUB_lejj927x2kxciw1')
+        ->and($typedData->cards[0]->customer->customerCode)->toBe('CUS_8v6g420rc16spqw');
+});
+
+it('resolves typed data for transfer webhooks from extracted samples', function () {
+    $successEvent = PaystackWebhookEventData::fromPayload(webhookFixture('transfer_success'));
+    $failedEvent = PaystackWebhookEventData::fromPayload(webhookFixture('transfer_failed'));
+    $reversedEvent = PaystackWebhookEventData::fromPayload(webhookFixture('transfer_reversed'));
+
+    $successTyped = $successEvent->typedData();
+    $failedTyped = $failedEvent->typedData();
+    $reversedTyped = $reversedEvent->typedData();
+
+    expect($successTyped)->toBeInstanceOf(TransferSuccessWebhookData::class)
+        ->and($failedTyped)->toBeInstanceOf(TransferFailedWebhookData::class)
+        ->and($reversedTyped)->toBeInstanceOf(TransferReversedWebhookData::class);
+
+    /** @var TransferSuccessWebhookData $successTyped */
+    /** @var TransferFailedWebhookData $failedTyped */
+    /** @var TransferReversedWebhookData $reversedTyped */
+    expect($successTyped->reference)->toBe('acv_9ee55786-2323-4760-98e2-6380c9cb3f68')
+        ->and($failedTyped->reference)->toBe('1976435206')
+        ->and($reversedTyped->reference)->toBe('jvrjckwenm');
+});
+
 it('returns null typed data for unsupported webhook events', function () {
     $event = PaystackWebhookEventData::fromPayload([
-        'event' => 'transfer.success',
+        'event' => 'customer.create',
         'data' => [
             'id' => 300,
         ],

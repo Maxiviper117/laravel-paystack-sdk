@@ -4,6 +4,7 @@ namespace Maxiviper117\Paystack\Data\Output\Webhook;
 
 use Carbon\CarbonImmutable;
 use Maxiviper117\Paystack\Data\Output\Webhook\Typed\PaystackTypedWebhookData;
+use Maxiviper117\Paystack\Enums\Webhook\PaystackWebhookEvent;
 use Maxiviper117\Paystack\Exceptions\MalformedWebhookPayloadException;
 use Maxiviper117\Paystack\Support\Payload;
 use Maxiviper117\Paystack\Support\PaystackDate;
@@ -16,7 +17,7 @@ use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 class PaystackWebhookEventData extends Data
 {
     /**
-     * @param  array<string, mixed>  $data
+     * @param  array<mixed>  $data
      * @param  array<string, mixed>  $payload
      */
     public function __construct(
@@ -42,29 +43,30 @@ class PaystackWebhookEventData extends Data
             throw new MalformedWebhookPayloadException('The Paystack webhook payload is missing an event name.');
         }
 
-        if ($data === null || array_is_list($data)) {
-            throw new MalformedWebhookPayloadException('The Paystack webhook payload is missing an object data payload.');
+        if ($data === null) {
+            throw new MalformedWebhookPayloadException('The Paystack webhook payload is missing a data payload.');
         }
 
-        /** @var array<string, mixed> $data */
+        $dataObject = self::objectDataOrNull($data);
+
         return new self(
             event: $event,
             resourceType: PaystackWebhook::inferResourceType($event),
             data: $data,
             payload: $payload,
             occurredAt: PaystackDate::nullable(
-                Payload::nullableString($data, 'paid_at')
-                ?? Payload::nullableString($data, 'created_at')
+                ($dataObject === null ? null : Payload::nullableString($dataObject, 'paid_at'))
+                ?? ($dataObject === null ? null : Payload::nullableString($dataObject, 'created_at'))
                 ?? Payload::nullableString($payload, 'created_at')
             ),
-            domain: Payload::nullableString($data, 'domain'),
-            id: Payload::intOrStringOrNull($data, 'id'),
+            domain: $dataObject === null ? null : Payload::nullableString($dataObject, 'domain'),
+            id: $dataObject === null ? null : Payload::intOrStringOrNull($dataObject, 'id'),
         );
     }
 
-    public function is(string $event): bool
+    public function is(string|PaystackWebhookEvent $event): bool
     {
-        return $this->event === $event;
+        return $this->event === ($event instanceof PaystackWebhookEvent ? $event->value : $event);
     }
 
     public function supportsTypedData(): bool
@@ -75,5 +77,19 @@ class PaystackWebhookEventData extends Data
     public function typedData(): ?PaystackTypedWebhookData
     {
         return PaystackTypedWebhookDataResolver::resolve($this);
+    }
+
+    /**
+     * @param  array<mixed>  $data
+     * @return array<string, mixed>|null
+     */
+    private static function objectDataOrNull(array $data): ?array
+    {
+        if (array_is_list($data)) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $data */
+        return $data;
     }
 }

@@ -19,7 +19,7 @@ Looking for an end-to-end Laravel integration flow? Start with [Webhook Processi
 - persisted webhook calls in the `webhook_calls` table
 - queued processing through a package-provided webhook job
 - dispatch of a generic parsed Paystack webhook event object
-- typed webhook payload mapping for high-value charge, invoice, and subscription events
+- typed webhook payload mapping for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events
 
 ## Register the webhook endpoint
 
@@ -160,12 +160,29 @@ The package ships the reusable fluent helper at `Maxiviper117\Paystack\Listeners
 Available callback setters:
 
 - `onChargeSuccess(callable $callback)`
+- `onChargeDisputeCreated(callable $callback)`
+- `onChargeDisputeReminded(callable $callback)`
+- `onChargeDisputeResolved(callable $callback)`
+- `onCustomerIdentificationSucceeded(callable $callback)`
+- `onCustomerIdentificationFailed(callable $callback)`
+- `onDedicatedAccountAssigned(callable $callback)`
+- `onDedicatedAccountAssignFailed(callable $callback)`
 - `onInvoiceCreated(callable $callback)`
 - `onInvoiceUpdated(callable $callback)`
 - `onInvoicePaymentFailed(callable $callback)`
+- `onPaymentRequestPending(callable $callback)`
+- `onPaymentRequestSuccess(callable $callback)`
+- `onRefundPending(callable $callback)`
+- `onRefundProcessing(callable $callback)`
+- `onRefundProcessed(callable $callback)`
+- `onRefundFailed(callable $callback)`
 - `onSubscriptionCreated(callable $callback)`
 - `onSubscriptionNotRenewing(callable $callback)`
 - `onSubscriptionDisabled(callable $callback)`
+- `onSubscriptionExpiringCards(callable $callback)`
+- `onTransferSuccess(callable $callback)`
+- `onTransferFailed(callable $callback)`
+- `onTransferReversed(callable $callback)`
 - `onUnhandled(callable $callback)`
 
 If you prefer a dedicated Laravel listener class, instantiate and configure the same helper inside your listener's `handle()` method and delegate to `$handler->handle($event)`.
@@ -205,7 +222,7 @@ Useful properties on `$event->event`:
 - `id`: resource ID when present
 - `domain`: Paystack domain when present
 - `occurredAt`: `CarbonImmutable|null` resolved from `paid_at`, `created_at`, or payload fallback when available
-- `data`: the nested Paystack `data` object
+- `data`: the nested Paystack `data` payload, which may be an object or list depending on the event
 - `payload`: the full decoded webhook payload
 
 Useful methods on `$event->event`:
@@ -237,12 +254,29 @@ Event::listen(PaystackWebhookReceived::class, function (PaystackWebhookReceived 
 Typed DTOs are currently available for:
 
 - `charge.success`
+- `charge.dispute.create`
+- `charge.dispute.remind`
+- `charge.dispute.resolve`
+- `customeridentification.success`
+- `customeridentification.failed`
+- `dedicatedaccount.assign.success`
+- `dedicatedaccount.assign.failed`
 - `invoice.create`
 - `invoice.update`
 - `invoice.payment_failed`
+- `paymentrequest.pending`
+- `paymentrequest.success`
+- `refund.pending`
+- `refund.processing`
+- `refund.processed`
+- `refund.failed`
 - `subscription.create`
 - `subscription.not_renew`
 - `subscription.disable`
+- `subscription.expiring_cards`
+- `transfer.success`
+- `transfer.failed`
+- `transfer.reversed`
 
 Example for invoice handling:
 

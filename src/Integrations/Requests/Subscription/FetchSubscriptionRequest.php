@@ -26,7 +26,7 @@ class FetchSubscriptionRequest extends Request
         $data = $response->json('data');
 
         /** @var array<string, mixed> $payload */
-        $payload = is_array($data) ? $data : [];
+        $payload = \is_array($data) ? $data : [];
 
         return FetchSubscriptionResponseData::fromPayload($payload);
     }

@@ -20,7 +20,7 @@ class PaystackWebhookCall extends WebhookCall
 
         return self::create([
             'name' => $config->name,
-            'url' => $request->fullUrl(),
+            'url' => $request->url(),
             'headers' => $headers,
             'payload' => [
                 'raw_body' => $request->getContent(),
@@ -46,7 +46,7 @@ class PaystackWebhookCall extends WebhookCall
         $payload = $this->payload ?? [];
         $inputPayload = $payload['input'] ?? [];
 
-        if (! is_array($inputPayload) || array_is_list($inputPayload)) {
+        if (! \is_array($inputPayload) || array_is_list($inputPayload)) {
             return [];
         }
 

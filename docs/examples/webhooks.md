@@ -130,7 +130,7 @@ $inputPayload = $latestWebhook?->inputPayload();
 - invalid signatures are rejected before the webhook is stored
 - valid but malformed payloads are stored and then fail during processing, which preserves an audit trail
 - use idempotent local updates because webhook delivery can be retried
-- typed webhook payloads currently exist for selected charge, invoice, and subscription events only
+- typed webhook payloads currently exist for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events
 
 ## Related pages
 

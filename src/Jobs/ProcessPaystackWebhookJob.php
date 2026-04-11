@@ -15,11 +15,11 @@ class ProcessPaystackWebhookJob extends ProcessWebhookJob
         $connection = config('paystack.webhooks.connection');
         $queue = config('paystack.webhooks.queue');
 
-        if (is_string($connection) && $connection !== '') {
+        if (\is_string($connection) && $connection !== '') {
             $this->onConnection($connection);
         }
 
-        if (is_string($queue) && $queue !== '') {
+        if (\is_string($queue) && $queue !== '') {
             $this->onQueue($queue);
         }
     }

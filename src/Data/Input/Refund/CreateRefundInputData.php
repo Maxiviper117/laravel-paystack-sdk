@@ -18,11 +18,11 @@ class CreateRefundInputData extends Data
         public ?string $merchantNote = null,
         public array $extra = [],
     ) {
-        if (is_int($this->transaction) && $this->transaction < 1) {
+        if (\is_int($this->transaction) && $this->transaction < 1) {
             throw new InvalidPaystackInputException('The Paystack refund transaction identifier must be greater than zero.');
         }
 
-        if (is_string($this->transaction) && trim($this->transaction) === '') {
+        if (\is_string($this->transaction) && trim($this->transaction) === '') {
             throw new InvalidPaystackInputException('The Paystack refund transaction identifier cannot be empty.');
         }
 
@@ -59,7 +59,7 @@ class CreateRefundInputData extends Data
         $payload['transaction'] = $this->transaction;
 
         if ($this->amount !== null) {
-            $payload['amount'] = is_int($this->amount) ? $this->amount : (int) $this->amount;
+            $payload['amount'] = \is_int($this->amount) ? $this->amount : (int) $this->amount;
         }
 
         if ($this->currency !== null) {

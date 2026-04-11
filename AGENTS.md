@@ -17,6 +17,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 - `src/Listeners`: reusable listener helpers, including the fluent webhook handler for app-side Paystack event handling.
 - `src/Integrations`: Saloon connector and request classes for Paystack HTTP integration.
 - `src/Data`: DTOs and response-shaping classes.
+- `src/Data/Output/Webhook/Typed/Nested`: internal nested DTO fragments used by typed webhook event payloads; keep them separate from top-level event DTO classes.
 - `src/Models`: package Eloquent models for webhook calls and optional billing-layer persistence.
 - `src/Support`: small helper utilities used across the package.
 - `database/migrations`: optional package-owned billing-layer migrations that consumers may publish into their apps.
@@ -71,6 +72,7 @@ This file provides repository-scoped instructions for Codex and other agents. It
 ## Tooling notes
 
 - PHPStan is configured at level 10 in `phpstan.neon.dist`.
+- Massive manual patch updates can be rejected by the tooling when they get too large; prefer applying code edits in smaller, reviewable patch batches instead of one oversized patch.
 - Root documentation tooling uses `pnpm` with VitePress from the repository root and is separate from `workbench`.
 - The GitHub Pages docs deployment workflow lives at `.github/workflows/deploy-docs.yml` and should publish the root VitePress build output.
 - `composer analyse` runs through `tools/phpstan-analyse.php`, a thin wrapper around PHPStan that suppresses a known Windows-only `Cannot create a file when that file already exists.` noise line without changing analysis behavior.

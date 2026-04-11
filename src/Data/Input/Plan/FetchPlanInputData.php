@@ -10,7 +10,7 @@ class FetchPlanInputData extends Data
     public function __construct(
         public int|string $idOrCode,
     ) {
-        if (is_string($this->idOrCode) && trim($this->idOrCode) === '') {
+        if (\is_string($this->idOrCode) && trim($this->idOrCode) === '') {
             throw new InvalidPaystackInputException('The Paystack plan identifier cannot be empty.');
         }
     }

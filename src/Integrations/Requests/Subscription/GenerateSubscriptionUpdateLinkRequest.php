@@ -27,7 +27,7 @@ class GenerateSubscriptionUpdateLinkRequest extends Request
         $payload = $response->json();
 
         /** @var array<string, mixed> $data */
-        $data = is_array($payload) ? $payload : [];
+        $data = \is_array($payload) ? $payload : [];
 
         return GenerateSubscriptionUpdateLinkResponseData::fromPayload($data);
     }

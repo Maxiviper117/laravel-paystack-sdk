@@ -33,5 +33,16 @@ jobs:
       - name: Install composer dependencies
         uses: ramsey/composer-install@v3
 
+      - name: Ensure Rector cache directory exists
+        run: mkdir -p build/rector
+
+      - name: Cache Rector results
+        uses: actions/cache@v4
+        with:
+          path: build/rector
+          key: rector-${{ runner.os }}-${{ hashFiles('rector.php', 'composer.lock') }}
+          restore-keys: |
+            rector-${{ runner.os }}-
+
       - name: Run Rector (dry-run)
-        run: composer refactor-dry
+        run: vendor/bin/rector process --dry-run

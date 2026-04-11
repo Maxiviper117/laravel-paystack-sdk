@@ -40,9 +40,9 @@ class SetCustomerRiskActionRequest extends Request implements HasBody
 
         /** @var array<string, mixed> $payload */
         $payload = [];
-        if (is_array($data)) {
+        if (\is_array($data)) {
             foreach ($data as $key => $value) {
-                if (is_string($key)) {
+                if (\is_string($key)) {
                     $payload[$key] = $value;
                 }
             }

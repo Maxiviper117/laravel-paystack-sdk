@@ -13,26 +13,45 @@ class ChargeSuccessWebhookDataMapper
 {
     public static function map(PaystackWebhookEventData $event): ChargeSuccessWebhookData
     {
-        self::requireNonEmptyString($event->data, 'reference', $event->event);
-        self::requireNonEmptyString($event->data, 'status', $event->event);
-        self::requireIntLike($event->data, 'amount', $event->event);
+        $payload = self::requireObjectData($event);
+        self::requireNonEmptyString($payload, 'reference', $event->event);
+        self::requireNonEmptyString($payload, 'status', $event->event);
+        self::requireIntLike($payload, 'amount', $event->event);
 
-        $transaction = TransactionData::fromPayload($event->data);
+        $transaction = TransactionData::fromPayload($payload);
 
         return new ChargeSuccessWebhookData(
             event: $event->event,
             reference: $transaction->reference,
-            status: Payload::string($event->data, 'status'),
+            status: Payload::string($payload, 'status'),
             amount: $transaction->amount,
-            domain: Payload::nullableString($event->data, 'domain'),
+            domain: Payload::nullableString($payload, 'domain'),
             currency: $transaction->currency,
             paidAt: $transaction->paidAt,
             channel: $transaction->channel,
-            gatewayResponse: Payload::nullableString($event->data, 'gateway_response'),
-            customer: self::customer($event->data),
+            gatewayResponse: Payload::nullableString($payload, 'gateway_response'),
+            customer: self::customer($payload),
             transaction: $transaction,
-            rawData: $event->data,
+            rawData: $payload,
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function requireObjectData(PaystackWebhookEventData $event): array
+    {
+        $data = $event->data;
+
+        if (array_is_list($data)) {
+            throw new MalformedWebhookPayloadException(sprintf(
+                'The Paystack webhook payload for [%s] is missing an object data payload.',
+                $event->event,
+            ));
+        }
+
+        /** @var array<string, mixed> $data */
+        return $data;
     }
 
     /**
