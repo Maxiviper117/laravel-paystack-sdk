@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Orchestra\Testbench;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;

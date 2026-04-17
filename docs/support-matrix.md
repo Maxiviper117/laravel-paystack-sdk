@@ -68,8 +68,8 @@ This page summarizes the currently implemented Paystack surface in the package.
 - Laravel service provider and facade/manager access
 - typed input DTOs
 - action-specific response DTOs
-- optional package-owned billing tables with a Billable Eloquent trait for stored Paystack customers and subscriptions
-- Paystack webhook endpoints with signature validation, source IP whitelisting, stored webhook calls, queued processing, and typed payload resolution for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events
+- optional package-owned billing tables with a Billable Eloquent trait for stored Paystack customers, plans, subscriptions, transactions, refunds, and disputes
+- Paystack webhook endpoints with signature validation, source IP whitelisting, stored webhook calls, queued processing, typed payload resolution for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events, and optional reconciliation into the mirrored billing tables
 - implemented and fully covered typed support for every webhook event sample currently included in `reference/webhook_events`
 
 ## Not yet implemented

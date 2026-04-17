@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Maxiviper117\Paystack\Exceptions\PaystackConfigurationException;
 use Maxiviper117\Paystack\Integrations\PaystackConnector;
 

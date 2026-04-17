@@ -1,27 +1,23 @@
 # Manager and Facade Usage
 
-The package is designed around injected action classes and typed DTOs. `PaystackManager` and the `Paystack` facade expose the same DTO-first operations for apps that prefer a convenience layer.
+The package is designed around a Laravel-first convenience layer and typed DTOs. `Paystack` and `PaystackManager` expose the same DTO-first operations for application code. Injectable action classes remain available for custom integrations.
 
-## Recommended default: injected actions
+## Recommended default: facade
 
-Use injected actions when you are writing application services, listeners, jobs, or controllers that you want to keep explicit and testable.
+Use the facade when you want concise Laravel-style integration in controllers, services, listeners, or jobs.
 
 ```php
 namespace App\Services\Billing;
 
-use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+use Maxiviper117\Paystack\Facades\Paystack;
 
 class ReconcilePayment
 {
-    public function __construct(
-        private VerifyTransactionAction $verifyTransaction,
-    ) {}
-
     public function handle(string $reference): string
     {
-        return ($this->verifyTransaction)(
-            new VerifyTransactionInputData(reference: $reference)
+        return Paystack::verifyTransaction(
+            VerifyTransactionInputData::from(['reference' => $reference])
         )->transaction->status;
     }
 }
@@ -46,30 +42,42 @@ class FindBillableCustomers
     public function handle(): array
     {
         return $this->paystack
-            ->listCustomers(new ListCustomersInputData(perPage: 25))
+            ->listCustomers(ListCustomersInputData::from(['perPage' => 25]))
             ->customers;
     }
 }
 ```
 
-## Facade example
+## Action example
 
-Use the facade when concise Laravel-style integration matters more than explicit dependency injection.
+Use an action directly when you need custom composition or a lower-level integration point.
 
 ```php
-use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
-use Maxiviper117\Paystack\Facades\Paystack;
+namespace App\Services\Billing;
 
-$plans = Paystack::listPlans(
-    new ListPlansInputData(perPage: 10)
-)->plans;
+use Maxiviper117\Paystack\Actions\Plan\ListPlansAction;
+use Maxiviper117\Paystack\Data\Input\Plan\ListPlansInputData;
+
+class ListBillingPlans
+{
+    public function __construct(
+        private ListPlansAction $listPlans,
+    ) {}
+
+    public function handle(): array
+    {
+        return ($this->listPlans)(
+            ListPlansInputData::from(['perPage' => 10])
+        )->plans;
+    }
+}
 ```
 
 ## Choosing between them
 
-- prefer injected actions in application services, listeners, and jobs
+- prefer the facade in controllers and short application flows
 - use `PaystackManager` when one service needs several package operations
-- use the facade for short, convenient call sites
+- use actions only when you need explicit custom composition
 - keep all usage DTO-first regardless of which entrypoint you choose
 
 ## Related pages

@@ -25,11 +25,11 @@ use Maxiviper117\Paystack\Data\Input\Subscription\GenerateSubscriptionUpdateLink
 class StartSubscriptionBilling
 {
     public function __construct(
-    private SyncPaystackCustomer $syncPaystackCustomer,
-    private CreatePlanAction $createPlan,
-    private CreateSubscriptionAction $createSubscription,
-    private GenerateSubscriptionUpdateLinkAction $generateSubscriptionUpdateLink,
-) {}
+        private SyncPaystackCustomer $syncPaystackCustomer,
+        private CreatePlanAction $createPlan,
+        private CreateSubscriptionAction $createSubscription,
+        private GenerateSubscriptionUpdateLinkAction $generateSubscriptionUpdateLink,
+    ) {}
 
     public function handle(Account $account): string
     {
@@ -37,25 +37,25 @@ class StartSubscriptionBilling
             ?? $this->syncPaystackCustomer->create($account);
 
         $planResponse = ($this->createPlan)(
-            new CreatePlanInputData(
-                name: 'Starter Monthly',
-                amount: 49.99,
-                interval: 'monthly',
-                description: 'Starter plan billed monthly',
-            )
+            CreatePlanInputData::from([
+                'name' => 'Starter Monthly',
+                'amount' => 49.99,
+                'interval' => 'monthly',
+                'description' => 'Starter plan billed monthly',
+            ])
         );
 
         $subscriptionResponse = ($this->createSubscription)(
-            new CreateSubscriptionInputData(
-                customer: $customerCode,
-                plan: $planResponse->plan->planCode,
-            )
+            CreateSubscriptionInputData::from([
+                'customer' => $customerCode,
+                'plan' => $planResponse->plan->planCode,
+            ])
         );
 
         $updateLink = ($this->generateSubscriptionUpdateLink)(
-            new GenerateSubscriptionUpdateLinkInputData(
-                code: $subscriptionResponse->subscription->subscriptionCode,
-            )
+            GenerateSubscriptionUpdateLinkInputData::from([
+                'code' => $subscriptionResponse->subscription->subscriptionCode,
+            ])
         );
 
         return $updateLink->link;
@@ -68,14 +68,24 @@ class StartSubscriptionBilling
 If your plans are long-lived and already exist in Paystack, fetch them by ID or plan code before creating the subscription:
 
 ```php
+namespace App\Services\Billing;
+
 use Maxiviper117\Paystack\Actions\Plan\FetchPlanAction;
 use Maxiviper117\Paystack\Data\Input\Plan\FetchPlanInputData;
 
-$fetchPlan = app(FetchPlanAction::class);
+class FetchPaystackPlan
+{
+    public function __construct(
+        private FetchPlanAction $fetchPlan,
+    ) {}
 
-$plan = $fetchPlan(
-    new FetchPlanInputData(idOrCode: 'PLN_123')
-)->plan;
+    public function handle(): void
+    {
+        $plan = ($this->fetchPlan)(
+            FetchPlanInputData::from(['idOrCode' => 'PLN_123'])
+        )->plan;
+    }
+}
 ```
 
 ## Facade alternative
@@ -86,18 +96,18 @@ use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $plan = Paystack::createPlan(
-    new CreatePlanInputData(
-        name: 'Starter Monthly',
-        amount: 49.99,
-        interval: 'monthly',
-    )
+    CreatePlanInputData::from([
+        'name' => 'Starter Monthly',
+        'amount' => 49.99,
+        'interval' => 'monthly',
+    ])
 )->plan;
 
 $subscription = Paystack::createSubscription(
-    new CreateSubscriptionInputData(
-        customer: $customerCode,
-        plan: $plan->planCode,
-    )
+    CreateSubscriptionInputData::from([
+        'customer' => $customerCode,
+        'plan' => $plan->planCode,
+    ])
 )->subscription;
 ```
 

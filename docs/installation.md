@@ -12,7 +12,7 @@ If you want to override the default package configuration, publish the config fi
 php artisan vendor:publish --tag="paystack-config"
 ```
 
-If you want to opt into the package-owned billing tables for the Billable layer, publish the package migrations too:
+If you want to opt into the package-owned billing tables for the Billable layer and the local Paystack mirror, publish the package migrations too:
 
 ```bash
 php artisan vendor:publish --tag="paystack-migrations"

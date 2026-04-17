@@ -10,25 +10,27 @@ Use this flow after Paystack redirects a customer back to your app or when you n
 4. Your app checks the returned transaction status and reference.
 5. Your app updates the local payment record idempotently.
 
-## Preferred service-based example
+## Preferred Laravel example
 
 ```php
 namespace App\Services\Billing;
 
 use App\Models\Payment;
-use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\PaystackManager;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 
 class ConfirmPaystackPayment
 {
     public function __construct(
-        private VerifyTransactionAction $verifyTransaction,
+        private PaystackManager $paystack,
     ) {}
 
     public function handle(Payment $payment): void
     {
-        $response = ($this->verifyTransaction)(
-            new VerifyTransactionInputData(reference: $payment->payment_reference)
+        $response = $this->paystack->verifyTransaction(
+            VerifyTransactionInputData::from([
+                'reference' => $payment->payment_reference,
+            ])
         );
 
         if ($response->transaction->reference !== $payment->payment_reference) {
@@ -57,13 +59,14 @@ Callback controller entrypoint:
 ```php
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use App\Models\Payment;
 use App\Services\Billing\ConfirmPaystackPayment;
 use Illuminate\Http\Request;
 
 class PaystackCallbackController
 {
-    public function __invoke(Request $request, ConfirmPaystackPayment $confirmPaystackPayment)
+    public function __invoke(Request $request, ConfirmPaystackPayment $confirmPaystackPayment): RedirectResponse
     {
         $reference = (string) $request->query('reference', '');
 
@@ -85,11 +88,47 @@ use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $response = Paystack::verifyTransaction(
-    new VerifyTransactionInputData(reference: $payment->payment_reference)
+    VerifyTransactionInputData::from([
+        'reference' => $payment->payment_reference,
+    ])
 );
 
 if ($response->transaction->status === 'success') {
     // Mark your local payment as paid.
+}
+```
+
+## Action alternative
+
+```php
+namespace App\Services\Billing;
+
+use App\Models\Payment;
+use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+
+class ConfirmPaystackPaymentWithAction
+{
+    public function __construct(
+        private VerifyTransactionAction $verifyTransaction,
+    ) {}
+
+    public function handle(Payment $payment): void
+    {
+        $response = ($this->verifyTransaction)(
+            VerifyTransactionInputData::from([
+                'reference' => $payment->payment_reference,
+            ])
+        );
+
+        if ($response->transaction->status !== 'success') {
+            return;
+        }
+
+        $payment->status = 'paid';
+        $payment->paid_at = $response->transaction->paidAt;
+        $payment->save();
+    }
 }
 ```
 

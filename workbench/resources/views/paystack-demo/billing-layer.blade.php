@@ -1,5 +1,5 @@
 <x-paystack-demo.layout title="Billing Layer Demo" heading="Billing layer"
-    description="Test the optional Billable trait and the local customer/subscription tables." :pages="$pages"
+    description="Test the optional billing lifecycle and the customer/subscription orchestration flow." :pages="$pages"
     :result="$result ?? null" :result-label="$resultLabel ?? null" current-path="/paystack/demo/billing-layer">
     <section class="border border-slate-200 bg-white p-5">
         <div class="grid gap-4 md:grid-cols-2">

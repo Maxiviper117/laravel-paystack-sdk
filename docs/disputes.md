@@ -5,18 +5,30 @@ Disputes currently support list, fetch, transaction-scoped lookup, update, add e
 ## List disputes
 
 ```php
+namespace App\Services\Billing;
+
 use Maxiviper117\Paystack\Actions\Dispute\ListDisputesAction;
 use Maxiviper117\Paystack\Data\Input\Dispute\ListDisputesInputData;
 
-$response = app(ListDisputesAction::class)(
-    new ListDisputesInputData(
-        from: '2026-01-01',
-        to: '2026-12-31',
-        perPage: 25,
-        page: 1,
-        status: 'pending',
-    )
-);
+class ListPaystackDisputes
+{
+    public function __construct(
+        private ListDisputesAction $listDisputes,
+    ) {}
+
+    public function handle(): void
+    {
+        $response = ($this->listDisputes)(
+            ListDisputesInputData::from([
+                'from' => '2026-01-01',
+                'to' => '2026-12-31',
+                'perPage' => 25,
+                'page' => 1,
+                'status' => 'pending',
+            ])
+        );
+    }
+}
 ```
 
 `ListDisputesInputData` supports the documented list filters:
@@ -37,13 +49,26 @@ The same `DisputeStatus` enum is used on dispute response DTOs so fetched and re
 ## Fetch and transaction disputes
 
 ```php
+namespace App\Services\Billing;
+
 use Maxiviper117\Paystack\Actions\Dispute\FetchDisputeAction;
 use Maxiviper117\Paystack\Actions\Dispute\ListTransactionDisputesAction;
 use Maxiviper117\Paystack\Data\Input\Dispute\FetchDisputeInputData;
 use Maxiviper117\Paystack\Data\Input\Dispute\ListTransactionDisputesInputData;
 
-$dispute = app(FetchDisputeAction::class)(new FetchDisputeInputData(2867));
-$transactionDispute = app(ListTransactionDisputesAction::class)(new ListTransactionDisputesInputData(5991760));
+class FetchPaystackDisputes
+{
+    public function __construct(
+        private FetchDisputeAction $fetchDispute,
+        private ListTransactionDisputesAction $listTransactionDisputes,
+    ) {}
+
+    public function handle(): void
+    {
+        $dispute = ($this->fetchDispute)(FetchDisputeInputData::from(['id' => 2867]));
+        $transactionDispute = ($this->listTransactionDisputes)(ListTransactionDisputesInputData::from(['id' => 5991760]));
+    }
+}
 ```
 
 ## Update, evidence, upload, and resolve

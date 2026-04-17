@@ -1,6 +1,6 @@
 {
     "name": "maxiviper117/laravel-paystack-sdk",
-    "description": "Laravel Paystack SDK built with Saloon and action classes.",
+    "description": "Laravel Paystack SDK built with Saloon and a Laravel-first convenience layer.",
     "keywords": [
         "maxiviper117",
         "laravel",

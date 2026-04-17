@@ -9,10 +9,10 @@ use Maxiviper117\Paystack\Data\Input\Subscription\CreateSubscriptionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $response = Paystack::createSubscription(
-    new CreateSubscriptionInputData(
-        customer: 'CUS_123',
-        plan: 'PLN_123',
-    )
+    CreateSubscriptionInputData::from([
+        'customer' => 'CUS_123',
+        'plan' => 'PLN_123',
+    ])
 );
 ```
 

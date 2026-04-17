@@ -2,6 +2,8 @@
 
 Webhook support is local package logic built on top of `spatie/laravel-webhook-client`. It does not go through the outbound Saloon connector layer.
 
+If you install the optional billing mirror migrations, the package also reconciles the mirrored billing tables after validated webhook delivery.
+
 Looking for an end-to-end Laravel integration flow? Start with [Webhook Processing](/examples/webhooks).
 
 ## Typical flow
@@ -20,6 +22,7 @@ Looking for an end-to-end Laravel integration flow? Start with [Webhook Processi
 - queued processing through a package-provided webhook job
 - dispatch of a generic parsed Paystack webhook event object
 - typed webhook payload mapping for supported charge, dispute, customer identification, dedicated account assignment, invoice, payment request, refund, subscription, and transfer events
+- optional mirrored billing-table reconciliation for supported customer, plan, subscription, transaction, refund, and dispute events
 
 ## Register the webhook endpoint
 

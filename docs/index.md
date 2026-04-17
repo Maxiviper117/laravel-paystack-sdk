@@ -4,7 +4,7 @@ title: Laravel Paystack SDK
 
 # Laravel Paystack SDK
 
-Laravel Paystack SDK is a Laravel-native package for working with Paystack through Saloon-backed requests and Actions-first services.
+Laravel Paystack SDK is a Laravel-native package for working with Paystack through Saloon-backed requests and a Laravel-first convenience layer.
 
 The package currently supports:
 
@@ -12,18 +12,18 @@ The package currently supports:
 - customers
 - disputes
 - refunds
-- an optional local billing layer for stored Paystack customers and subscriptions
+- an optional local billing layer for stored Paystack customers, plans, subscriptions, transactions, refunds, and disputes
 - plans
 - subscriptions
 - Paystack webhook endpoints with persisted calls and queued processing
 
 ## Why this package
 
-- Actions-first usage for application service classes and controllers
+- Facade-first usage for application service classes and controllers
 - DTO-first inputs and action-specific response DTOs
 - Saloon-backed HTTP integration with package-managed retries, timeouts, and API error handling
-- Laravel-native service provider, manager, and facade access for outbound Paystack actions
-- optional Billable Eloquent persistence when your app wants package-owned billing tables
+- Laravel-native service provider, manager, and facade access for outbound Paystack operations
+- optional Billable Eloquent persistence and local Paystack billing mirroring when your app wants package-owned billing tables
 - Endpoint-first webhook handling powered by `spatie/laravel-webhook-client`
 
 ## Start here
@@ -55,13 +55,13 @@ The new examples area is a cookbook for application integrators. Start there if 
 
 ## Package model
 
-The public API is centered on injectable action classes and typed DTOs:
+The public API is centered on the Laravel convenience layer and typed DTOs:
 
 ```text
-Input DTO -> Action -> Action-specific response DTO
+Input DTO -> Facade / Manager -> Action-specific response DTO
 ```
 
-For convenience-oriented Laravel usage, the package also exposes `PaystackManager` and the `Paystack` facade with the same DTO-first style.
+For custom or advanced usage, the package also exposes injectable action classes with the same DTO-first style.
 
 Because response DTOs extend `spatie/laravel-data`, you can also return them directly from Laravel routes and controllers when you want a built-in JSON response.
 

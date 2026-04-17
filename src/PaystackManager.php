@@ -3,6 +3,7 @@
 namespace Maxiviper117\Paystack;
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Model;
 use Maxiviper117\Paystack\Actions\Customer\CreateCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\FetchCustomerAction;
 use Maxiviper117\Paystack\Actions\Customer\ListCustomersAction;
@@ -36,6 +37,8 @@ use Maxiviper117\Paystack\Actions\Transaction\FetchTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Actions\Transaction\ListTransactionsAction;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Billing\BillableCustomerLifecycleService;
+use Maxiviper117\Paystack\Billing\BillableSubscriptionLifecycleService;
 use Maxiviper117\Paystack\Data\Input\Customer\CreateCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\FetchCustomerInputData;
 use Maxiviper117\Paystack\Data\Input\Customer\ListCustomersInputData;
@@ -101,6 +104,7 @@ use Maxiviper117\Paystack\Data\Output\Transaction\FetchTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\InitializeTransactionResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\ListTransactionsResponseData;
 use Maxiviper117\Paystack\Data\Output\Transaction\VerifyTransactionResponseData;
+use Maxiviper117\Paystack\Models\PaystackCustomer;
 
 class PaystackManager
 {
@@ -271,5 +275,56 @@ class PaystackManager
     public function sendSubscriptionUpdateLink(SendSubscriptionUpdateLinkInputData $input): SendSubscriptionUpdateLinkResponseData
     {
         return $this->container->make(SendSubscriptionUpdateLinkAction::class)->execute($input);
+    }
+
+    public function createBillableCustomer(Model $billable, ?CreateCustomerInputData $input = null): CreateCustomerResponseData
+    {
+        return $this->container->make(BillableCustomerLifecycleService::class)->create($billable, $input);
+    }
+
+    public function updateBillableCustomer(Model $billable, ?UpdateCustomerInputData $input = null): UpdateCustomerResponseData
+    {
+        return $this->container->make(BillableCustomerLifecycleService::class)->update($billable, $input);
+    }
+
+    public function syncBillableCustomer(Model $billable): PaystackCustomer
+    {
+        return $this->container->make(BillableCustomerLifecycleService::class)->sync($billable);
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     */
+    public function createBillableSubscription(
+        Model $billable,
+        string $planCode,
+        string $name = 'default',
+        ?string $authorization = null,
+        ?string $startDate = null,
+        array $extra = [],
+    ): CreateSubscriptionResponseData {
+        return $this->container->make(BillableSubscriptionLifecycleService::class)->create(
+            billable: $billable,
+            planCode: $planCode,
+            name: $name,
+            authorization: $authorization,
+            startDate: $startDate,
+            extra: $extra,
+        );
+    }
+
+    public function fetchBillableSubscription(Model $billable, string|int $idOrCode, string $name = 'default'): FetchSubscriptionResponseData
+    {
+        return $this->container->make(BillableSubscriptionLifecycleService::class)->fetch($billable, $idOrCode, $name);
+    }
+
+    public function enableBillableSubscription(Model $billable, string $name = 'default'): EnableSubscriptionResponseData
+    {
+        return $this->container->make(BillableSubscriptionLifecycleService::class)->enable($billable, $name);
+    }
+
+    public function disableBillableSubscription(Model $billable, string $name = 'default'): DisableSubscriptionResponseData
+    {
+        return $this->container->make(BillableSubscriptionLifecycleService::class)->disable($billable, $name);
     }
 }

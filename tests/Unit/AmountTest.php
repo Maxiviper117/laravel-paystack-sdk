@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Maxiviper117\Paystack\Support\Amount;
 
 it('converts integer amounts to subunits', function () {

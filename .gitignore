@@ -35,3 +35,4 @@ testbench.yaml
 /.vitepress/dist
 /docs/.vitepress/cache
 /docs/.vitepress/dist
+graphify-out/*

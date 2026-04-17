@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maxiviper117\Paystack\Support\Webhooks\Mappers;
 
 use Maxiviper117\Paystack\Data\Customer\CustomerData;

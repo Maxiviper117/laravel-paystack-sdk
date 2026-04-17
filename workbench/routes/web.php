@@ -24,6 +24,7 @@ Route::match(['GET', 'POST'], '/paystack/demo/plans', [PaystackDemoController::c
 Route::match(['GET', 'POST'], '/paystack/demo/subscriptions', [PaystackDemoController::class, 'subscriptions']);
 Route::get('/paystack/demo/webhooks', [PaystackDemoController::class, 'webhooks']);
 Route::match(['GET', 'POST'], '/paystack/demo/billing-layer', [PaystackDemoController::class, 'billingLayer']);
+Route::match(['GET', 'POST'], '/paystack/demo/billing-sync', [PaystackDemoController::class, 'billingSync']);
 
 Route::get('/paystack/test/start', [PaystackTestController::class, 'start']);
 
@@ -64,7 +65,7 @@ Route::match(['GET', 'POST'], '/paystack/test/subscription', function (Request $
 Route::match(['GET', 'POST'], '/paystack/test/billing-layer', function (Request $request) {
     if ($request->isMethod('get')) {
         return response()->json([
-            'message' => 'POST an email and plan to exercise the optional Billable persistence layer. Publish the package billing migrations first.',
+            'message' => 'POST an email and plan to exercise the optional billing lifecycle layer. Publish the package billing migrations first to mirror customers, plans, subscriptions, transactions, refunds, and disputes locally.',
         ]);
     }
 
@@ -76,7 +77,8 @@ Route::match(['GET', 'POST'], '/paystack/test/billing-layer', function (Request 
         ],
     );
 
-    $subscription = $user->createPaystackSubscription(
+    $subscription = Paystack::createBillableSubscription(
+        billable: $user,
         planCode: (string) $request->input('plan', ''),
         name: (string) $request->input('subscription_name', 'default'),
         authorization: $request->filled('authorization') ? (string) $request->input('authorization') : null,

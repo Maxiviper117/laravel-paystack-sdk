@@ -41,6 +41,8 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
+            "@php artisan vendor:publish --tag=webhook-client-migrations --force",
+            "@php artisan vendor:publish --tag=paystack-migrations --force",
             "@php artisan migrate --force",
             "pnpm install",
             "pnpm run build"

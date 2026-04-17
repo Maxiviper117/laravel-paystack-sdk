@@ -5,27 +5,37 @@ Transactions currently support initialize, verify, fetch, and list operations.
 ## Initialize a transaction
 
 ```php
+namespace App\Services\Billing;
+
+use App\Models\Order;
 use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 
-$action = app(InitializeTransactionAction::class);
+class StartCheckout
+{
+    public function __construct(
+        private InitializeTransactionAction $initializeTransaction,
+    ) {}
 
-$response = $action(
-    new InitializeTransactionInputData(
-        email: 'customer@example.com',
-        amount: 15.50,
-        channels: ['card', 'bank_transfer'],
-        callbackUrl: 'https://example.com/payments/callback',
-        reference: 'order_123',
-        plan: 'PLN_123',
-        invoiceLimit: 3,
-        currency: 'NGN',
-        splitCode: 'SPL_123',
-        subaccount: 'ACCT_123',
-        transactionCharge: 250,
-        bearer: 'subaccount',
-    )
-);
+    public function handle(Order $order): string
+    {
+        $response = ($this->initializeTransaction)(
+            InitializeTransactionInputData::from([
+                'email' => $order->customer_email,
+                'amount' => $order->total_amount,
+                'channels' => ['card', 'bank_transfer'],
+                'callbackUrl' => route('billing.paystack.callback'),
+                'reference' => 'order_'.$order->getKey(),
+                'currency' => 'NGN',
+                'metadata' => [
+                    'order_id' => $order->getKey(),
+                ],
+            ])
+        );
+
+        return $response->authorizationUrl;
+    }
+}
 ```
 
 `InitializeTransactionInputData` covers the documented initialize body parameters:
@@ -49,14 +59,35 @@ Additional request fields can still be passed through `extra` when needed.
 ## Verify a transaction
 
 ```php
+namespace App\Services\Billing;
+
+use App\Models\Payment;
 use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
 
-$action = app(VerifyTransactionAction::class);
+class ConfirmPaystackPayment
+{
+    public function __construct(
+        private VerifyTransactionAction $verifyTransaction,
+    ) {}
 
-$response = $action(
-    new VerifyTransactionInputData(reference: 'paystack-reference')
-);
+    public function handle(Payment $payment): void
+    {
+        $response = ($this->verifyTransaction)(
+            VerifyTransactionInputData::from([
+                'reference' => $payment->payment_reference,
+            ])
+        );
+
+        if ($response->transaction->status !== 'success') {
+            return;
+        }
+
+        $payment->status = 'paid';
+        $payment->paid_at = $response->transaction->paidAt;
+        $payment->save();
+    }
+}
 ```
 
 In PHP, timestamp fields on response DTOs are typed. For example, `$response->transaction->paidAt` is a `CarbonImmutable|null`.
@@ -65,17 +96,17 @@ If you are in a controller or route that should return JSON, you can return the 
 
 ```php
 use Illuminate\Http\Request;
-use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
 
 Route::get('/billing/paystack/callback', function (
     Request $request,
     VerifyTransactionAction $verifyTransaction,
 ) {
     return $verifyTransaction(
-        new VerifyTransactionInputData(
-            reference: (string) $request->query('reference', '')
-        )
+        VerifyTransactionInputData::from([
+            'reference' => (string) $request->query('reference', ''),
+        ])
     );
 });
 ```
@@ -116,13 +147,59 @@ use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
 use Maxiviper117\Paystack\Facades\Paystack;
 
 $response = Paystack::initializeTransaction(
-    new InitializeTransactionInputData(
-        email: 'customer@example.com',
-        amount: 15.50,
-        callbackUrl: 'https://example.com/payments/callback',
-    )
+    InitializeTransactionInputData::from([
+        'email' => 'customer@example.com',
+        'amount' => 15.50,
+        'callbackUrl' => 'https://example.com/payments/callback',
+    ])
 );
 ```
+
+## Action alternative
+
+```php
+namespace App\Services\Billing;
+
+use App\Models\Order;
+use Maxiviper117\Paystack\Actions\Transaction\InitializeTransactionAction;
+use Maxiviper117\Paystack\Actions\Transaction\VerifyTransactionAction;
+use Maxiviper117\Paystack\Data\Input\Transaction\InitializeTransactionInputData;
+use Maxiviper117\Paystack\Data\Input\Transaction\VerifyTransactionInputData;
+
+class StartCheckoutWithActions
+{
+    public function __construct(
+        private InitializeTransactionAction $initializeTransaction,
+        private VerifyTransactionAction $verifyTransaction,
+    ) {}
+
+    public function initialize(Order $order): string
+    {
+        $response = ($this->initializeTransaction)(
+            InitializeTransactionInputData::from([
+                'email' => $order->customer_email,
+                'amount' => $order->total_amount,
+                'callbackUrl' => route('billing.paystack.callback'),
+            ])
+        );
+
+        return $response->authorizationUrl;
+    }
+
+    public function verify(string $reference): string
+    {
+        return ($this->verifyTransaction)(
+            VerifyTransactionInputData::from([
+                'reference' => $reference,
+            ])
+        )->transaction->status;
+    }
+}
+```
+
+## Why no static `::make()` / `::run()`?
+
+This package keeps actions as injectable Laravel services. You call them through dependency injection and `__invoke`, and you can avoid constructor `new` by using DTO `::from([...])`.
 
 ## Need a workflow example?
 
